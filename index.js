@@ -1,28 +1,8 @@
-// 5.1 Đăng nhập
-// Tự cài đặt
-// Hoặc sử dụng passportjs (http://www.passportjs.org)
-// Khuyến khích cài đặt thêm chức năng đăng nhập qua Google, Facebook, Twitter, Github, …
-
-
-// 1.6 Đăng ký
-// Người dùng cần đăng ký tài khoản để có thể đặt giá (bid)
-// reCaptcha
-// Mật khẩu được mã hoá bằng thuật toán bcrypt hoặc scrypt
-// Thông tin
-// Họ tên
-// Địa chỉ
-// Email
-// Email không được trùng
-// Có xác nhận OTP
 // import supabase from "./supabaseClient.js";
 // const session = require("express-session");
 // const express = require('express');
 // const passport = require('passport');
 // const path = require('path');
-
-
-
-
 // require('dotenv').config();
 // require('./auth');
 
@@ -35,12 +15,90 @@ import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import supabase from "./supabaseClient.js";
 import "./auth.js";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET;
+const adminGmail = process.env.EMAIL_USER;
+const adminGmailPass = process.env.EMAIL_PASS;
 
+// OTP function
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth:{
+    user: adminGmail,
+    pass: adminGmailPass,
+  }
+});
+const generateOTP = () =>{
+  return crypto.randomInt(100000, 999999).toString();
+};
+
+const sendOTP = async(email) => {
+  const otp = generateOTP();
+  const expiredAt = new Date(Date.now() + 2 * 60 * 1000);
+  // insert otp into db
+  const { error } = await supabase
+    .from('otp_requests')
+    .insert([{ email, otp, expired_at: expiredAt}]);
+  if(error){
+    console.log('Error insert otp db', error);
+    return;
+  }
+
+  const mailOptions = {
+    from: adminGmail,
+    to: email,
+    subject: 'Your OTP code',
+    text: `Your OTP code is ${otp}`,
+  };
+  transporter.sendMail(mailOptions, (error, info) =>{
+    if(error){
+      console.log('Error send email', error);
+      return;
+    }
+    console.log('OTP sent');
+  });
+};
+
+const verifyOTP = async (email, otp) => {
+  const { data, error } = await supabase
+    .from('otp_requests')
+    .select('*')
+    .eq('email', email)
+    .eq('otp', otp)
+    .gt('expired_at', new Date().toISOString());
+
+  if(!data || data.length === 0){
+    console.log('OTP invalid or expired.');
+    return false;
+  }
+
+  if(error){
+    console.error('Error verifying OTP:', error.message);
+    return false;
+  }
+  return true;
+}
+
+// Hàm xóa OTP hết hạn
+const cleanExpiredOTPs = async () => {
+  const { data, error } = await supabase
+      .from('otp_requests')
+      .delete()
+      .lt('expires_at', new Date().toISOString());
+
+  if(error) 
+      console.error('Error deleting expired OTPs:', error);
+  else 
+      console.log('Expired OTPs deleted:', data);
+  
+};
+
+// login
 function isLoggedIn(req, res, next) {
     console.log("👉 isLoggedIn check:", {
         isAuthenticated: req.isAuthenticated(),
@@ -94,22 +152,60 @@ app.post("/register", async (req, res) => {
     if(!verifyData.success)
       return res.status(403).json({ error: "reCAPTCHA verification failed" });
 
-    const hash = await bcrypt.hash(password, 10);
-    const { data, error } = await supabase
-      .from("users")
-      .insert([{ full_name, email, address, password_hash: hash }])
-      .select()
-      .single();
+    const otp = generateOTP();
+    // console.log(adminGmail);
+    // console.log(adminGmailPass);
+    // console.log(email);
+    await sendOTP(email, otp); // Gửi OTP đến email
 
-    if(error){
-      console.error(error);
-      return res.status(400).json({ error: error.message });
-    }
-    res.json({ message: "Đăng ký thành công!", user: data });
+    // Lưu otp
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // Hết hạn sau 5 phút
+    await supabase
+        .from('otp_requests')
+        .insert([{ email, otp, expires_at: expiresAt }]);
+    res.json({ message: "OTP đã được gửi đến email của bạn. Vui lòng nhập mã OTP để hoàn tất đăng ký." });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
+});
+
+app.post("/verify-otp", async (req, res) => {
+    const { email, otp, password, full_name, address } = req.body;
+    console.log(email);
+    console.log(otp);
+    try {
+        const isValid = await verifyOTP(email, otp); 
+
+        if (!isValid) {
+            return res.status(400).json({ error: "Mã OTP không hợp lệ hoặc đã hết hạn." });
+        }
+
+        const hash = await bcrypt.hash(password, 10);
+        // add into db
+        const { data, error } = await supabase
+            .from("users")
+            .insert([{ full_name, email, address, password_hash: hash }])
+            .select()
+            .single();
+
+        if (error) {
+            console.error(error);
+            return res.status(400).json({ error: error.message });
+        }
+
+        // Xóa OTP đã sử dụng
+        await supabase
+            .from('otp_requests')
+            .delete()
+            .eq('email', email)
+            .eq('otp', otp);
+
+        res.json({ message: "Đăng ký thành công!", user: data });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
 app.post("/login",

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+<body>
+    <div class="container full-height">
+        <div class="header-login-regis p-3">
+            <img src="images/logo.png" alt="logo" style="object-fit: contain; max-height: 100px;">
+        </div>
+        <div class="content d-flex align-items-center justify-content-center h-100">
+            <div class="signInBox w-50 text-center">
+                <h2 class="pb-4">Đăng nhập tài khoản</h2>
+                <div class="d-flex justify-content-between align-items-center rounded mb-2 p-1"
+                    style="background-color: #F7F7F7;">
+                    <span>Người mới?</span>
+                    <a class="border border-dark roundA30" href="/register">Tạo tài khoản</a> 
+                </div>
+                <form action="/login" method="POST">
+                    <div class="input-field col s12">
+                        <input id="email" type="email" name="email" required>
+                        <label for="email">Email</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="password" type="password" name="password" required>
+                        <label for="password">Mật khẩu</label>
+                    </div>
+                    <button class="btn btn-primary w-100" style="border-radius: 25px;">Đăng nhập</button>
+                </form>
+                <div class="separator">hoặc</div>
+                <a class="border border-dark roundA30 font-weight-bold" href="/auth/google"><img src="https://img.icons8.com/color/100/000000/google-logo.png" alt="Google">Tiếp tục với Google</a>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+
+</html>

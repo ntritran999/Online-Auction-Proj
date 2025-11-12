@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <style>
+        @media screen and (max-width: 700px) {
+            .figure {
+                display: none !important; 
+            }
+            .registerBox {
+                position: relative;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container full-height">
+        <div class="header-login-regis d-flex justify-content-between align-items-center p-3">
+            <div class="header-logo">
+                <img src="images/logo.png" alt="logo" style="object-fit: contain; max-height: 100px;">
+            </div>
+            <div class="header-link-signin">
+                <span>Đã có tài khoản
+                    <a class="pl-2" href="/login" style="color: black; text-decoration: underline;">Đăng nhập</a>
+                </span>
+            </div>
+        </div>
+        <div class="content d-flex align-items-center justify-content-between h-100">
+            <figure class="figure">
+                <img src="images/register.png" class="figure-img img-fluid rounded" alt="register image">
+            </figure>
+            <div class="registerBox text-center w-50">
+                <h2 class="pb-4">Tạo tài khoản</h2>
+                <form id="registerForm">
+                    <div class="input-field col s12">
+                        <input id="full_name" type="text" name="full_name" required>
+                        <label for="full_name">Họ và tên</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="email" type="email" name="email" required>
+                        <label for="email">Email</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="address" type="text" name="address" required>
+                        <label for="address">Địa chỉ</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="password" type="password" name="password" required>
+                        <label for="password">Mật khẩu</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="passwordConfirm" type="password" name="passwordConfirm" required>
+                        <label for="passwordConfirm">Xác nhận lại mật khẩu</label>
+                    </div>
+                    <div class="g-recaptcha p-3" data-sitekey="6LfyygYsAAAAAHHUL3bRpqX3z2C37jijvnq75Z_F"></div>
+                    <button class="btn btn-primary w-100" style="border-radius: 25px;">Đăng ký</button>
+                </form>
+                <form id="otpForm" style="display:none;">
+                    <div class="input-field col s12">
+                    <input id="otp" type="text" name="otp" required>
+                    <label for="otp">Nhập mã OTP</label>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100" style="border-radius: 25px;">Xác nhận OTP</button>
+                </form>
+                <div id="message" class="p-3 text-center"></div>
+                <div class="separator">hoặc</div>
+                <a class="border border-dark roundA30 font-weight-bold" href="/auth/google"><img
+                        src="https://img.icons8.com/color/100/000000/google-logo.png" alt="Google">Tiếp tục với
+                    Google</a>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script>
+        const registerForm = document.getElementById("registerForm");
+        const otpForm = document.getElementById("otpForm");
+        const messageDiv = document.getElementById("message");
+
+        let userData = {}; 
+        // Gửi OTP
+        registerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(registerForm);
+            const data = Object.fromEntries(formData.entries());
+            const token = grecaptcha.getResponse(); 
+
+            if(!token){
+                alert("Vui lòng xác nhận reCAPTCHA");
+                return;
+            }
+
+            try {
+            const res = await fetch("/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...data, "g-recaptcha-response": token }),
+            });
+
+            const result = await res.json();
+            if (res.ok) {
+                messageDiv.innerText = result.message;
+                userData = data; 
+                registerForm.style.display = "none";
+                otpForm.style.display = "block";
+            } else {
+                messageDiv.innerText = result.error || "Có lỗi xảy ra.";
+            }
+            } catch (err) {
+                console.error(err);
+                messageDiv.innerText = "Server error.";
+            }
+        });
+
+        // Xác thực OTP
+        otpForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const otp = document.getElementById("otp").value.trim();
+
+            try {
+                const res = await fetch("/verify-otp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                    ...userData,
+                    otp,
+                    }),
+                });
+
+                const result = await res.json();
+                if(res.ok){
+                    messageDiv.innerText = result.message;
+                    otpForm.style.display = "none";
+                }else
+                    messageDiv.innerText = result.error || "OTP không hợp lệ.";
+            }catch(err){
+                console.error(err);
+                messageDiv.innerText = "Server error.";
+            }
+        });
+    </script>
+</body>
+
+</html>

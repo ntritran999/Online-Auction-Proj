@@ -1,4 +1,4 @@
-.carousel-item img {
+#introSlide .carousel-item img {
     height: 500px;
     object-fit: cover;
     object-position: center 60%;

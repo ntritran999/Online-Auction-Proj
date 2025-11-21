@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import express from "express";
 import session from "express-session";
 import passport from "passport";
@@ -6,14 +5,11 @@ import path, { dirname } from "path";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { engine } from 'express-handlebars';
-import supabase from "./supabaseClient.js";
 import "./auth.js";
-import "./otp.js";
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET;
 const PORT = 5000;
 
 // login
@@ -44,11 +40,20 @@ app.engine('handlebars', engine({
         },
         format_datetime: function(datetime) {
             return new Date().toLocaleString('vi-VN');
-        }
+        },
+        positive_percentage: function(plus, total) {
+            if (total === 0)
+                return 0;
+            return Math.round((plus / total) * 100);
+        },
+        mask_name: function(name) {
+            const show = name.substring(name.length - 3);
+            return '*'.repeat(name.length - show.length) + show;
+        },
     }
 }));
 app.set('view engine', 'handlebars');
-app.set('views', './views');
+app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.urlencoded({ extended: true })); 
 app.use(express.json());
@@ -66,103 +71,24 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+import { loadCategoryList } from "./controllers/categoryController.js";
+app.use(loadCategoryList)
+
 app.get('/', (req, res) => {
     res.render('home');
 });
 
-app.get('/product', (req, res) => {
-    res.render('product');
-});
+import productRouter from './routes/productRoutes.js';
+app.use('/product', productRouter);
 
-app.get('/product_detail', (req, res) => {
-    res.render('product_detail');
-});
+import loginRouter from './routes/loginRoute.js';
+app.use('/login', loginRouter);
 
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, '/static', 'login.html'));
-});
+import registerRouter from './routes/registerRoute.js';
+app.use('/register', registerRouter);
 
-app.get('/register', (req, res) =>{
-    res.sendFile(path.join(__dirname, '/static', 'register.html'));
-})
-
-app.post("/register", async (req, res) => {
-  const { full_name, email, address, password, ["g-recaptcha-response"]: token } = req.body;
-
-  if(!token)
-    return res.status(400).json({ error: "Missing reCAPTCHA token" });
-
-  try{
-    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${RECAPTCHA_SECRET}&response=${token}`;
-    const result = await fetch(verifyUrl, { method: "POST" });
-    const verifyData = await result.json();
-
-    if(!verifyData.success)
-      return res.status(403).json({ error: "reCAPTCHA verification failed" });
-
-    const otp = generateOTP();
-    // console.log(adminGmail);
-    // console.log(adminGmailPass);
-    // console.log(email);
-    await sendOTP(email, otp); // Gửi OTP đến email
-
-    // Lưu otp
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // Hết hạn sau 5 phút
-    await supabase
-        .from('otp_requests')
-        .insert([{ email, otp, expires_at: expiresAt }]);
-    res.json({ message: "OTP đã được gửi đến email của bạn. Vui lòng nhập mã OTP để hoàn tất đăng ký." });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-app.post("/verify-otp", async (req, res) => {
-    const { email, otp, password, full_name, address } = req.body;
-    console.log(email);
-    console.log(otp);
-    try {
-        const isValid = await verifyOTP(email, otp); 
-
-        if (!isValid) {
-            return res.status(400).json({ error: "Mã OTP không hợp lệ hoặc đã hết hạn." });
-        }
-
-        const hash = await bcrypt.hash(password, 10);
-        // add into db
-        const { data, error } = await supabase
-            .from("users")
-            .insert([{ full_name, email, address, password_hash: hash }])
-            .select()
-            .single();
-
-        if (error) {
-            console.error(error);
-            return res.status(400).json({ error: error.message });
-        }
-
-        // Xóa OTP đã sử dụng
-        await supabase
-            .from('otp_requests')
-            .delete()
-            .eq('email', email)
-            .eq('otp', otp);
-
-        res.json({ message: "Đăng ký thành công!", user: data });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Server error" });
-    }
-});
-
-app.post("/login",
-  passport.authenticate("local", {
-    successRedirect: '/protected',
-    failureRedirect: '/auth/failure',
-  })
-);
-
+import { createUser } from "./controllers/userController.js";
+app.post("/verify-otp", createUser);
 
 // google
 app.get('/auth/google', 
@@ -193,5 +119,8 @@ app.get('/logout', (req, res, next) => {
   });
 });
 
+app.use((req, res) => {
+    res.render('404');
+})
 
 app.listen(PORT, ()=> console.log(`http://localhost:${PORT}/`));

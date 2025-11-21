@@ -14,7 +14,7 @@ router.get('', (req, res) => {
 
 router.post("",
   passport.authenticate("local", {
-    successRedirect: '/protected',
+    successRedirect: '/',
     failureRedirect: '/auth/failure',
   })
 );

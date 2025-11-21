@@ -14,11 +14,6 @@ router.get('/cat/:id', async (req, res) => {
     }
     
     const list = await productModel.findAllByCatId(cat.category_id);
-    for(let i = 0; i < list.length; i++) {
-        const top_bidder = await userModel.findUserById(list[i].highest_bidder) || '';
-        list[i].highest_bidder = top_bidder;
-    }
-
     const product_category = {
         'cat_name' : cat.category_name,
         'products' : list,
@@ -39,10 +34,15 @@ router.get('/details/:id', async (req, res) => {
     const top_bidder = await userModel.findUserById(product.highest_bidder);
     if (top_bidder)
         top_bidder.total_rating = top_bidder.rating_plus + top_bidder.rating_minus;
+
+    const numPros = 5;
+    const list = await productModel.findLimitedProsByCatId(product.category_id, numPros);
+    
     const pro_details = {
         'product' : product,
         'seller' : seller,
         'top_bidder' : top_bidder,
+        'related': list,
     };
     res.render('vwProducts/product_detail.handlebars', pro_details);
 })

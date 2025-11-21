@@ -5,6 +5,10 @@ import path, { dirname } from "path";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { engine } from 'express-handlebars';
+import express_handlebars_sections from 'express-handlebars-sections';
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime.js";
+import updateLocale from "dayjs/plugin/updateLocale.js";
 import "./auth.js";
 
 dotenv.config();
@@ -27,7 +31,28 @@ function isLoggedIn(req, res, next) {
     res.status(401).send('Unauthorized - Please login');
 }
 
+// dayjs config
+dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
+dayjs.updateLocale('en', {
+    relativeTime: {
+        future: "%s nữa",
+        past: "%s trước",
+        s: 'vài giây trước',
+        m: "1 phút",
+        mm: "%d phút",
+        h: "1 giờ",
+        hh: "%d giờ",
+        d: "1 ngày",
+        dd: "%d ngày",
+    }
+});
+
 const app = express();
+app.locals.highLightTime = 1000 * 60 * 5; // 5 phut
+app.locals.relativeTimeDays = 3;
+app.locals.extendBoundary = 1000 * 60 * 5; // 5 phut
+app.locals.extendTime = 1000 * 60 * 10; // 10 phut
 
 app.engine('handlebars', engine({
     helpers: {
@@ -39,7 +64,16 @@ app.engine('handlebars', engine({
             }).format(num);
         },
         format_datetime: function(datetime) {
-            return new Date().toLocaleString('vi-VN');
+            return new Date(datetime).toLocaleString('vi-VN');
+        },
+        format_endDatetime: function(endDatetime) {
+            const now = dayjs();
+            const end = dayjs(endDatetime);
+            if (end.diff(now, 'd') < 0)
+                return 'Phiên đấu giá đã kết thúc';
+            else if (end.diff(now, 'd') < app.locals.relativeTimeDays)
+                return end.from(now);
+            return end.format('hh:mm:ss DD/MM/YYYY');
         },
         positive_percentage: function(plus, total) {
             if (total === 0)
@@ -47,9 +81,12 @@ app.engine('handlebars', engine({
             return Math.round((plus / total) * 100);
         },
         mask_name: function(name) {
+            if (!name)
+                return '';
             const show = name.substring(name.length - 3);
             return '*'.repeat(name.length - show.length) + show;
         },
+        section: express_handlebars_sections(),
     }
 }));
 app.set('view engine', 'handlebars');
@@ -74,9 +111,13 @@ app.use(passport.session());
 import { loadCategoryList } from "./controllers/categoryController.js";
 app.use(loadCategoryList)
 
-app.get('/', (req, res) => {
-    res.render('home');
-});
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.isAuthenticated();
+    next();
+})
+
+import renderHome from './controllers/homeController.js';
+app.get('/', renderHome);
 
 import productRouter from './routes/productRoutes.js';
 app.use('/product', productRouter);
@@ -114,7 +155,7 @@ app.get('/logout', (req, res, next) => {
   req.logout(function (err) {
     if (err) { return next(err); }
     req.session.destroy(() => {
-      res.send("Goodbye!");
+      res.redirect('/');
     });
   });
 });

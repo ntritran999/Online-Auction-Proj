@@ -18,7 +18,8 @@ const createUser = async (req, res) => {
         const { data, error } = await addUser(full_name, email, address, hash);
 
         if (error) {
-            console.error(error);
+            if (error.message === 'duplicate key value violates unique constraint "users_email_key"')
+                return res.status(400).json({ error: 'Email đã tồn tại'});
             return res.status(400).json({ error: error.message });
         }
 

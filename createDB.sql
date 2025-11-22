@@ -121,6 +121,17 @@ create table SystemConfig (
     value text
 );
 
+create extension if not exists unaccent;
+create or replace function immutable_unaccent(word text) returns text
+as $$
+  select unaccent(word);
+$$ language sql immutable parallel safe strict;
+
+alter table products
+add column if not exists fts tsvector generated always as (to_tsvector('english', immutable_unaccent(lower(product_name)) || ' ' || immutable_unaccent(lower(description)))) stored;
+
+create index if not exists products_fts on products using gin (fts);
+
 insert into users (full_name, email, password_hash, address, role)
 values
 ('Nguyễn Văn A', 'a@gmail.com', 'hash1', 'Hà Nội', 'seller'),

@@ -86,6 +86,16 @@ app.engine('handlebars', engine({
             const show = name.substring(name.length - 3);
             return '*'.repeat(name.length - show.length) + show;
         },
+        is_product_new: function(created_at) {
+            const now = dayjs();
+            const create = dayjs(created_at);
+            return now.diff(create, 'ms') < app.locals.highLightTime;
+        },
+        eq: function(a, b) {
+            a = parseInt(a, 10);
+            b = parseInt(b, 10);
+            return a === b;
+        },
         section: express_handlebars_sections(),
     }
 }));

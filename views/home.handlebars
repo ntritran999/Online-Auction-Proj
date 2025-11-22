@@ -42,226 +42,64 @@
     <h3 class="fw-bold mx-3 my-5">Sản phẩm sắp kết thúc</h3>
     <div class="container">
       <div class="row">
+        {{#each dateList}}
         <div class="col-md-6 col-lg-4 mb-3">
           <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
             <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
             <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">{{format_datetime 10}}</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
+              <h5 class="card-title">{{product_name}}</h5>
+              <p class="card-text fw-bold">{{format_currency current_price}}</p>
+              <p class="card-text">Bidder dẫn đầu: {{mask_name highest_bidder.full_name}}</p>
+              <p class="card-text">Giá mua ngay: {{format_currency buy_now_price}}</p>
+              <p class="card-text">Bắt đầu: {{format_datetime created_at}}</p>
+              <p class="card-text">Kết thúc: {{format_endDatetime end_time}}</p>
+              <p class="card-text">Lượt ra giá: {{bid_count}}</p>
             </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
+        {{/each}}
       </div>
     </div>
     <h3 class="fw-bold mx-3 my-5">Sản phẩm nhiều lượt ra giá nhất</h3>
     <div class="container">
       <div class="row">
+        {{#each bidCountsList}}
         <div class="col-md-6 col-lg-4 mb-3">
           <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
             <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
             <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
+              <h5 class="card-title">{{product_name}}</h5>
+              <p class="card-text fw-bold">{{format_currency current_price}}</p>
+              <p class="card-text">Bidder dẫn đầu: {{mask_name highest_bidder.full_name}}</p>
+              <p class="card-text">Giá mua ngay: {{format_currency buy_now_price}}</p>
+              <p class="card-text">Bắt đầu: {{format_datetime created_at}}</p>
+              <p class="card-text">Kết thúc: {{format_endDatetime end_time}}</p>
+              <p class="card-text">Lượt ra giá: {{bid_count}}</p>
             </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
+        {{/each}}
       </div>
     </div>
     <h3 class="fw-bold mx-3 my-5">Sản phẩm giá cao nhất</h3>
     <div class="container">
       <div class="row">
+        {{#each priceList}}
         <div class="col-md-6 col-lg-4 mb-3">
           <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
             <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
             <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
+              <h5 class="card-title">{{product_name}}</h5>
+              <p class="card-text fw-bold">{{format_currency current_price}}</p>
+              <p class="card-text">Bidder dẫn đầu: {{mask_name highest_bidder.full_name}}</p>
+              <p class="card-text">Giá mua ngay: {{format_currency buy_now_price}}</p>
+              <p class="card-text">Bắt đầu: {{format_datetime created_at}}</p>
+              <p class="card-text">Kết thúc: {{format_endDatetime end_time}}</p>
+              <p class="card-text">Lượt ra giá: {{bid_count}}</p>
             </div>
           </div>
         </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">Ten san pham</h5>
-              <p class="card-text fw-bold">{{format_currency 10000000}}</p>
-              <p class="card-text">Thong tin bidder</p>
-              <p class="card-text">Gia mua ngay</p>
-              <p class="card-text">Ngay dang</p>
-              <p class="card-text">Thoi gian con lai</p>
-              <p class="card-text">So luot ra gia</p>
-            </div>
-          </div>
-        </div>
+        {{/each}}
       </div>
     </div>
   </div>

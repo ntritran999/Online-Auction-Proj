@@ -12,7 +12,8 @@ create table Users (
 
 create table Category (
     category_id serial primary key,
-    category_name text not null
+    category_name text not null,
+    parent_cat integer null references Category(category_id)
 );
 
 create table Products (
@@ -140,6 +141,24 @@ insert into category (category_name) values
 ('Sách'),
 ('Đồ gia dụng'),
 ('Sưu tầm');
+
+insert into category (category_name, parent_cat) values
+('Điện thoại', 1),
+('Máy tính', 1),
+('Tai nghe', 1),
+
+('Quần áo nam', 2),
+('Quần áo nữ', 2),
+('Giày dép', 2),
+
+('Sách nấu ăn', 3),
+('Sách Thiếu nhi', 3),
+
+('Đồ nhà bếp', 4),
+('Đồ phòng ngủ', 4),
+
+('Tiền xu', 5),
+('Tem', 5);
 
 insert into products (seller_id, category_id, product_name, description, start_price, step_price, buy_now_price, end_time)
 values

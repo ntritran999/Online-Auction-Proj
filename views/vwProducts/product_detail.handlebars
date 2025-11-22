@@ -1,0 +1,270 @@
+<div class="modal fade" id="img1" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="/images/iphone.jpg" alt="" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-md my-5">
+    <div class="row">
+        <div class="col-md-7 mb-3 m-md-0">
+            <div class="bg-body-secondary rounded mb-3" style="height: 500px;">
+                <img src="/images/iphone.jpg" alt="" class="object-fit-contain h-100 w-100 p-5">
+            </div>
+
+            <div id="carouselId" class="carousel carousel-dark slide">
+                <div class="carousel-inner" role="listbox">
+                    <div class="carousel-item active">
+                        <div class="row justify-content-center">
+                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
+                                    class="object-fit-contain h-100 w-100 d-block stretched-link" alt="First slide"
+                                    data-bs-toggle="modal" data-bs-target="#img1" />
+                            </div>
+                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
+                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
+                            </div>
+                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
+                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
+                            </div>
+                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
+                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
+                            </div>
+                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
+                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
+                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
+                            </div>
+                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
+                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselId" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselId" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+
+        </div>
+        <div class="col-md-5">
+            <h5 class="fw-bold">{{product.product_name}}</h5>
+            <hr>
+            <div class="row">
+                <div class="col-5">
+                    <h6 class="fw-bold">Seller: {{seller.full_name}} <small class="text-muted">({{seller.total_rating}})</small></h6>
+                    <p class="text-decoration-underline ps-2">{{positive_percentage seller.rating_plus seller.total_rating}}% đánh giá tích cực</p>
+                </div>
+                <div class="col-1">
+                    <div class="vr" style="height: 100%;"></div>
+                </div>
+                {{#if top_bidder}}
+                <div class="col-5">
+                    <h6 class="fw-bold">Bidder dẫn đầu: {{mask_name top_bidder.full_name}}<small class="text-muted">({{top_bidder.total_rating}})</small></h6>
+                    <p class="text-decoration-underline ps-2">{{positive_percentage top_bidder.rating_plus top_bidder.total_rating}}% đánh giá tích cực</p>
+                </div>
+                {{/if}}
+            </div>
+            <hr>
+
+            <h4>Giá bán: <span class="fw-bold">{{format_currency product.current_price}}</span></h4>
+            <p>Ngày mở bán: {{format_datetime product.created_at}}</p>
+            <p class="text-danger">Ngày kết thúc: {{format_endDatetime product.end_time}}</p>
+            <h4>Mua ngay với: <span class="fw-bold">{{format_currency product.buy_now_price}}</span></h4>
+            <hr>
+        </div>
+    </div>
+
+    <div class="container-fluid border mt-5">
+        <h3 class="fw-bold">Mô tả sản phẩm</h3>
+        <p>{{product.description}}</p>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <h1 class="fw-bold">Hỏi đáp</h1>
+    <div class="container-fluid mb-5">
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="d-flex flex-start mb-4">
+                    <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg" alt="avatar"
+                        width="32" height="32" />
+                    <div class="flex-grow-1 flex-shrink-1">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="mb-1">
+                                    Maria Smantha <span class="small">- 2 hours ago</span>
+                                </p>
+                                <a class="link-underline link-underline-opacity-0" href="#!"><i
+                                        class="bi bi-reply"></i><span class="small">
+                                        reply</span></a>
+                            </div>
+                            <p class="small mb-0">
+                                It is a long established fact that a reader will be distracted by
+                                the readable content of a page.
+                            </p>
+                        </div>
+
+                        <div class="d-flex flex-start mt-4">
+                            <a class="me-3" href="#">
+                                <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg"
+                                    alt="avatar" width="32" height="32" />
+                            </a>
+                            <div class="flex-grow-1 flex-shrink-1">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <p class="mb-1">
+                                            Simona Disa <span class="small">- 3 hours ago</span>
+                                        </p>
+                                    </div>
+                                    <p class="small mb-0">
+                                        letters, as opposed to using 'Content here, content here',
+                                        making it look like readable English.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-start mt-4">
+                            <a class="me-3" href="#">
+                                <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg"
+                                    alt="avatar" width="32" height="32" />
+                            </a>
+                            <div class="flex-grow-1 flex-shrink-1">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <p class="mb-1">
+                                            John Smith <span class="small">- 4 hours ago</span>
+                                        </p>
+                                    </div>
+                                    <p class="small mb-0">
+                                        the majority have suffered alteration in some form, by
+                                        injected humour, or randomised words.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-start mb-4">
+                    <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg" alt="avatar"
+                        width="32" height="32" />
+                    <div class="flex-grow-1 flex-shrink-1">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="mb-1">
+                                    Natalie Smith <span class="small">- 2 hours ago</span>
+                                </p>
+                                <a class="link-underline link-underline-opacity-0" href="#!"><i
+                                        class="bi bi-reply"></i><span class="small">
+                                        reply</span></a>
+                            </div>
+                            <p class="small mb-0">
+                                The standard chunk of Lorem Ipsum used since the 1500s is
+                                reproduced below for those interested. Sections 1.10.32 and
+                                1.10.33.
+                            </p>
+                        </div>
+
+                        <div class="d-flex flex-start mt-4">
+                            <a class="me-3" href="#">
+                                <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg"
+                                    alt="avatar" width="32" height="32" />
+                            </a>
+                            <div class="flex-grow-1 flex-shrink-1">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <p class="mb-1">
+                                            Lisa Cudrow <span class="small">- 4 hours ago</span>
+                                        </p>
+                                    </div>
+                                    <p class="small mb-0">
+                                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus
+                                        scelerisque ante sollicitudin commodo. Cras purus odio,
+                                        vestibulum in vulputate at, tempus viverra turpis.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-start mt-4">
+                            <a class="me-3" href="#">
+                                <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg"
+                                    alt="avatar" width="32" height="32" />
+                            </a>
+                            <div class="flex-grow-1 flex-shrink-1">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <p class="mb-1">
+                                            Maggie McLoan <span class="small">- 5 hours ago</span>
+                                        </p>
+                                    </div>
+                                    <p class="small mb-0">
+                                        a Latin professor at Hampden-Sydney College in Virginia,
+                                        looked up one of the more obscure Latin words, consectetur
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-start mt-4">
+                            <a class="me-3" href="#">
+                                <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg"
+                                    alt="avatar" width="32" height="32" />
+                            </a>
+                            <div class="flex-grow-1 flex-shrink-1">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <p class="mb-1">
+                                            John Smith <span class="small">- 6 hours ago</span>
+                                        </p>
+                                    </div>
+                                    <p class="small mb-0">
+                                        Autem, totam debitis suscipit saepe sapiente magnam officiis
+                                        quaerat necessitatibus odio assumenda, perferendis quae iusto
+                                        labore laboriosam minima numquam impedit quam dolorem!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <h1 class="fw-bold">Các sản phẩm khác</h1>
+    <div class="container">
+        <div class="row">
+            {{#each related}}
+            <div class="col-md-3 col-6">
+                <div class="card p-2 h-100 border-0">
+                    <img src="/images/item.jpg" class="img-fluid rounded-3" alt="..." />
+                    <div class="card-body">
+                        <h5 class="card-title">{{product_name}}</h5>
+                        <p class="card-text fw-bold">{{format_currency current_price}}</p>
+                        <p class="card-text">Bidder dẫn đầu: {{mask_name highest_bidder.full_name}}</p>
+                        <p class="card-text">Giá mua ngay: {{format_currency buy_now_price}}</p>
+                        <p class="card-text">Bắt đầu: {{format_datetime created_at}}</p>
+                        <p class="card-text">Kết thúc: {{format_endDatetime end_time}}</p>
+                        <p class="card-text">Lượt ra giá: {{bid_count}}</p>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</div>

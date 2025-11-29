@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import crypto from "crypto";
-import supabase from "./supabaseClient.js";
+import * as otpModel from "../models/otpModel.js";
 
 const adminGmail = process.env.EMAIL_USER;
 const adminGmailPass = process.env.EMAIL_PASS;
@@ -21,9 +21,7 @@ const sendOTP = async(email) => {
   const otp = generateOTP();
   const expiredAt = new Date(Date.now() + 2 * 60 * 1000);
   // insert otp into db
-  const { error } = await supabase
-    .from('otp_requests')
-    .insert([{ email, otp, expired_at: expiredAt}]);
+  const error = await otpModel.addOtp(email, otp, expiredAt);
   if(error){
     console.log('Error insert otp db', error);
     return;
@@ -45,13 +43,7 @@ const sendOTP = async(email) => {
 };
 
 const verifyOTP = async (email, otp) => {
-  const { data, error } = await supabase
-    .from('otp_requests')
-    .select('*')
-    .eq('email', email)
-    .eq('otp', otp)
-    .gt('expired_at', new Date().toISOString());
-
+  const { data, error } = await otpModel.findUnexpiredOtp(email, otp);
   if(!data || data.length === 0){
     console.log('OTP invalid or expired.');
     return false;
@@ -66,14 +58,12 @@ const verifyOTP = async (email, otp) => {
 
 // Hàm xóa OTP hết hạn
 const cleanExpiredOTPs = async () => {
-  const { data, error } = await supabase
-      .from('otp_requests')
-      .delete()
-      .lt('expires_at', new Date().toISOString());
-
+  const { data, error } = await otpModel.deleteExpiredOtps();
   if(error) 
       console.error('Error deleting expired OTPs:', error);
   else 
       console.log('Expired OTPs deleted:', data);
   
 };
+
+export {sendOTP, verifyOTP, cleanExpiredOTPs}

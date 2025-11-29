@@ -1,0 +1,194 @@
+{{#section 'script'}}
+<script>
+    const list = document.querySelector('#list');
+    
+    document.querySelector('#sortTimeDesc').addEventListener('click', function() {
+        [...list.children]
+        .sort((a, b) => {
+            const date1 = new Date(a.querySelector('.end_time').dataset.endTime);
+            const date2 = new Date(b.querySelector('.end_time').dataset.endTime);
+            console.log(date1, date2);
+            return date1 - date2;
+        })
+        .forEach(node => list.appendChild(node));
+    });
+
+    document.querySelector('#sortTimeAsc').addEventListener('click', function() {
+        [...list.children]
+        .sort((a, b) => {
+            const date1 = new Date(a.querySelector('.end_time').dataset.endTime);
+            const date2 = new Date(b.querySelector('.end_time').dataset.endTime);
+            return date2 - date1;
+        })
+        .forEach(node => list.appendChild(node));
+    });
+
+    document.querySelector('#sortPriceAsc').addEventListener('click', function() {
+        [...list.children]
+        .sort((a, b) => {
+            const price1 = +a.querySelector('.current_price').dataset.currentPrice;
+            const price2 = +b.querySelector('.current_price').dataset.currentPrice;
+            return price1 - price2;
+        })
+        .forEach(node => list.appendChild(node));
+    });
+
+    document.querySelector('#sortPriceDesc').addEventListener('click', function() {
+        [...list.children]
+        .sort((a, b) => {
+            const price1 = +a.querySelector('.current_price').dataset.currentPrice;
+            const price2 = +b.querySelector('.current_price').dataset.currentPrice;
+            return price2 - price1;
+        })
+        .forEach(node => list.appendChild(node));
+    });
+    
+</script>
+{{/section}}
+
+<main class="container-fluid my-3">
+    <h1 class="fw-bold">{{cat_name}}</h1>
+    <div class="container-fluid mb-5">
+        <div class="d-flex justify-content-end mb-3">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary dropdown-toggle rounded-pill" type="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    Sắp xếp
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a id="sortTimeDesc" class="dropdown-item" href="#">Thời gian kết thúc <i class="bi bi-arrow-down"></i></a></li>
+                    <li><a id="sortTimeAsc" class="dropdown-item" href="#">Thời gian kết thúc <i class="bi bi-arrow-up"></i></a></li>
+                    <li><a id="sortPriceAsc" class="dropdown-item" href="#">Giá <i class="bi bi-arrow-up"></i></a></li>
+                    <li><a id="sortPriceDesc" class="dropdown-item" href="#">Giá <i class="bi bi-arrow-down"></i></a></li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-9">
+                <hr>
+                <div id="list">
+                    {{#each products}}
+                        {{#if (is_product_new created_at)}}
+                        <div class="card p-2 my-3 border-warning border-3" style="width: 100%;">
+                            <div class="row g-0">
+                                <div class="col-sm-4">
+                                    <div class="container" style="height: 250px;">
+                                        <img src="/images/shoe.jpg" class="object-fit-cover h-100 w-100 rounded"
+                                            alt="Card title" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{product_name}}</h5>
+                                        <h2 class="card-text fw-bold current_price" data-current-price="{{current_price}}">
+                                            {{format_currency current_price}}
+                                        </h2>
+                                        <p class="card-text"><mark>Bidder tra gia cao nhat: {{mask_name highest_bidder.full_name}}</mark></p>
+                                        <p class="card-text">
+                                            <small class="text-muted">Giá mua ngay: {{format_currency buy_now_price}}</small>
+                                        </p>
+                                        <div class="d-md-flex justify-content-between">
+                                            <p class="card-text">
+                                                Ngày mở bán: {{format_datetime created_at}}
+                                            </p>
+                                            <p class="card-text">
+                                                <small class="text-muted">{{bid_count}}</small>
+                                            </p>
+                                        </div>
+                                        <p class="card-text text-danger fw-bold end_time" data-end-time="{{end_time}}">Kết thúc phiên: {{format_endDatetime end_time}}</p>
+                                        <a href="/product/details/{{product_id}}" class="stretched-link"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{else}}
+                        <div class="card p-2 my-3" style="width: 100%;">
+                            <div class="row g-0">
+                                <div class="col-sm-4">
+                                    <div class="container" style="height: 250px;">
+                                        <img src="/images/shoe.jpg" class="object-fit-cover h-100 w-100 rounded"
+                                            alt="Card title" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{product_name}}</h5>
+                                        <h2 class="card-text fw-bold current_price" data-current-price="{{current_price}}">
+                                            {{format_currency current_price}}
+                                        </h2>
+                                        <p class="card-text"><mark>Bidder tra gia cao nhat: {{mask_name highest_bidder.full_name}}</mark></p>
+                                        <p class="card-text">
+                                            <small class="text-muted">Giá mua ngay: {{format_currency buy_now_price}}</small>
+                                        </p>
+                                        <div class="d-md-flex justify-content-between">
+                                            <p class="card-text">
+                                                Ngày mở bán: {{format_datetime created_at}}
+                                            </p>
+                                            <p class="card-text">
+                                                <small class="text-muted">{{bid_count}}</small>
+                                            </p>
+                                        </div>
+                                        <p class="card-text text-danger fw-bold end_time" data-end-time="{{end_time}}">Kết thúc phiên: {{format_endDatetime end_time}}</p>
+                                        <a href="/product/details/{{product_id}}" class="stretched-link"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{/if}}
+                    {{/each}}
+                </div>
+                <hr>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        {{#if (eq cur_page 1)}}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {{else}}
+                        <li class="page-item">
+                            {{#if item}}
+                            <a class="page-link" href="?item={{item}}&page={{prev_page}}" aria-label="Previous">
+                            {{else}}
+                            <a class="page-link" href="?page={{prev_page}}" aria-label="Previous">
+                            {{/if}}
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {{/if}}
+                        
+                        {{#each page_nums}}
+                        {{#if ../item}}
+                        <li class="page-item"><a class="page-link" href="?item={{../item}}&page={{value}}">{{value}}</a></li>
+                        {{else}}
+                        <li class="page-item"><a class="page-link" href="?page={{value}}">{{value}}</a></li>
+                        {{/if}}
+                        {{/each}}
+                        
+                        {{#if (eq cur_page page_counts)}}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {{else}}
+                        <li class="page-item">
+                            {{#if item}}
+                            <a class="page-link" href="?item={{item}}&page={{next_page}}" aria-label="Next">
+                            {{else}}
+                            <a class="page-link" href="?page={{next_page}}" aria-label="Next">
+                            {{/if}}
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li> 
+                        {{/if}}
+                    </ul>
+                </nav>
+                <hr>
+            </div>
+        </div>
+    </div>
+</main>

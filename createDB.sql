@@ -12,7 +12,8 @@ create table Users (
 
 create table Category (
     category_id serial primary key,
-    category_name text not null
+    category_name text not null,
+    parent_cat integer null references Category(category_id)
 );
 
 create table Products (
@@ -120,6 +121,17 @@ create table SystemConfig (
     value text
 );
 
+create extension if not exists unaccent;
+create or replace function immutable_unaccent(word text) returns text
+as $$
+  select unaccent(word);
+$$ language sql immutable parallel safe strict;
+
+alter table products
+add column if not exists fts tsvector generated always as (to_tsvector('english', immutable_unaccent(lower(product_name)) || ' ' || immutable_unaccent(lower(description)))) stored;
+
+create index if not exists products_fts on products using gin (fts);
+
 insert into users (full_name, email, password_hash, address, role)
 values
 ('Nguyễn Văn A', 'a@gmail.com', 'hash1', 'Hà Nội', 'seller'),
@@ -140,6 +152,24 @@ insert into category (category_name) values
 ('Sách'),
 ('Đồ gia dụng'),
 ('Sưu tầm');
+
+insert into category (category_name, parent_cat) values
+('Điện thoại', 1),
+('Máy tính', 1),
+('Tai nghe', 1),
+
+('Quần áo nam', 2),
+('Quần áo nữ', 2),
+('Giày dép', 2),
+
+('Sách nấu ăn', 3),
+('Sách Thiếu nhi', 3),
+
+('Đồ nhà bếp', 4),
+('Đồ phòng ngủ', 4),
+
+('Tiền xu', 5),
+('Tem', 5);
 
 insert into products (seller_id, category_id, product_name, description, start_price, step_price, buy_now_price, end_time)
 values

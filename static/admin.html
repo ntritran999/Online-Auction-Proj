@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard - Quản trị viên</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-header {
+            background: #343a40;
+            color: #fff;
+            padding: 18px 30px;
+            margin-bottom: 1.25rem;
+        }
+
+        .card+.card {
+            margin-top: 1.25rem;
+        }
+
+        .small-muted {
+            font-size: 15px;
+            color: #6c757d;
+        }
+
+        .admin-content {
+            margin-left: 3vw;
+            flex: 1;
+            height: 80vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header full width -->
+    <div class="admin-header d-flex align-items-center justify-content-between">
+        <h1 class="h4 mb-0">Administrator</h1>
+        <div class="small-muted">Bảng điều khiển quản trị</div>
+    </div>
+
+    <div class="container d-flex w-100 m-0">
+
+        <!-- LEFT NAVIGATION -->
+        <div id="list-example" class="list-group admin-nav w-25">
+            <a class="list-group-item list-group-item-action" href="#category-management">Danh mục</a>
+            <a class="list-group-item list-group-item-action" href="#product-management">Sản phẩm</a>
+            <a class="list-group-item list-group-item-action" href="#user-management">Người dùng</a>
+        </div>
+
+        <!-- RIGHT CONTENT (Scrollspy target) -->
+        <div class="admin-content" data-bs-spy="scroll" data-bs-target="#list-example" tabindex="0">
+
+            <!-- CATEGORY SECTION -->
+            <section id="category-management" class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Quản lý danh mục (Category)</h2>
+                        <div>
+                            <button class="btn btn-primary me-2" data-bs-toggle="modal"
+                                data-bs-target="#modalAddCategory">
+                                <i class="bi bi-plus-lg"></i> Thêm danh mục
+                            </button>
+                            <button class="btn btn-outline-secondary" id="btnRefreshCategories"><i
+                                    class="bi bi-arrow-clockwise"></i> Làm mới</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle" id="tblCategories">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:70px">ID</th>
+                                    <th>Tên danh mục</th>
+                                    <th style="width:280px">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="small-muted">Không được xóa danh mục đã có sản phẩm.</div>
+                </div>
+            </section>
+
+            <!-- PRODUCT SECTION -->
+            <section id="product-management" class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Quản lý sản phẩm (Product)</h2>
+                        <div>
+                            <button class="btn btn-primary me-2" data-bs-toggle="modal"
+                                data-bs-target="#modalAddProduct">
+                                <i class="bi bi-plus-lg"></i> Thêm sản phẩm
+                            </button>
+                            <button class="btn btn-outline-secondary" id="btnRefreshProducts"><i
+                                    class="bi bi-arrow-clockwise"></i> Làm mới</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered align-middle" id="tblProducts">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:70px">ID</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Danh mục</th>
+                                    <th style="width:220px">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- USER SECTION -->
+            <section id="user-management" class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0">Quản lý người dùng (User)</h2>
+                        <div>
+                            <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modalAddUser">
+                                <i class="bi bi-plus-lg"></i> Thêm user
+                            </button>
+                            <button class="btn btn-outline-secondary" id="btnRefreshUsers"><i
+                                    class="bi bi-arrow-clockwise"></i> Làm mới</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered align-middle" id="tblUsers">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:80px">User ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th style="width:220px">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="h6">Danh sách bidder xin nâng cấp tài khoản</h3>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover align-middle" id="tblUpgradeRequests">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:80px">Req ID</th>
+                                    <th>Username</th>
+                                    <th>Yêu cầu</th>
+                                    <th style="width:180px">Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </div> 
+    </div> 
+
+
+    <!-- ===== Modals ===== -->
+
+    <!-- Add/Edit Category Modal -->
+    <div class="modal fade" id="modalAddCategory" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="formCategory" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm / Sửa danh mục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="categoryId" />
+                    <div class="mb-3">
+                        <label class="form-label">Tên danh mục</label>
+                        <input id="categoryName" class="form-control" required />
+                    </div>
+                    <div class="small-muted">Không được trùng tên danh mục.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div class="modal fade" id="modalAddProduct" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="formProduct" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm / Sửa sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="productId" />
+                    <div class="mb-3">
+                        <label class="form-label">Tên sản phẩm</label>
+                        <input id="productName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Danh mục</label>
+                        <select id="productCategory" class="form-select" required>
+                            <!-- options populated by JS -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả (tuỳ chọn)</label>
+                        <textarea id="productDesc" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div class="modal fade" id="modalAddUser" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="formUser" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm / Sửa user</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="userId" />
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input id="userName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input id="userEmail" type="email" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Role</label>
+                        <select id="userRole" class="form-select">
+                            <option value="bidder">Bidder</option>
+                            <option value="seller">Seller</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div class="modal fade" id="modalConfirm" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p id="confirmText" class="mb-3">Bạn có chắc chắn?</p>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-secondary me-2" data-bs-dismiss="modal">Hủy</button>
+                        <button id="confirmOk" class="btn btn-danger">Xóa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script>
+        // ---------- Demo Data (replace with API calls) ----------
+        // categories: {id, name, productCount}
+        let categories = [
+            { id: 1, name: "Electronics", productCount: 5 },
+            { id: 2, name: "Books", productCount: 0 },
+            { id: 3, name: "Home & Kitchen", productCount: 2 }
+        ];
+
+        // products: {id, name, categoryId}
+        let products = [
+            { id: 101, name: "Smartphone", categoryId: 1 },
+            { id: 102, name: "Laptop", categoryId: 1 },
+            { id: 201, name: "Cookbook", categoryId: 2 }
+        ];
+
+        // users: {id, username, email, role}
+        let users = [
+            { id: 1, username: "alice", email: "alice@example.com", role: "admin" },
+            { id: 2, username: "bob", email: "bob@example.com", role: "seller" },
+            { id: 3, username: "charlie", email: "charlie@example.com", role: "bidder" }
+        ];
+
+        // upgradeRequests: {reqId, userId, username, note}
+        let upgradeRequests = [
+            { reqId: 9001, userId: 3, username: "charlie", note: "Muốn bán sản phẩm" }
+        ];
+
+        // ---------- Helpers to render UI ----------
+        function renderCategories() {
+            const tbody = document.querySelector("#tblCategories tbody");
+            tbody.innerHTML = "";
+            categories.forEach(cat => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+          <td>${cat.id}</td>
+          <td>${escapeHtml(cat.name)}</td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-primary me-1" data-action="view-category" data-id="${cat.id}"><i class="bi bi-eye"></i> Xem</button>
+            <button class="btn btn-sm btn-outline-primary me-1" data-action="edit-category" data-id="${cat.id}"><i class="bi bi-pencil"></i> Sửa</button>
+            <button class="btn btn-sm btn-danger" data-action="delete-category" data-id="${cat.id}" ${cat.productCount > 0 ? 'disabled title="Danh mục có sản phẩm, không thể xóa"' : ''}><i class="bi bi-trash"></i> Xóa</button>
+          </td>
+        `;
+                tbody.appendChild(tr);
+            });
+            populateProductCategorySelect();
+        }
+
+        function renderProducts() {
+            const tbody = document.querySelector("#tblProducts tbody");
+            tbody.innerHTML = "";
+            products.forEach(p => {
+                const cat = categories.find(c => c.id === p.categoryId);
+                const catName = cat ? cat.name : "-";
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+          <td>${p.id}</td>
+          <td>${escapeHtml(p.name)}</td>
+          <td>${escapeHtml(catName)}</td>
+          <td>
+            <button class="btn btn-sm btn-primary me-1" data-action="view-product" data-id="${p.id}"><i class="bi bi-eye"></i> Xem</button>
+            <button class="btn btn-sm btn-outline-primary me-1" data-action="edit-product" data-id="${p.id}"><i class="bi bi-pencil"></i> Sửa</button>
+            <button class="btn btn-sm btn-danger" data-action="delete-product" data-id="${p.id}"><i class="bi bi-x-circle"></i> Gỡ</button>
+          </td>
+        `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderUsers() {
+            const tbody = document.querySelector("#tblUsers tbody");
+            tbody.innerHTML = "";
+            users.forEach(u => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+          <td>${u.id}</td>
+          <td>${escapeHtml(u.username)}</td>
+          <td>${escapeHtml(u.email)}</td>
+          <td><span class="badge ${u.role === 'admin' ? 'bg-dark' : u.role === 'seller' ? 'bg-success' : 'bg-secondary'}">${u.role}</span></td>
+          <td>
+            <button class="btn btn-sm btn-primary me-1" data-action="view-user" data-id="${u.id}"><i class="bi bi-eye"></i> Xem</button>
+            <button class="btn btn-sm btn-outline-primary me-1" data-action="edit-user" data-id="${u.id}"><i class="bi bi-pencil"></i> Sửa</button>
+            <button class="btn btn-sm btn-danger" data-action="delete-user" data-id="${u.id}"><i class="bi bi-trash"></i> Xóa</button>
+          </td>
+        `;
+                tbody.appendChild(tr);
+            });
+
+            const upgradeTbody = document.querySelector("#tblUpgradeRequests tbody");
+            upgradeTbody.innerHTML = "";
+            upgradeRequests.forEach(r => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+          <td>${r.reqId}</td>
+          <td>${escapeHtml(r.username)}</td>
+          <td>${escapeHtml(r.note)}</td>
+          <td>
+            <button class="btn btn-sm btn-success me-1" data-action="approve-upgrade" data-reqid="${r.reqId}"><i class="bi bi-check2-circle"></i> Duyệt</button>
+            <button class="btn btn-sm btn-danger" data-action="reject-upgrade" data-reqid="${r.reqId}"><i class="bi bi-x-circle"></i> Từ chối</button>
+          </td>
+        `;
+                upgradeTbody.appendChild(tr);
+            });
+        }
+
+        function populateProductCategorySelect() {
+            const sel = document.getElementById("productCategory");
+            if (!sel) return;
+            sel.innerHTML = "";
+            categories.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.id;
+                opt.textContent = c.name;
+                sel.appendChild(opt);
+            });
+        }
+
+        // ---------- Event delegation for table buttons ----------
+        document.addEventListener("click", function (evt) {
+            const btn = evt.target.closest("button");
+            if (!btn) return;
+
+            // Category actions
+            if (btn.dataset.action === "view-category") {
+                const id = Number(btn.dataset.id);
+                const cat = categories.find(c => c.id === id);
+                alert("Category: " + JSON.stringify(cat, null, 2));
+            } else if (btn.dataset.action === "edit-category") {
+                const id = Number(btn.dataset.id);
+                const cat = categories.find(c => c.id === id);
+                document.getElementById("categoryId").value = cat.id;
+                document.getElementById("categoryName").value = cat.name;
+                const modal = new bootstrap.Modal(document.getElementById("modalAddCategory"));
+                modal.show();
+            } else if (btn.dataset.action === "delete-category") {
+                const id = Number(btn.dataset.id);
+                // confirm
+                showConfirm(`Xóa danh mục #${id} ? (Không thể khôi phục)`, () => {
+                    // simulate delete: only if productCount == 0
+                    const idx = categories.findIndex(c => c.id === id);
+                    if (idx !== -1 && categories[idx].productCount === 0) {
+                        categories.splice(idx, 1);
+                        renderCategories();
+                        renderProducts();
+                        bootstrap.Modal.getInstance(document.getElementById("modalConfirm"))?.hide();
+                    } else {
+                        alert("Không thể xóa: danh mục đang có sản phẩm.");
+                    }
+                });
+            }
+
+            // Product actions
+            else if (btn.dataset.action === "view-product") {
+                const id = Number(btn.dataset.id);
+                const p = products.find(x => x.id === id);
+                alert("Product: " + JSON.stringify(p, null, 2));
+            } else if (btn.dataset.action === "edit-product") {
+                const id = Number(btn.dataset.id);
+                const p = products.find(x => x.id === id);
+                document.getElementById("productId").value = p.id;
+                document.getElementById("productName").value = p.name;
+                document.getElementById("productCategory").value = p.categoryId;
+                document.getElementById("productDesc").value = p.description || "";
+                new bootstrap.Modal(document.getElementById("modalAddProduct")).show();
+            } else if (btn.dataset.action === "delete-product") {
+                const id = Number(btn.dataset.id);
+                showConfirm(`Gỡ sản phẩm #${id} ?`, () => {
+                    const idx = products.findIndex(p => p.id === id);
+                    if (idx !== -1) {
+                        const cat = categories.find(c => c.id === products[idx].categoryId);
+                        if (cat) cat.productCount = Math.max(0, cat.productCount - 1); // update count
+                        products.splice(idx, 1);
+                        renderProducts();
+                        renderCategories();
+                        bootstrap.Modal.getInstance(document.getElementById("modalConfirm"))?.hide();
+                    }
+                });
+            }
+
+            // User actions
+            else if (btn.dataset.action === "view-user") {
+                const id = Number(btn.dataset.id);
+                const u = users.find(x => x.id === id);
+                alert("User: " + JSON.stringify(u, null, 2));
+            } else if (btn.dataset.action === "edit-user") {
+                const id = Number(btn.dataset.id);
+                const u = users.find(x => x.id === id);
+                document.getElementById("userId").value = u.id;
+                document.getElementById("userName").value = u.username;
+                document.getElementById("userEmail").value = u.email;
+                document.getElementById("userRole").value = u.role;
+                new bootstrap.Modal(document.getElementById("modalAddUser")).show();
+            } else if (btn.dataset.action === "delete-user") {
+                const id = Number(btn.dataset.id);
+                showConfirm(`Xóa người dùng #${id} ?`, () => {
+                    const idx = users.findIndex(u => u.id === id);
+                    if (idx !== -1) {
+                        users.splice(idx, 1);
+                        renderUsers();
+                        bootstrap.Modal.getInstance(document.getElementById("modalConfirm"))?.hide();
+                    }
+                });
+            }
+
+            // Upgrade requests
+            else if (btn.dataset.action === "approve-upgrade") {
+                const reqId = Number(btn.dataset.reqid);
+                // Simulate upgrade: find request, change user role to seller, remove request
+                const reqIdx = upgradeRequests.findIndex(r => r.reqId === reqId);
+                if (reqIdx !== -1) {
+                    const uid = upgradeRequests[reqIdx].userId;
+                    const user = users.find(u => u.id === uid);
+                    if (user) user.role = "seller";
+                    upgradeRequests.splice(reqIdx, 1);
+                    renderUsers();
+                    renderUsers(); // update both tables
+                    alert("Đã duyệt nâng cấp tài khoản.");
+                }
+            } else if (btn.dataset.action === "reject-upgrade") {
+                const reqId = Number(btn.dataset.reqid);
+                const reqIdx = upgradeRequests.findIndex(r => r.reqId === reqId);
+                if (reqIdx !== -1) {
+                    upgradeRequests.splice(reqIdx, 1);
+                    renderUsers();
+                }
+            }
+        });
+
+        // ---------- Modal forms submit ----------
+        document.getElementById("formCategory").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const idVal = document.getElementById("categoryId").value;
+            const name = document.getElementById("categoryName").value.trim();
+            if (!name) return alert("Tên danh mục không được để trống.");
+            if (idVal) {
+                // edit
+                const id = Number(idVal);
+                const cat = categories.find(c => c.id === id);
+                if (cat) cat.name = name;
+            } else {
+                // add: generate id
+                const newId = categories.length ? Math.max(...categories.map(c => c.id)) + 1 : 1;
+                categories.push({ id: newId, name, productCount: 0 });
+            }
+            renderCategories();
+            bootstrap.Modal.getInstance(document.getElementById("modalAddCategory")).hide();
+            this.reset();
+        });
+
+        document.getElementById("formProduct").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const idVal = document.getElementById("productId").value;
+            const name = document.getElementById("productName").value.trim();
+            const catId = Number(document.getElementById("productCategory").value);
+            const desc = document.getElementById("productDesc").value.trim();
+            if (!name) return alert("Tên sản phẩm không được để trống.");
+            if (idVal) {
+                // edit
+                const id = Number(idVal);
+                const p = products.find(x => x.id === id);
+                if (p) {
+                    // adjust category counts when changing category
+                    if (p.categoryId !== catId) {
+                        const oldCat = categories.find(c => c.id === p.categoryId);
+                        const newCat = categories.find(c => c.id === catId);
+                        if (oldCat) oldCat.productCount = Math.max(0, oldCat.productCount - 1);
+                        if (newCat) newCat.productCount = (newCat.productCount || 0) + 1;
+                        p.categoryId = catId;
+                    }
+                    p.name = name;
+                    p.description = desc;
+                }
+            } else {
+                // add
+                const newId = products.length ? Math.max(...products.map(p => p.id)) + 1 : 100;
+                products.push({ id: newId, name, categoryId: catId, description: desc });
+                const cat = categories.find(c => c.id === catId);
+                if (cat) cat.productCount = (cat.productCount || 0) + 1;
+            }
+            renderProducts();
+            renderCategories();
+            bootstrap.Modal.getInstance(document.getElementById("modalAddProduct")).hide();
+            this.reset();
+        });
+
+        document.getElementById("formUser").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const idVal = document.getElementById("userId").value;
+            const username = document.getElementById("userName").value.trim();
+            const email = document.getElementById("userEmail").value.trim();
+            const role = document.getElementById("userRole").value;
+            if (!username || !email) return alert("Username & Email không được để trống.");
+            if (idVal) {
+                // edit
+                const id = Number(idVal);
+                const u = users.find(x => x.id === id);
+                if (u) { u.username = username; u.email = email; u.role = role; }
+            } else {
+                const newId = users.length ? Math.max(...users.map(u => u.id)) + 1 : 1;
+                users.push({ id: newId, username, email, role });
+            }
+            renderUsers();
+            bootstrap.Modal.getInstance(document.getElementById("modalAddUser")).hide();
+            this.reset();
+        });
+
+        // ---------- Confirm helper ----------
+        function showConfirm(text, onOk) {
+            document.getElementById("confirmText").textContent = text;
+            const modalEl = document.getElementById("modalConfirm");
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+            const okBtn = document.getElementById("confirmOk");
+
+            // remove existing listeners by cloning
+            const newOk = okBtn.cloneNode(true);
+            okBtn.parentNode.replaceChild(newOk, okBtn);
+            newOk.addEventListener("click", function () {
+                onOk && onOk();
+            });
+        }
+
+        // ---------- Utility ----------
+        function escapeHtml(s) {
+            if (!s) return "";
+            return s.replace(/[&<>"']/g, function (m) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]; });
+        }
+
+        // ---------- Refresh buttons ----------
+        document.getElementById("btnRefreshCategories").addEventListener("click", renderCategories);
+        document.getElementById("btnRefreshProducts").addEventListener("click", renderProducts);
+        document.getElementById("btnRefreshUsers").addEventListener("click", renderUsers);
+
+        // Initial render
+        renderCategories();
+        renderProducts();
+        renderUsers();
+    </script>
+</body>
+
+</html>

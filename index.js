@@ -86,6 +86,10 @@ app.get('/register', (req, res) =>{
     res.sendFile(path.join(__dirname, '/static', 'register.html'));
 })
 
+app.get('/admin', (req, res) =>{
+    res.sendFile(path.join(__dirname, '/static', 'admin.html'));
+})
+
 app.post("/register", async (req, res) => {
   const { full_name, email, address, password, ["g-recaptcha-response"]: token } = req.body;
 

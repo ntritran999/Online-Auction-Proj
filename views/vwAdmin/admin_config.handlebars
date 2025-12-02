@@ -1,0 +1,39 @@
+<div class="d-flex justify-content-center">
+    <div class="col-12 col-md-6 col-lg-4">
+        <h2 class="mb-4 text-center">Cấu hình hệ thống</h2>
+
+        {{#if success}}
+        <div class="alert alert-success text-center">{{success}}</div>
+        {{/if}}
+
+        {{#if error}}
+        <div class="alert alert-danger text-center">{{error}}</div>
+        {{/if}}
+
+        <form method="POST" action="/admin/others" class="p-4 shadow rounded bg-white">
+
+            <div class="mb-3">
+                <label class="form-label">High Light Time (ms)</label>
+                <input type="number" name="highLightTime" class="form-control" value="{{config.highLightTime}}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Relative Time Days</label>
+                <input type="number" name="relativeTimeDays" class="form-control" value="{{config.relativeTimeDays}}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Extend Boundary (ms)</label>
+                <input type="number" name="extendBoundary" class="form-control" value="{{config.extendBoundary}}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Extend Time (ms)</label>
+                <input type="number" name="extendTime" class="form-control" value="{{config.extendTime}}">
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 mt-3">Lưu cấu hình</button>
+            <a href="/admin" class="btn btn-primary w-100 mt-3">Về lại dashboard</a>
+        </form>
+    </div>
+</div>

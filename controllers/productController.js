@@ -63,12 +63,18 @@ const getProDetails = async (req, res) => {
 
     const numPros = 5;
     const list = await productModel.findLimitedProsByCatId(product.category_id, numPros);
+
+    // admin function
+    const fromAdmin = req.query.from === 'admin';
+    const adminProPage = req.query.proPage || 1;
     
     const pro_details = {
         'product' : product,
         'seller' : seller,
         'top_bidder' : top_bidder,
         'related': list,
+        'fromAdmin': fromAdmin, // admin function
+        'adminProPage': adminProPage,
     };
     res.render('vwProducts/product_detail', pro_details);
 };

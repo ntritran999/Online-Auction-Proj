@@ -1,0 +1,500 @@
+<!-- Alert Container -->
+<div id="alertContainer">
+    {{#if success}}
+    <div class="alert alert-success alert-dismissible alert-fixed fade show">
+        {{success}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {{/if}}
+    {{#if error}}
+    <div class="alert alert-danger alert-dismissible alert-fixed fade show">
+        {{error}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {{/if}}
+</div>
+
+<div class="container d-flex w-100 m-0">
+
+    <!-- LEFT NAVIGATION -->
+    <div id="list-example" class="list-group admin-nav w-25">
+        <a class="list-group-item list-group-item-action" href="#category-management">Danh mục</a>
+        <a class="list-group-item list-group-item-action" href="#product-management">Sản phẩm</a>
+        <a class="list-group-item list-group-item-action" href="#user-management">Người dùng</a>
+        <a class="list-group-item list-group-item-action" href="admin/others">Khác</a>
+
+    </div>
+
+    <!-- RIGHT CONTENT -->
+    <div class="admin-content" data-bs-spy="scroll" data-bs-target="#list-example" tabindex="0">
+
+        <!-- CATEGORY SECTION -->
+        <section id="category-management" class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0">Quản lý danh mục (Category)</h2>
+                    <div>
+                        <button class="btn btn-primary me-2" onclick="openCategoryModal()">
+                            <i class="bi bi-plus-lg"></i> Thêm danh mục
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise"></i> Làm mới
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle" id="tblCategories">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:70px">ID</th>
+                                <th>Tên danh mục</th>
+                                <th style="width:120px">Số SP</th>
+                                <th style="width:280px">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each categories}}
+                            <tr>
+                                <td>{{category_id}}</td>
+                                <td>{{category_name}}</td>
+                                <td class="text-center">{{productCount}}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-primary me-1" onclick="viewCategory({{category_id}})">
+                                        <i class="bi bi-eye"></i> Xem
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editCategory({{category_id}}, '{{category_name}}')">
+                                        <i class="bi bi-pencil"></i> Sửa
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteCategory({{category_id}})" 
+                                        {{#if productCount}}disabled title="Danh mục có sản phẩm, không thể xóa"{{/if}}>
+                                        <i class="bi bi-trash"></i> Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination cho Categories -->
+                {{#if (gt catPageCount 1)}}
+                <nav aria-label="Category pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item {{#unless (gt catPage 1)}}disabled{{/unless}}">
+                            <a class="page-link" href="/admin?catPage={{catPrevPage}}&proPage={{proPage}}&userPage={{userPage}}">Trước</a>
+                        </li>
+                        {{#each catPageNums}}
+                        <li class="page-item {{#if (eq value ../catPage)}}active{{/if}}">
+                            <a class="page-link" href="/admin?catPage={{value}}&proPage={{../proPage}}&userPage={{../userPage}}">{{value}}</a>
+                        </li>
+                        {{/each}}
+                        <li class="page-item {{#unless (lt catPage catPageCount)}}disabled{{/unless}}">
+                            <a class="page-link" href="/admin?catPage={{catNextPage}}&proPage={{proPage}}&userPage={{userPage}}">Sau</a>
+                        </li>
+                    </ul>
+                </nav>
+                {{/if}}
+                
+                <div class="small-muted">Không được xóa danh mục đã có sản phẩm.</div>
+            </div>
+        </section>
+
+        <!-- PRODUCT SECTION -->
+        <section id="product-management" class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0">Quản lý sản phẩm (Product)</h2>
+                    <button class="btn btn-outline-secondary" onclick="location.reload()">
+                        <i class="bi bi-arrow-clockwise"></i> Làm mới
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered align-middle" id="tblProducts">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:70px">ID</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Danh mục</th>
+                                <th>Người bán</th>
+                                <th style="width:220px">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each products}}
+                            <tr>
+                                <td>{{product_id}}</td>
+                                <td>{{product_name}}</td>
+                                <td>{{#if category}}{{category.category_name}}{{else}}-{{/if}}</td>
+                                <td>{{#if seller}}{{seller.full_name}}{{else}}-{{/if}}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-primary me-1" onclick="viewProduct({{product_id}})">
+                                        <i class="bi bi-eye"></i> Xem
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteProduct({{product_id}})">
+                                        <i class="bi bi-x-circle"></i> Gỡ
+                                    </button>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination cho Products -->
+                {{#if (gt proPageCount 1)}}
+                <nav aria-label="Product pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item {{#unless (gt proPage 1)}}disabled{{/unless}}">
+                            <a class="page-link" href="/admin?catPage={{catPage}}&proPage={{proPrevPage}}&userPage={{userPage}}">Trước</a>
+                        </li>
+                        {{#each proPageNums}}
+                        <li class="page-item {{#if (eq value ../proPage)}}active{{/if}}">
+                            <a class="page-link" href="/admin?catPage={{../catPage}}&proPage={{value}}&userPage={{../userPage}}">{{value}}</a>
+                        </li>
+                        {{/each}}
+                        <li class="page-item {{#unless (lt proPage proPageCount)}}disabled{{/unless}}">
+                            <a class="page-link" href="/admin?catPage={{catPage}}&proPage={{proNextPage}}&userPage={{userPage}}">Sau</a>
+                        </li>
+                    </ul>
+                </nav>
+                {{/if}}
+            </div>
+        </section>
+
+        <!-- USER SECTION -->
+        <section id="user-management" class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 mb-0">Quản lý người dùng (User)</h2>
+                    <div>
+                        <button class="btn btn-primary me-2" onclick="openUserModal()">
+                            <i class="bi bi-plus-lg"></i> Thêm user
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise"></i> Làm mới
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered align-middle" id="tblUsers">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:80px">User ID</th>
+                                <th>Họ tên</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th style="width:220px">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#each users}}
+                            <tr>
+                                <td>{{user_id}}</td>
+                                <td>{{full_name}}</td>
+                                <td>{{email}}</td>
+                                <td>
+                                    <span class="badge {{#if (eq role 'admin')}}bg-dark{{else}}{{#if (eq role 'seller')}}bg-success{{else}}bg-secondary{{/if}}{{/if}}">
+                                        {{role}}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-primary me-1" onclick="viewUser({{user_id}})">
+                                        <i class="bi bi-eye"></i> Xem
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editUser({{user_id}}, '{{full_name}}', '{{email}}', '{{address}}', '{{role}}')">
+                                        <i class="bi bi-pencil"></i> Sửa
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteUser({{user_id}})">
+                                        <i class="bi bi-trash"></i> Xóa
+                                    </button>
+                                </td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination cho Users -->
+                {{#if (gt userPageCount 1)}}
+                <nav aria-label="User pagination">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item {{#unless (gt userPage 1)}}disabled{{/unless}}">
+                            <a class="page-link" href="/admin?catPage={{catPage}}&proPage={{proPage}}&userPage={{userPrevPage}}">Trước</a>
+                        </li>
+                        {{#each userPageNums}}
+                        <li class="page-item {{#if (eq value ../userPage)}}active{{/if}}">
+                            <a class="page-link" href="/admin?catPage={{../catPage}}&proPage={{../proPage}}&userPage={{value}}">{{value}}</a>
+                        </li>
+                        {{/each}}
+                        <li class="page-item {{#unless (lt userPage userPageCount)}}disabled{{/unless}}">
+                            <a class="page-link" href="/admin?catPage={{catPage}}&proPage={{proPage}}&userPage={{userNextPage}}">Sau</a>
+                        </li>
+                    </ul>
+                </nav>
+                {{/if}}
+
+                <h3 class="h6">Danh sách bidder xin nâng cấp tài khoản</h3>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle" id="tblUpgradeRequests">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:80px">Req ID</th>
+                                <th>Họ tên</th>
+                                <th>Email</th>
+                                <th>Yêu cầu</th>
+                                <th style="width:180px">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#if upgradeRequests.length}}
+                                {{#each upgradeRequests}}
+                                <tr>
+                                    <td>{{request_id}}</td>
+                                    <td>{{#if user}}{{user.full_name}}{{else}}-{{/if}}</td>
+                                    <td>{{#if user}}{{user.email}}{{else}}-{{/if}}</td>
+                                    <td>{{note}}</td>
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-success me-1" onclick="approveUpgrade({{request_id}}, {{user_id}})">
+                                            <i class="bi bi-check2-circle"></i> Duyệt
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="rejectUpgrade({{request_id}})">
+                                            <i class="bi bi-x-circle"></i> Từ chối
+                                        </button>
+                                    </td>
+                                </tr>
+                                {{/each}}
+                            {{else}}
+                                <tr><td colspan="5" class="text-center">Không có yêu cầu nào</td></tr>
+                            {{/if}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </div>
+</div>
+
+<!-- ===== Modals ===== -->
+
+<!-- Category Modal -->
+<div class="modal fade" id="modalCategory" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="formCategory" method="POST" action="/admin/categories" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoryModalTitle">Thêm danh mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="categoryId" name="category_id" />
+                <input type="hidden" id="formMethod" name="_method" value="POST" />
+                <div class="mb-3">
+                    <label class="form-label">Tên danh mục *</label>
+                    <input id="categoryName" name="category_name" class="form-control" required />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Lưu</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal fade" id="modalUser" tabindex="-1">
+    <div class="modal-dialog">
+        <form id="formUser" method="POST" action="/admin/users" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalTitle">Thêm user</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="userId" name="user_id" />
+                <input type="hidden" id="userFormMethod" name="_method" value="POST" />
+                <div class="mb-3">
+                    <label class="form-label">Họ tên *</label>
+                    <input id="userFullName" name="full_name" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email *</label>
+                    <input id="userEmail" name="email" type="email" class="form-control" required />
+                </div>
+                <div class="mb-3" id="passwordGroup">
+                    <label class="form-label">Mật khẩu *</label>
+                    <input id="userPassword" name="password" type="password" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Địa chỉ</label>
+                    <input id="userAddress" name="address" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <select id="userRole" name="role" class="form-select">
+                        <option value="bidder">Bidder</option>
+                        <option value="seller">Seller</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Lưu</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="modal fade" id="modalConfirm" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p id="confirmText" class="mb-3">Bạn có chắc chắn?</p>
+                <form id="confirmForm" method="POST">
+                    <input type="hidden" name="_method" value="DELETE" />
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-danger">Xác nhận</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{#section 'script'}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+<script>
+    // Get current page numbers
+    const urlParams = new URLSearchParams(window.location.search);
+    const catPage = urlParams.get('catPage') || 1;
+    const proPage = urlParams.get('proPage') || 1;
+    const userPage = urlParams.get('userPage') || 1;
+
+    //  category function
+    function openCategoryModal(id = null, name = '') {
+        const form = document.getElementById('formCategory');
+        document.getElementById('categoryId').value = id || '';
+        document.getElementById('categoryName').value = name;
+        document.getElementById('categoryModalTitle').textContent = id ? 'Sửa danh mục' : 'Thêm danh mục';
+        
+        if (id) {
+            form.action = `/admin/categories/${id}?catPage=${catPage}`;
+            document.getElementById('formMethod').value = 'PUT';
+        } else {
+            form.action = `/admin/categories?catPage=${catPage}`;
+            document.getElementById('formMethod').value = 'POST';
+        }
+        
+        new bootstrap.Modal(document.getElementById('modalCategory')).show();
+    }
+
+    function editCategory(id, name) {
+        openCategoryModal(id, name);
+    }
+
+    function viewCategory(id) {
+        window.location.href = `/admin/categories/${id}?catPage=${catPage}`;
+    }
+
+    function deleteCategory(id) {
+        showConfirm(`Xóa danh mục #${id}? (Không thể khôi phục)`, `/admin/categories/${id}/delete?catPage=${catPage}`);
+    }
+
+    // product function
+    function viewProduct(id) {
+        window.location.href = `/product/details/${id}?from=admin&proPage=${proPage}`;
+    }
+
+    function deleteProduct(id) {
+        showConfirm(`Gỡ sản phẩm #${id}?`, `/admin/products/${id}/delete?proPage=${proPage}`);
+    }
+
+    // user function
+    function openUserModal(id = null, name = '', email = '', address = '', role = 'bidder') {
+        const form = document.getElementById('formUser');
+        document.getElementById('userId').value = id || '';
+        document.getElementById('userFullName').value = name;
+        document.getElementById('userEmail').value = email;
+        document.getElementById('userAddress').value = address;
+        document.getElementById('userRole').value = role;
+        document.getElementById('userPassword').value = '';
+        document.getElementById('userModalTitle').textContent = id ? 'Sửa user' : 'Thêm user';
+
+        const passwordGroup = document.getElementById('passwordGroup');
+        const passwordInput = document.getElementById('userPassword');
+        
+        if (id) {
+            form.action = `/admin/users/${id}?userPage=${userPage}`;
+            document.getElementById('userFormMethod').value = 'PUT';
+            passwordGroup.classList.add('d-none');
+            passwordInput.removeAttribute('required');
+        } else {
+            form.action = `/admin/users?userPage=${userPage}`;
+            document.getElementById('userFormMethod').value = 'POST';
+            passwordGroup.classList.remove('d-none');
+            passwordInput.setAttribute('required', '');
+        }
+
+        new bootstrap.Modal(document.getElementById('modalUser')).show();
+    }
+
+    function editUser(id, name, email, address, role) {
+        openUserModal(id, name, email, address, role);
+    }
+
+    function viewUser(id) {
+        window.location.href = `/admin/users/${id}?userPage=${userPage}`;
+    }
+
+    function deleteUser(id) {
+        showConfirm(`Xóa người dùng #${id}?`, `/admin/users/${id}/delete?userPage=${userPage}`);
+    }
+
+    // request function
+    function approveUpgrade(requestId, userId) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/upgrade-requests/${requestId}/approve`;
+        
+        const userIdInput = document.createElement('input');
+        userIdInput.type = 'hidden';
+        userIdInput.name = 'user_id';
+        userIdInput.value = userId;
+        form.appendChild(userIdInput);
+        
+        document.body.appendChild(form);
+        
+        if (confirm('Duyệt nâng cấp tài khoản thành seller?')) {
+            form.submit();
+        } else {
+            form.remove();
+        }
+    }
+
+    function rejectUpgrade(requestId) {
+        showConfirm('Từ chối yêu cầu nâng cấp?', `/admin/upgrade-requests/${requestId}/reject`);
+    }
+
+    function showConfirm(text, actionUrl) {
+        document.getElementById('confirmText').textContent = text;
+        const form = document.getElementById('confirmForm');
+        form.action = actionUrl;
+        new bootstrap.Modal(document.getElementById('modalConfirm')).show();
+    }
+    
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert-fixed');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+{{/section}}

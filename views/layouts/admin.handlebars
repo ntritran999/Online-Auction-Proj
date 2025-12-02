@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Dashboard - Quản trị viên</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <style>
+        .admin-header {
+            background: #343a40;
+            color: #fff;
+            padding: 18px 30px;
+            margin-bottom: 1.25rem;
+        }
+
+        .card+.card {
+            margin-top: 1.25rem;
+        }
+
+        .small-muted {
+            font-size: 15px;
+            color: #6c757d;
+        }
+
+        .admin-content {
+            margin-left: 3vw;
+            flex: 1;
+            height: 80vh;
+            overflow-y: auto;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .alert-fixed {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-header d-flex align-items-center justify-content-between">
+        <h1 class="h4 mb-0">Administrator</h1>
+        <div class="small-muted">Bảng điều khiển quản trị</div>
+    </div>
+    {{{body}}}
+    {{{_sections.script}}}
+</body>
+
+</html>

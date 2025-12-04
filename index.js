@@ -49,12 +49,12 @@ dayjs.updateLocale('en', {
 });
 
 const app = express();
-app.locals.highLightTime = 1000 * 60 * 5; // 5 phut
-app.locals.relativeTimeDays = 3;
-app.locals.extendBoundary = 1000 * 60 * 5; // 5 phut
-app.locals.extendTime = 1000 * 60 * 10; // 10 phut
-
+// system config
+import { loadSystemConfig } from './controllers/adminController.js';
+app.use(loadSystemConfig);
 app.engine('handlebars', engine({
+    defaultLayout: 'main',
+    layoutsDir: path.join(__dirname, 'views', 'layouts'),
     helpers: {
         format_currency: function(num) {
             return new Intl.NumberFormat('vi-VN', {
@@ -95,6 +95,12 @@ app.engine('handlebars', engine({
             a = parseInt(a, 10);
             b = parseInt(b, 10);
             return a === b;
+        },
+        gt: function(a, b) {
+            return a > b;
+        },
+        lt: function(a, b) {
+            return a < b;
         },
         section: express_handlebars_sections(),
     }
@@ -140,6 +146,10 @@ app.use('/register', registerRouter);
 
 import { createUser } from "./controllers/userController.js";
 app.post("/verify-otp", createUser);
+
+import adminRouter from './routes/adminRoute.js';
+app.use('/admin', adminRouter);
+
 
 // google
 app.get('/auth/google', 

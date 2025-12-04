@@ -275,3 +275,26 @@ values
 ('enable_auto_extend', 'true'),
 ('maintenance_mode', 'false'),
 ('default_language', 'vi');
+
+
+create table upgrade_requests (
+    request_id serial primary key,
+    user_id integer references users(user_id) on delete cascade,
+    note text,
+    status text check (status in ('pending', 'approved', 'rejected')) default 'pending',
+    created_at timestamp default now()
+);
+
+
+insert into upgrade_requests (user_id, note) values
+(2, 'Muốn bán sản phẩm điện tử'),
+(3, 'Muốn bán đồ thời trang'),
+(4, 'Muốn bán sách và đồ sưu tầm'),
+(6, 'Muốn bán nông sản từ Cần Thơ'),
+(7, 'Muốn bán đồ công nghệ cũ');
+
+insert into SystemConfig (key, value) values
+('highLightTime', '300000'),
+('relativeTimeDays', '3'),
+('extendBoundary', '300000'),
+('extendTime', '600000');

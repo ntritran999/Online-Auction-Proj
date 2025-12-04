@@ -10,17 +10,14 @@ const router = Router();
 
 router.get('/', adminController.renderAdminDashboard);
 // category
-router.get('/categories/:id', adminController.getCategoryById);
 router.post('/categories', adminController.addCategory);
 router.post('/categories/:id', adminController.editCategory);
 router.post('/categories/:id/delete', adminController.removeCategory);
 
 // product
-router.get('/products/:id', adminController.getProductById);
 router.post('/products/:id/delete', adminController.deleteProduct);
 
 // user
-router.get('/users/:id', adminController.getUserById);
 router.post('/users', adminController.addUser);
 router.post('/users/:id', adminController.editUser);
 router.post('/users/:id/delete', adminController.removeUser);

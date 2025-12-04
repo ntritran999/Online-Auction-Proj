@@ -10,6 +10,29 @@ function getPageNums(page_counts) {
     });
 }
 
+// middleware
+export async function loadSystemConfig(req, res, next) {
+    try {
+        const { data, error } = await adminModel.getSystemConfig();
+        if (error) {
+            console.error(error);
+            return next();
+        }
+        const configMap = {};
+        data.forEach(c => configMap[c.key] = Number(c.value));
+
+        req.app.locals.highLightTime = configMap.highLightTime;
+        req.app.locals.relativeTimeDays = configMap.relativeTimeDays;
+        req.app.locals.extendBoundary = configMap.extendBoundary;
+        req.app.locals.extendTime = configMap.extendTime;
+
+        next();
+    } catch (err) {
+        console.error(err);
+        next();
+    }
+}
+
 //admin dashboard
 export async function renderAdminDashboard(req, res) {
     try {
@@ -83,17 +106,6 @@ export async function renderAdminDashboard(req, res) {
 }
 
 // category
-export async function getCategoryById(req, res) {
-    const { id } = req.params;
-    const { data, error } = await adminModel.findCategoryById(id);
-    
-    if (error || !data) {
-        return res.status(404).send('Category not found');
-    }
-    
-    res.json({ category: data });
-}
-
 export async function addCategory(req, res) {
     const { category_name, parent_cat } = req.body;
     const catPage = req.query.catPage || 1;
@@ -155,17 +167,6 @@ export async function removeCategory(req, res) {
 }
 
 // product
-export async function getProductById(req, res) {
-    const { id } = req.params;
-    const { data, error } = await adminModel.findProductById(id);
-    
-    if (error || !data) {
-        return res.status(404).send('Product not found');
-    }
-    
-    res.json({ product: data });
-}
-
 export async function deleteProduct(req, res) {
     const { id } = req.params;
     const proPage = req.query.proPage || 1;
@@ -180,18 +181,6 @@ export async function deleteProduct(req, res) {
 }
 
 // user
-export async function getUserById(req, res) {
-    const { id } = req.params;
-    const { data: usersData } = await adminModel.findAllUsers();
-    const user = usersData?.find(u => u.user_id === parseInt(id));
-    
-    if (!user) {
-        return res.status(404).send('User not found');
-    }
-    
-    res.json({ user });
-}
-
 export async function addUser(req, res) {
     const { full_name, email, password, role, address } = req.body;
     const userPage = req.query.userPage || 1;

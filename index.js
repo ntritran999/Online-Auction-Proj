@@ -49,11 +49,9 @@ dayjs.updateLocale('en', {
 });
 
 const app = express();
-app.locals.highLightTime = 1000 * 60 * 5; // 5 phut
-app.locals.relativeTimeDays = 3;
-app.locals.extendBoundary = 1000 * 60 * 5; // 5 phut
-app.locals.extendTime = 1000 * 60 * 10; // 10 phut
-
+// system config
+import { loadSystemConfig } from './controllers/adminController.js';
+app.use(loadSystemConfig);
 app.engine('handlebars', engine({
     defaultLayout: 'main',
     layoutsDir: path.join(__dirname, 'views', 'layouts'),

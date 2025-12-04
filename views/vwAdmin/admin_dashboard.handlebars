@@ -60,9 +60,6 @@
                                 <td>{{category_name}}</td>
                                 <td class="text-center">{{productCount}}</td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1" onclick="viewCategory({{category_id}})">
-                                        <i class="bi bi-eye"></i> Xem
-                                    </button>
                                     <button class="btn btn-sm btn-outline-primary me-1" onclick="editCategory({{category_id}}, '{{category_name}}')">
                                         <i class="bi bi-pencil"></i> Sửa
                                     </button>
@@ -201,9 +198,6 @@
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1" onclick="viewUser({{user_id}})">
-                                        <i class="bi bi-eye"></i> Xem
-                                    </button>
                                     <button class="btn btn-sm btn-outline-primary me-1" onclick="editUser({{user_id}}, '{{full_name}}', '{{email}}', '{{address}}', '{{role}}')">
                                         <i class="bi bi-pencil"></i> Sửa
                                     </button>
@@ -399,10 +393,6 @@
         openCategoryModal(id, name);
     }
 
-    function viewCategory(id) {
-        window.location.href = `/admin/categories/${id}?catPage=${catPage}`;
-    }
-
     function deleteCategory(id) {
         showConfirm(`Xóa danh mục #${id}? (Không thể khôi phục)`, `/admin/categories/${id}/delete?catPage=${catPage}`);
     }
@@ -447,10 +437,6 @@
 
     function editUser(id, name, email, address, role) {
         openUserModal(id, name, email, address, role);
-    }
-
-    function viewUser(id) {
-        window.location.href = `/admin/users/${id}?userPage=${userPage}`;
     }
 
     function deleteUser(id) {

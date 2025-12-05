@@ -11,6 +11,16 @@ function getPageNums(page_counts) {
     });
 }
 
+function getImageSlides(img_list) {
+    const slide_size = 5;
+    let image_slides = [];
+    for (let i = 0; i < img_list.length; i += slide_size) {
+        const slide = img_list.slice(i, i + slide_size);
+        image_slides.push(slide);
+    }
+    return image_slides;
+}
+
 const getProByCat = async (req, res) => {
     const id = req.params.id;
     const cat = await categoryModel.findCatById(id);
@@ -62,7 +72,7 @@ const getProDetails = async (req, res) => {
         top_bidder.total_rating = top_bidder.rating_plus + top_bidder.rating_minus;
 
     const numPros = 5;
-    const list = await productModel.findLimitedProsByCatId(product.category_id, numPros);
+    const list = await productModel.findLimitedProsByCatId(id, product.category_id, numPros);
 
     // admin function
     const fromAdmin = req.query.from === 'admin';
@@ -70,6 +80,8 @@ const getProDetails = async (req, res) => {
     
     const pro_details = {
         'product' : product,
+        'main_image': product.image_list[0],
+        'slides': getImageSlides(product.image_list.slice(1)),
         'seller' : seller,
         'top_bidder' : top_bidder,
         'related': list,

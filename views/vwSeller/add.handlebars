@@ -1,0 +1,174 @@
+{{#section 'css'}}
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+<link href="https://releases.transloadit.com/uppy/v5.1.11/uppy.min.css" rel="stylesheet">
+{{/section}}
+
+{{#section 'script'}}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script src="https://releases.transloadit.com/uppy/v3.17.0/uppy.min.js"></script>
+<script src="https://releases.transloadit.com/uppy/locales/v3.3.1/vi_VN.min.js"></script>
+<script src=" https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js "></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.0/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const quill = new Quill('#editor', {
+        theme: 'snow'
+    });
+
+    // Cleavejs
+    new Cleave('#startPrice', {
+        numeral: true,
+        numeralDecimalMark: ',',
+        delimiter: '.',
+        numeralPositiveOnly: true,
+    })
+
+    new Cleave('#priceStep', {
+        numeral: true,
+        numeralDecimalMark: ',',
+        delimiter: '.',
+        numeralPositiveOnly: true,
+    })
+
+    new Cleave('#buyNowPrice', {
+        numeral: true,
+        numeralDecimalMark: ',',
+        delimiter: '.',
+        numeralPositiveOnly: true,
+    })
+
+    // Uppy
+    const uppy = new Uppy.Uppy({
+        locale: Uppy.locales.vi_VN,
+        restrictions: {
+            minNumberOfFiles: 4,
+            allowedFileTypes: ['image/*'],
+        },
+    });
+
+    uppy.use(Uppy.Dashboard, {
+        target: '#uppy',
+        inline: true
+    });
+
+    uppy.use(Uppy.XHRUpload, { 
+        endpoint: '/upload', 
+        fieldName: 'images',
+        formData: true,
+    });
+
+    let uploaded_photos = [];
+    uppy.on('upload-success', (file, response) => {
+        if(response.body && Array.isArray(response.body.files)) {
+            response.body.files.forEach( f => {
+                uploaded_photos.push(f.filename);
+            });
+        }
+
+        console.log(uploaded_photos);
+        document.querySelector('#productPhotos').value = JSON.stringify(uploaded_photos);
+    });
+
+    // submit
+    document.querySelector("#addProductForm").addEventListener("submit", e => {
+        e.preventDefault();
+
+        if (quill.getLength() == 1) {
+            Swal.fire({
+                icon: "error",
+                text: "Vui lòng nhập mô tả sản phẩm",
+            });
+            return;
+        }
+        document.querySelector("#productDescription").value = DOMPurify.sanitize(quill.getSemanticHTML());
+
+        const end_time = new Date(document.querySelector('#endTime').value);
+        const now = new Date();
+        if (end_time < now) {
+            Swal.fire({
+                icon: "error",
+                text: "Vui lòng nhập thời điểm kết thúc hợp lệ",
+            });
+            return;
+        }
+
+        if (uploaded_photos.length < 4) {
+            Swal.fire({
+                icon: "error",
+                text: "Vui lòng tải đủ số lượng ảnh.",
+            });
+            return;
+        }
+        e.target.submit();
+    });
+</script>
+{{/section}}
+
+<div class="container">
+    <form id="addProductForm" action="" method="post">
+        <div class="card my-3">
+            <h5 class="card-header fw-bold">Đăng sản phẩm mới</h5>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="productName" class="form-label fw-semibold">Tên sản phẩm <span
+                            class="text-danger">*</span></label>
+                    <input type="text" id="productName" class="form-control" name="product_name" autofocus required>
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="startPrice" class="form-label fw-semibold">Giá khởi điểm <span
+                                class="text-danger">*</span></label>
+                        <input type="text" id="startPrice" class="form-control" name="start_price" required>
+                    </div>
+                    <div class="col">
+                        <label for="priceStep" class="form-label fw-semibold">Bước giá <span
+                                class="text-danger">*</span></label>
+                        <input type="text" id="priceStep" class="form-control" name="step_price" required>
+                    </div>
+                    <div class="col">
+                        <label for="buyNowPrice" class="form-label fw-semibold">Giá mua ngay</label>
+                        <input type="text" id="buyNowPrice" class="form-control" name="buy_now_price">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="endTime" class="form-label fw-semibold">Thời điểm kết thúc <span
+                            class="text-danger">*</span></label>
+                    <input type="datetime-local" min="2025-01-01T00:00" max="2050-01-01T00:00" id="endTime" class="form-control" name="end_time" required>
+                </div>
+                <div class="mb-3">
+                    <label for="isAutoExtend" class="form-check-label fw-semibold ">Tự động gia hạn?</label>
+                    <input class="form-check-input ms-2 border-2" type="checkbox" id="isAutoExtend"
+                        style="width: 1.25rem; height: 1.25rem;" name="auto_extend" checked>
+                </div>
+                <div class="mb-3">
+                    <label for="editor" class="form-label fw-semibold">Mô tả sản phẩm <span
+                            class="text-danger">*</span></label>
+                    <input type="hidden" id="productDescription" name="description">
+                    <div id="editor">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="categoryId" class="fw-semibold">Danh mục sản phẩm <span
+                            class="text-danger">*</span></label>
+                    <select id="categoryId" class="form-select" required name="category_id">
+                        <option selected value="">-- Chọn danh mục --</option>
+                        {{#each list}}
+                        <option value={{category_id}}>{{category_name}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="uppy" class="form-label fw-semibold">Ảnh (tối thiểu 4 ảnh) <span class="text-danger">*</span></label>
+                    <input type="hidden" id="productPhotos" name="images">
+                    <div id="uppy">
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">
+                    Thêm sản phẩm
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

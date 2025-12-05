@@ -75,13 +75,16 @@
                             <div class="row g-0">
                                 <div class="col-sm-4">
                                     <div class="container" style="height: 250px;">
-                                        <img src="/images/shoe.jpg" class="object-fit-cover h-100 w-100 rounded"
+                                        <img src="{{image_list.0.image_url}}" class="object-fit-cover h-100 w-100 rounded"
                                             alt="Card title" />
                                     </div>
                                 </div>
                                 <div class="col-sm-8">
                                     <div class="card-body">
-                                        <h5 class="card-title">{{product_name}}</h5>
+                                        <div class="d-md-flex justify-content-between">
+                                            <h5 class="card-title">{{product_name}}</h5>
+                                            <span class="badge text-bg-warning">Mới</span>
+                                        </div>
                                         <h2 class="card-text fw-bold current_price" data-current-price="{{current_price}}">
                                             {{format_currency current_price}}
                                         </h2>
@@ -91,10 +94,10 @@
                                         </p>
                                         <div class="d-md-flex justify-content-between">
                                             <p class="card-text">
-                                                Ngày mở bán: {{format_datetime created_at}}
+                                                Ngày mở bán: {{format_datetime (convert_to_local created_at)}}
                                             </p>
                                             <p class="card-text">
-                                                <small class="text-muted">{{bid_count}}</small>
+                                                <small class="text-muted">Lượt ra giá: {{bid_count}}</small>
                                             </p>
                                         </div>
                                         <p class="card-text text-danger fw-bold end_time" data-end-time="{{end_time}}">Kết thúc phiên: {{format_endDatetime end_time}}</p>
@@ -108,7 +111,7 @@
                             <div class="row g-0">
                                 <div class="col-sm-4">
                                     <div class="container" style="height: 250px;">
-                                        <img src="/images/shoe.jpg" class="object-fit-cover h-100 w-100 rounded"
+                                        <img src="{{image_list.0.image_url}}" class="object-fit-cover h-100 w-100 rounded"
                                             alt="Card title" />
                                     </div>
                                 </div>
@@ -124,10 +127,10 @@
                                         </p>
                                         <div class="d-md-flex justify-content-between">
                                             <p class="card-text">
-                                                Ngày mở bán: {{format_datetime created_at}}
+                                                Ngày mở bán: {{format_datetime (convert_to_local created_at)}}
                                             </p>
                                             <p class="card-text">
-                                                <small class="text-muted">{{bid_count}}</small>
+                                                <small class="text-muted">Lượt ra giá: {{bid_count}}</small>
                                             </p>
                                         </div>
                                         <p class="card-text text-danger fw-bold end_time" data-end-time="{{end_time}}">Kết thúc phiên: {{format_endDatetime end_time}}</p>

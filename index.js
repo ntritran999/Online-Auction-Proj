@@ -9,6 +9,7 @@ import express_handlebars_sections from 'express-handlebars-sections';
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime.js";
 import updateLocale from "dayjs/plugin/updateLocale.js";
+import utc from "dayjs/plugin/utc.js";
 import "./auth.js";
 
 dotenv.config();
@@ -47,6 +48,7 @@ dayjs.updateLocale('en', {
         dd: "%d ngày",
     }
 });
+dayjs.extend(utc);
 
 const app = express();
 // system config
@@ -88,8 +90,11 @@ app.engine('handlebars', engine({
         },
         is_product_new: function(created_at) {
             const now = dayjs();
-            const create = dayjs(created_at);
+            const create = dayjs.utc(created_at).local();
             return now.diff(create, 'ms') < app.locals.highLightTime;
+        },
+        convert_to_local: function(created_at) {
+            return dayjs.utc(created_at).local().toDate();
         },
         eq: function(a, b) {
             a = parseInt(a, 10);
@@ -179,6 +184,9 @@ app.get('/logout', (req, res, next) => {
     });
   });
 });
+
+import sellerRouter from "./routes/sellerRoute.js";
+app.use('/', sellerRouter);
 
 app.use((req, res) => {
     res.render('404');

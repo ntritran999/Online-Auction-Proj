@@ -2,13 +2,22 @@ import { findTopProsByColumn } from "../models/productModel.js";
 
 export default async function renderHome(req, res) {
     const numTopPros = 5;
-    const dateList = await findTopProsByColumn('end_time',numTopPros);
-    const bidCountsList = await findTopProsByColumn('bid_count', numTopPros);
-    const priceList = await findTopProsByColumn('current_price', numTopPros);
-    const list = {
-        'dateList': dateList,
-        'bidCountsList': bidCountsList,
-        'priceList': priceList
+    const columns = ['end_time', 'bid_count', 'current_price'];
+    const titles = [
+        'Sản phẩm sắp kết thúc',
+        'Sản phẩm nhiều lượt ra giá nhất',
+        'Sản phẩm giá cao nhất',
+    ];
+
+    let list = [];
+    for (let i = 0; i < columns.length; i++) {
+        const products = await findTopProsByColumn(columns[i], numTopPros); 
+        list.push({
+            title: titles[i],
+            products: products,
+        });
     }
-    res.render('home', list);
+    res.render('home', {
+        list: list,
+    });
 };

@@ -39,68 +39,29 @@
     </button>
   </div>
   <div class="container-fluid">
-    <h3 class="fw-bold mx-3 my-5">Sản phẩm sắp kết thúc</h3>
+    {{#each list}}
+    <h3 class="fw-bold mx-3 my-5">{{title}}</h3>
     <div class="container">
       <div class="row">
-        {{#each dateList}}
+        {{#each products}}
         <div class="col-md-6 col-lg-4 mb-3">
           <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
+            <img src="{{image_list.0.image_url}}" class="card-img-top rounded-3" alt="..." />
             <div class="card-body">
               <h5 class="card-title">{{product_name}}</h5>
               <p class="card-text fw-bold">{{format_currency current_price}}</p>
               <p class="card-text">Bidder dẫn đầu: {{mask_name highest_bidder.full_name}}</p>
               <p class="card-text">Giá mua ngay: {{format_currency buy_now_price}}</p>
-              <p class="card-text">Bắt đầu: {{format_datetime created_at}}</p>
+              <p class="card-text">Bắt đầu: {{format_datetime (convert_to_local created_at)}}</p>
               <p class="card-text">Kết thúc: {{format_endDatetime end_time}}</p>
               <p class="card-text">Lượt ra giá: {{bid_count}}</p>
+              <a href="/product/details/{{product_id}}" class="stretched-link"></a>
             </div>
           </div>
         </div>
         {{/each}}
       </div>
     </div>
-    <h3 class="fw-bold mx-3 my-5">Sản phẩm nhiều lượt ra giá nhất</h3>
-    <div class="container">
-      <div class="row">
-        {{#each bidCountsList}}
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">{{product_name}}</h5>
-              <p class="card-text fw-bold">{{format_currency current_price}}</p>
-              <p class="card-text">Bidder dẫn đầu: {{mask_name highest_bidder.full_name}}</p>
-              <p class="card-text">Giá mua ngay: {{format_currency buy_now_price}}</p>
-              <p class="card-text">Bắt đầu: {{format_datetime created_at}}</p>
-              <p class="card-text">Kết thúc: {{format_endDatetime end_time}}</p>
-              <p class="card-text">Lượt ra giá: {{bid_count}}</p>
-            </div>
-          </div>
-        </div>
-        {{/each}}
-      </div>
-    </div>
-    <h3 class="fw-bold mx-3 my-5">Sản phẩm giá cao nhất</h3>
-    <div class="container">
-      <div class="row">
-        {{#each priceList}}
-        <div class="col-md-6 col-lg-4 mb-3">
-          <div class="card p-2 mx-auto h-100 border-0" style="width: 18rem;">
-            <img src="/images/item.jpg" class="card-img-top rounded-3" alt="..." />
-            <div class="card-body">
-              <h5 class="card-title">{{product_name}}</h5>
-              <p class="card-text fw-bold">{{format_currency current_price}}</p>
-              <p class="card-text">Bidder dẫn đầu: {{mask_name highest_bidder.full_name}}</p>
-              <p class="card-text">Giá mua ngay: {{format_currency buy_now_price}}</p>
-              <p class="card-text">Bắt đầu: {{format_datetime created_at}}</p>
-              <p class="card-text">Kết thúc: {{format_endDatetime end_time}}</p>
-              <p class="card-text">Lượt ra giá: {{bid_count}}</p>
-            </div>
-          </div>
-        </div>
-        {{/each}}
-      </div>
-    </div>
+    {{/each}}
   </div>
 </main>

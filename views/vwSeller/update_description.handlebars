@@ -1,0 +1,54 @@
+{{#section 'css'}}
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+{{/section}}
+
+{{#section 'script'}}
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.0/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const quill = new Quill('#editor', {
+        theme: 'snow'
+    });
+
+    // submit
+    document.querySelector("#updateDescriptionForm").addEventListener("submit", e => {
+        e.preventDefault();
+
+        if (quill.getLength() == 1) {
+            Swal.fire({
+                icon: "error",
+                text: "Vui lòng nhập mô tả sản phẩm",
+            });
+            return;
+        }
+        document.querySelector("#productDescription").value = DOMPurify.sanitize(quill.getSemanticHTML());
+
+        e.target.submit();
+    });
+</script>
+{{/section}}
+
+<div class="container">
+    <form id="updateDescriptionForm" action="" method="post">
+        <div class="card my-3">
+            <div class="card-header">Bổ sung thông tin sản phẩm</div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="editor" class="form-label fw-semibold">Mô tả sản phẩm <span
+                            class="text-danger">*</span></label>
+                    <input type="hidden" id="productDescription" name="description">
+                    <div id="editor">
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end">
+                <a class="btn btn-outline-secondary me-3" href="#" role="button">Quay về</a>
+                <button type="submit" class="btn btn-primary">
+                    Cập nhật
+                </button>
+            </div>
+        </div>
+        
+    </form>
+</div>

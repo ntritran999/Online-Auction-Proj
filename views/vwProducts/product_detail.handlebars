@@ -1,17 +1,6 @@
-<div class="modal fade" id="img1" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <img src="/images/iphone.jpg" alt="" class="img-fluid">
-            </div>
-        </div>
-    </div>
-</div>
-
 {{#if fromAdmin}}
 <div class="container-md mt-3">
-    <a href="/admin?proPage={{adminProPage}}" 
-       class="btn btn-secondary">
+    <a href="/admin?proPage={{adminProPage}}" class="btn btn-secondary">
         <i class="bi bi-arrow-left"></i> Quay về Admin
     </a>
 </div>
@@ -21,41 +10,36 @@
     <div class="row">
         <div class="col-md-7 mb-3 m-md-0">
             <div class="bg-body-secondary rounded mb-3" style="height: 500px;">
-                <img src="/images/iphone.jpg" alt="" class="object-fit-contain h-100 w-100 p-5">
+                <img src="{{main_image.image_url}}" alt="" class="object-fit-contain h-100 w-100 p-5">
             </div>
 
             <div id="carouselId" class="carousel carousel-dark slide">
                 <div class="carousel-inner" role="listbox">
-                    <div class="carousel-item active">
+                    {{#each slides}}
+                    <div class="carousel-item 
+                        {{#if (eq @index 0)}}
+                        active
+                        {{/if}}">
                         <div class="row justify-content-center">
-                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
+                            {{#each this}}
+                            <div class="col-2" style="height: 100px;"><img src="{{image_url}}"
                                     class="object-fit-contain h-100 w-100 d-block stretched-link" alt="First slide"
-                                    data-bs-toggle="modal" data-bs-target="#img1" />
+                                    data-bs-toggle="modal" data-bs-target="#img{{@index}}" />
                             </div>
-                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
-                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
+                            <div class="modal fade" id="img{{@index}}" tabindex="-1" role="dialog" aria-labelledby="modalTitleId"
+                                aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-body">
+                                            <img src="{{image_url}}" alt="" class="img-fluid">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
-                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
-                            </div>
-                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
-                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
-                            </div>
-                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
-                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
-                            </div>
+                            {{/each}}
                         </div>
                     </div>
-                    <div class="carousel-item">
-                        <div class="row justify-content-center">
-                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
-                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
-                            </div>
-                            <div class="col-2" style="height: 100px;"><img src="/images/item.jpg"
-                                    class="object-fit-contain h-100 w-100 d-block" alt="First slide" />
-                            </div>
-                        </div>
-                    </div>
+                    {{/each}}
                 </div>
                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselId" data-bs-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -73,16 +57,20 @@
             <hr>
             <div class="row">
                 <div class="col-5">
-                    <h6 class="fw-bold">Seller: {{seller.full_name}} <small class="text-muted">({{seller.total_rating}})</small></h6>
-                    <p class="text-decoration-underline ps-2">{{positive_percentage seller.rating_plus seller.total_rating}}% đánh giá tích cực</p>
+                    <h6 class="fw-bold">Seller: {{seller.full_name}} <small
+                            class="text-muted">({{seller.total_rating}})</small></h6>
+                    <p class="text-decoration-underline ps-2">{{positive_percentage seller.rating_plus
+                        seller.total_rating}}% đánh giá tích cực</p>
                 </div>
                 <div class="col-1">
                     <div class="vr" style="height: 100%;"></div>
                 </div>
                 {{#if top_bidder}}
                 <div class="col-5">
-                    <h6 class="fw-bold">Bidder dẫn đầu: {{mask_name top_bidder.full_name}}<small class="text-muted">({{top_bidder.total_rating}})</small></h6>
-                    <p class="text-decoration-underline ps-2">{{positive_percentage top_bidder.rating_plus top_bidder.total_rating}}% đánh giá tích cực</p>
+                    <h6 class="fw-bold">Bidder dẫn đầu: {{mask_name top_bidder.full_name}}<small
+                            class="text-muted">({{top_bidder.total_rating}})</small></h6>
+                    <p class="text-decoration-underline ps-2">{{positive_percentage top_bidder.rating_plus
+                        top_bidder.total_rating}}% đánh giá tích cực</p>
                 </div>
                 {{/if}}
             </div>
@@ -96,9 +84,9 @@
         </div>
     </div>
 
-    <div class="container-fluid border mt-5">
+    <div class="container-fluid border mt-5 p-3">
         <h3 class="fw-bold">Mô tả sản phẩm</h3>
-        <p>{{product.description}}</p>
+        <p>{{{product.description}}}</p>
     </div>
 </div>
 
@@ -261,7 +249,7 @@
             {{#each related}}
             <div class="col-md-3 col-6">
                 <div class="card p-2 h-100 border-0">
-                    <img src="/images/item.jpg" class="img-fluid rounded-3" alt="..." />
+                    <img src="{{image_list.0.image_url}}" class="img-fluid rounded-3" alt="..." />
                     <div class="card-body">
                         <h5 class="card-title">{{product_name}}</h5>
                         <p class="card-text fw-bold">{{format_currency current_price}}</p>
@@ -270,6 +258,7 @@
                         <p class="card-text">Bắt đầu: {{format_datetime created_at}}</p>
                         <p class="card-text">Kết thúc: {{format_endDatetime end_time}}</p>
                         <p class="card-text">Lượt ra giá: {{bid_count}}</p>
+                        <a href="/product/details/{{product_id}}" class="stretched-link"></a>
                     </div>
                 </div>
             </div>

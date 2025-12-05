@@ -16,3 +16,8 @@ export async function findCatById(id) {
         return null;
     return data;
 }
+
+export async function findAllCats() {
+    const { data, error } = await supabase.from('category').select('category_id, category_name');
+    return data;
+}

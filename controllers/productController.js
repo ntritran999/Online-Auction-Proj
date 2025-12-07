@@ -2,6 +2,7 @@ import { matchedData, validationResult } from 'express-validator';
 import * as categoryModel from '../models/categoryModel.js';
 import * as productModel from '../models/productModel.js';
 import * as userModel from '../models/userModel.js';
+import * as bidModel from '../models/sellerModel.js';
 
 const numPros = 4;
 
@@ -78,6 +79,11 @@ const getProDetails = async (req, res) => {
     const fromAdmin = req.query.from === 'admin';
     const adminProPage = req.query.proPage || 1;
     
+    const isSeller = (req.user) ? req.user.user_id == seller.user_id : 0;
+    const bidder_list = await bidModel.findBiddersByProId(id);
+
+    const qa_list = await productModel.getQAHistory(id);
+
     const pro_details = {
         'product' : product,
         'main_image': product.image_list[0],
@@ -87,6 +93,9 @@ const getProDetails = async (req, res) => {
         'related': list,
         'fromAdmin': fromAdmin, // admin function
         'adminProPage': adminProPage,
+        'isSeller': isSeller,
+        'bidders': bidder_list,
+        'qa_list': qa_list,
     };
     res.render('vwProducts/product_detail', pro_details);
 };
@@ -103,7 +112,7 @@ const getProsBySearch = async (req, res) => {
     const offset = (page - 1) * numPros;
 
     let searchValue = data.item;
-    searchValue = searchValue.replace(/\s/g, " & ").toLowerCase();
+    searchValue = searchValue.trim().replace(/\s/g, " & ").toLowerCase();
 
     const total = await productModel.countProsBySearch(searchValue);
     const page_counts = Math.ceil(total / numPros);
@@ -126,4 +135,28 @@ const getProsBySearch = async (req, res) => {
     res.render('vwProducts/product', product_category);
 };
 
-export { getProByCat, getProDetails, getProsBySearch }
+const createQuestion = async (req, res) => {
+    const question = {
+        product_id: req.body.product_id,
+        user_id: req.user.user_id,
+        question_text: req.body.question_text
+    };
+
+    await productModel.addQuestion(question);
+
+    res.redirect(req.headers.referer);
+}
+
+const createAnswer = async (req, res) => {
+    const answer = {
+        question_id: req.body.question_id,
+        seller_id: req.user.user_id,
+        answer_text: req.body.answer_text
+    };
+
+    await productModel.addAnswer(answer);
+
+    res.redirect(req.headers.referer);
+}
+
+export { getProByCat, getProDetails, getProsBySearch, createQuestion, createAnswer }

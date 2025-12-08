@@ -89,9 +89,11 @@
                                             {{format_currency current_price}}
                                         </h2>
                                         <p class="card-text"><mark>Bidder tra gia cao nhat: {{mask_name highest_bidder.full_name}}</mark></p>
+                                        {{#if buy_now_price}}
                                         <p class="card-text">
                                             <small class="text-muted">Giá mua ngay: {{format_currency buy_now_price}}</small>
                                         </p>
+                                        {{/if}}
                                         <div class="d-md-flex justify-content-between">
                                             <p class="card-text">
                                                 Ngày mở bán: {{format_datetime (convert_to_local created_at)}}
@@ -122,9 +124,11 @@
                                             {{format_currency current_price}}
                                         </h2>
                                         <p class="card-text"><mark>Bidder tra gia cao nhat: {{mask_name highest_bidder.full_name}}</mark></p>
+                                        {{#if buy_now_price}}
                                         <p class="card-text">
                                             <small class="text-muted">Giá mua ngay: {{format_currency buy_now_price}}</small>
                                         </p>
+                                        {{/if}}
                                         <div class="d-md-flex justify-content-between">
                                             <p class="card-text">
                                                 Ngày mở bán: {{format_datetime (convert_to_local created_at)}}

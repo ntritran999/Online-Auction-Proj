@@ -16,18 +16,15 @@
             <div id="carouselId" class="carousel carousel-dark slide">
                 <div class="carousel-inner" role="listbox">
                     {{#each slides}}
-                    <div class="carousel-item 
-                        {{#if (eq @index 0)}}
-                        active
-                        {{/if}}">
+                    <div class="carousel-item {{#if (eq @index 0)}}active{{/if}}">
                         <div class="row justify-content-center">
                             {{#each this}}
-                            <div class="col-2" style="height: 100px;"><img src="{{image_url}}"
-                                    class="object-fit-contain h-100 w-100 d-block stretched-link" alt="First slide"
-                                    data-bs-toggle="modal" data-bs-target="#img{{@index}}" />
+                            <div class="col-2" style="height: 100px;">
+                                <img src="{{image_url}}" class="object-fit-contain h-100 w-100 d-block stretched-link" 
+                                     alt="Product image" data-bs-toggle="modal" data-bs-target="#img{{@index}}" />
                             </div>
-                            <div class="modal fade" id="img{{@index}}" tabindex="-1" role="dialog" aria-labelledby="modalTitleId"
-                                aria-hidden="true">
+                            <div class="modal fade" id="img{{@index}}" tabindex="-1" role="dialog" 
+                                 aria-labelledby="modalTitleId" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                     <div class="modal-content">
                                         <div class="modal-body">
@@ -50,36 +47,69 @@
                     <span class="visually-hidden">Next</span>
                 </button>
             </div>
-
         </div>
+
         <div class="col-md-5">
-            <h5 class="fw-bold">{{product.product_name}}</h5>
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="fw-bold">{{product.product_name}}</h5>
+                {{#if isAuthenticated}}
+                {{#if (eq currentUser.role 'bidder')}}
+                <button class="btn btn-outline-danger btn-sm" id="watchlistBtn" data-product-id="{{product.product_id}}">
+                    <i class="bi bi-heart" id="watchlistIcon"></i>
+                </button>
+                {{/if}}
+                {{/if}}
+            </div>
             <hr>
+
             <div class="row">
                 <div class="col-5">
-                    <h6 class="fw-bold">Seller: {{seller.full_name}} <small
-                            class="text-muted">({{seller.total_rating}})</small></h6>
-                    <p class="text-decoration-underline ps-2">{{positive_percentage seller.rating_plus
-                        seller.total_rating}}% đánh giá tích cực</p>
+                    <h6 class="fw-bold">Seller: {{seller.full_name}} 
+                        <small class="text-muted">({{seller.total_rating}})</small>
+                    </h6>
+                    <p class="text-decoration-underline ps-2">
+                        {{positive_percentage seller.rating_plus seller.total_rating}}% đánh giá tích cực
+                    </p>
                 </div>
                 <div class="col-1">
                     <div class="vr" style="height: 100%;"></div>
                 </div>
                 {{#if top_bidder}}
                 <div class="col-5">
-                    <h6 class="fw-bold">Bidder dẫn đầu: {{mask_name top_bidder.full_name}}<small
-                            class="text-muted">({{top_bidder.total_rating}})</small></h6>
-                    <p class="text-decoration-underline ps-2">{{positive_percentage top_bidder.rating_plus
-                        top_bidder.total_rating}}% đánh giá tích cực</p>
+                    <h6 class="fw-bold">Bidder dẫn đầu: {{mask_name top_bidder.full_name}}
+                        <small class="text-muted">({{top_bidder.total_rating}})</small>
+                    </h6>
+                    <p class="text-decoration-underline ps-2">
+                        {{positive_percentage top_bidder.rating_plus top_bidder.total_rating}}% đánh giá tích cực
+                    </p>
                 </div>
                 {{/if}}
             </div>
             <hr>
 
-            <h4>Giá bán: <span class="fw-bold">{{format_currency product.current_price}}</span></h4>
+            <h4>Giá hiện tại: <span class="fw-bold text-primary" id="currentPrice">{{format_currency product.current_price}}</span></h4>
+            <p>Bước giá: <strong>{{format_currency product.step_price}}</strong></p>
+            <p>Lượt ra giá: <strong id="bidCount">{{product.bid_count}}</strong></p>
             <p>Ngày mở bán: {{format_datetime product.created_at}}</p>
             <p class="text-danger">Ngày kết thúc: {{format_endDatetime product.end_time}}</p>
             <h4>Mua ngay với: <span class="fw-bold">{{format_currency product.buy_now_price}}</span></h4>
+            
+            {{#if isAuthenticated}}
+            {{#if (eq currentUser.role 'bidder')}}
+            <div class="mt-4">
+                <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#bidModal">
+                    <i class="bi bi-hammer"></i> Đặt giá
+                </button>
+                <a href="/bidder/bid-history/{{product.product_id}}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-clock-history"></i> Xem lịch sử đấu giá
+                </a>
+            </div>
+            {{/if}}
+            {{else}}
+            <div class="alert alert-info mt-4">
+                <a href="/login">Đăng nhập</a> để tham gia đấu giá
+            </div>
+            {{/if}}
             <hr>
         </div>
     </div>
@@ -90,159 +120,39 @@
     </div>
 </div>
 
-<div class="container-fluid">
-    <h1 class="fw-bold">Hỏi đáp</h1>
-    <div class="container-fluid mb-5">
-        <div class="card">
-            <div class="card-body p-4">
-                <div class="d-flex flex-start mb-4">
-                    <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg" alt="avatar"
-                        width="32" height="32" />
-                    <div class="flex-grow-1 flex-shrink-1">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <p class="mb-1">
-                                    Maria Smantha <span class="small">- 2 hours ago</span>
-                                </p>
-                                <a class="link-underline link-underline-opacity-0" href="#!"><i
-                                        class="bi bi-reply"></i><span class="small">
-                                        reply</span></a>
-                            </div>
-                            <p class="small mb-0">
-                                It is a long established fact that a reader will be distracted by
-                                the readable content of a page.
-                            </p>
-                        </div>
-
-                        <div class="d-flex flex-start mt-4">
-                            <a class="me-3" href="#">
-                                <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg"
-                                    alt="avatar" width="32" height="32" />
-                            </a>
-                            <div class="flex-grow-1 flex-shrink-1">
-                                <div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <p class="mb-1">
-                                            Simona Disa <span class="small">- 3 hours ago</span>
-                                        </p>
-                                    </div>
-                                    <p class="small mb-0">
-                                        letters, as opposed to using 'Content here, content here',
-                                        making it look like readable English.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex flex-start mt-4">
-                            <a class="me-3" href="#">
-                                <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg"
-                                    alt="avatar" width="32" height="32" />
-                            </a>
-                            <div class="flex-grow-1 flex-shrink-1">
-                                <div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <p class="mb-1">
-                                            John Smith <span class="small">- 4 hours ago</span>
-                                        </p>
-                                    </div>
-                                    <p class="small mb-0">
-                                        the majority have suffered alteration in some form, by
-                                        injected humour, or randomised words.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<!-- Bid Modal -->
+<div class="modal fade" id="bidModal" tabindex="-1" aria-labelledby="bidModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bidModalLabel">Đặt giá</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Giá hiện tại:</label>
+                    <p class="fw-bold text-primary" id="modalCurrentPrice">{{format_currency product.current_price}}</p>
                 </div>
-                <div class="d-flex flex-start mb-4">
-                    <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg" alt="avatar"
-                        width="32" height="32" />
-                    <div class="flex-grow-1 flex-shrink-1">
-                        <div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <p class="mb-1">
-                                    Natalie Smith <span class="small">- 2 hours ago</span>
-                                </p>
-                                <a class="link-underline link-underline-opacity-0" href="#!"><i
-                                        class="bi bi-reply"></i><span class="small">
-                                        reply</span></a>
-                            </div>
-                            <p class="small mb-0">
-                                The standard chunk of Lorem Ipsum used since the 1500s is
-                                reproduced below for those interested. Sections 1.10.32 and
-                                1.10.33.
-                            </p>
-                        </div>
-
-                        <div class="d-flex flex-start mt-4">
-                            <a class="me-3" href="#">
-                                <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg"
-                                    alt="avatar" width="32" height="32" />
-                            </a>
-                            <div class="flex-grow-1 flex-shrink-1">
-                                <div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <p class="mb-1">
-                                            Lisa Cudrow <span class="small">- 4 hours ago</span>
-                                        </p>
-                                    </div>
-                                    <p class="small mb-0">
-                                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus
-                                        scelerisque ante sollicitudin commodo. Cras purus odio,
-                                        vestibulum in vulputate at, tempus viverra turpis.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex flex-start mt-4">
-                            <a class="me-3" href="#">
-                                <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg"
-                                    alt="avatar" width="32" height="32" />
-                            </a>
-                            <div class="flex-grow-1 flex-shrink-1">
-                                <div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <p class="mb-1">
-                                            Maggie McLoan <span class="small">- 5 hours ago</span>
-                                        </p>
-                                    </div>
-                                    <p class="small mb-0">
-                                        a Latin professor at Hampden-Sydney College in Virginia,
-                                        looked up one of the more obscure Latin words, consectetur
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-start mt-4">
-                            <a class="me-3" href="#">
-                                <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg"
-                                    alt="avatar" width="32" height="32" />
-                            </a>
-                            <div class="flex-grow-1 flex-shrink-1">
-                                <div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <p class="mb-1">
-                                            John Smith <span class="small">- 6 hours ago</span>
-                                        </p>
-                                    </div>
-                                    <p class="small mb-0">
-                                        Autem, totam debitis suscipit saepe sapiente magnam officiis
-                                        quaerat necessitatibus odio assumenda, perferendis quae iusto
-                                        labore laboriosam minima numquam impedit quam dolorem!
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label">Giá tối thiểu phải đặt:</label>
+                    <p class="fw-bold" id="minBidPrice"></p>
                 </div>
-
+                <div class="mb-3">
+                    <label for="bidAmount" class="form-label">Giá của bạn (VNĐ):</label>
+                    <input type="number" class="form-control" id="bidAmount" 
+                           placeholder="Nhập giá đặt" min="{{product.current_price}}" step="{{product.step_price}}">
+                    <div class="form-text">Bước giá: {{format_currency product.step_price}}</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="confirmBidBtn">Xác nhận đặt giá</button>
             </div>
         </div>
     </div>
+</div>
 
-
+<div class="container-fluid">
     <h1 class="fw-bold">Các sản phẩm khác</h1>
     <div class="container">
         <div class="row">
@@ -266,3 +176,111 @@
         </div>
     </div>
 </div>
+
+<script>
+const productId = '{{product.product_id}}';
+const currentPrice = {{product.current_price}};
+const stepPrice = {{product.step_price}};
+
+// Watchlist functionality
+{{#if isAuthenticated}}
+{{#if (eq currentUser.role 'bidder')}}
+document.addEventListener('DOMContentLoaded', async function() {
+    // Check watchlist status
+    try {
+        const response = await fetch(`/bidder/watchlist/check/${productId}`);
+        const data = await response.json();
+        
+        const icon = document.getElementById('watchlistIcon');
+        if (data.inWatchlist) {
+            icon.classList.remove('bi-heart');
+            icon.classList.add('bi-heart-fill');
+        }
+    } catch (error) {
+        console.error(error);
+    }
+
+    // Toggle watchlist
+    document.getElementById('watchlistBtn').addEventListener('click', async function() {
+        try {
+            const response = await fetch(`/bidder/watchlist/toggle/${productId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                const icon = document.getElementById('watchlistIcon');
+                if (data.action === 'added') {
+                    icon.classList.remove('bi-heart');
+                    icon.classList.add('bi-heart-fill');
+                } else {
+                    icon.classList.remove('bi-heart-fill');
+                    icon.classList.add('bi-heart');
+                }
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Có lỗi xảy ra');
+        }
+    });
+
+    // Calculate minimum bid
+    const minBid = currentPrice + stepPrice;
+    document.getElementById('minBidPrice').textContent = minBid.toLocaleString('vi-VN') + ' VNĐ';
+    document.getElementById('bidAmount').min = minBid;
+
+    // Confirm bid
+    document.getElementById('confirmBidBtn').addEventListener('click', async function() {
+        const bidAmount = parseFloat(document.getElementById('bidAmount').value);
+        
+        if (!bidAmount || bidAmount < minBid) {
+            alert('Giá đặt không hợp lệ!');
+            return;
+        }
+
+        if (!confirm(`Bạn có chắc chắn muốn đặt giá ${bidAmount.toLocaleString('vi-VN')} VNĐ?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/bidder/bid', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId, bidAmount })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                alert(data.message);
+                
+                // Update UI
+                document.getElementById('currentPrice').textContent = 
+                    data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                document.getElementById('modalCurrentPrice').textContent = 
+                    data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                document.getElementById('bidCount').textContent = data.bidCount;
+                
+                // Close modal and reset
+                bootstrap.Modal.getInstance(document.getElementById('bidModal')).hide();
+                document.getElementById('bidAmount').value = '';
+                
+                // Reload page to update all info
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Có lỗi xảy ra khi đặt giá');
+        }
+    });
+});
+{{/if}}
+{{/if}}
+</script>

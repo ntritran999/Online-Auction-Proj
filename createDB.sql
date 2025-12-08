@@ -27,6 +27,7 @@ create table Products (
     buy_now_price numeric(12,2),
     current_price numeric(12,2),
     auto_extend boolean default false,
+    bidder_rating_required boolean default false,
     created_at timestamp default now(),
     end_time timestamp not null,
     bid_count integer default 0,
@@ -121,6 +122,13 @@ create table SystemConfig (
     value text
 );
 
+create table Denied (
+    product_id integer references Products(product_id) on delete cascade,
+    bidder_id integer references Users(user_id) on delete cascade,
+
+    primary key(product_id, bidder_id)
+);
+
 create extension if not exists unaccent;
 create or replace function immutable_unaccent(word text) returns text
 as $$
@@ -131,6 +139,27 @@ alter table products
 add column if not exists fts tsvector generated always as (to_tsvector('english', immutable_unaccent(lower(product_name)) || ' ' || immutable_unaccent(lower(description)))) stored;
 
 create index if not exists products_fts on products using gin (fts);
+
+create or replace function get_bidders(proid integer)
+returns table(product_id integer, bidder_id integer, full_name text, is_denied boolean)
+language plpgsql
+as $$
+begin  
+  return query
+  select distinct bids.product_id, bids.bidder_id, users.full_name, case when exists 
+                                                                      (
+                                                                        select *
+                                                                  from denied
+                                                                  where denied.product_id=bids.product_id and denied.bidder_id=bids.bidder_id
+                                                                      )
+                                                                      then true
+                                                                      else false
+                                                                  end is_denied
+  from bids
+  join users on bids.bidder_id=users.user_id
+  where bids.product_id=proid;
+end;
+$$;
 
 insert into users (full_name, email, password_hash, address, role)
 values

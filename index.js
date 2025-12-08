@@ -58,7 +58,7 @@ dayjs.updateLocale('en', {
     relativeTime: {
         future: "%s nữa",
         past: "%s trước",
-        s: 'vài giây trước',
+        s: 'vài giây',
         m: "1 phút",
         mm: "%d phút",
         h: "1 giờ",
@@ -94,7 +94,7 @@ app.engine('handlebars', engine({
                 return 'Phiên đấu giá đã kết thúc';
             else if (end.diff(now, 'd') < app.locals.relativeTimeDays)
                 return end.from(now);
-            return end.format('hh:mm:ss DD/MM/YYYY');
+            return end.format('HH:mm:ss DD/MM/YYYY');
         },
         positive_percentage: function(plus, total) {
             if (total === 0)
@@ -125,6 +125,14 @@ app.engine('handlebars', engine({
         },
         lt: function(a, b) {
             return a < b;
+        },
+        inc: function(idx) {
+            return parseInt(idx) + 1;
+        },
+        format_QAtime: function(time) {
+            const now = dayjs();
+            const qaTime = dayjs(time);
+            return qaTime.from(now);
         },
         section: express_handlebars_sections(),
     }
@@ -177,6 +185,8 @@ app.use('/admin', requireRole('admin'), adminRouter);
 
 import bidderRouter from './routes/bidderRoute.js';
 app.use('/bidder', requireRole('bidder'), bidderRouter);
+import accountRouter from './routes/accountRoute.js';
+app.use('/account', isLoggedIn, accountRouter);
 
 // google
 app.get('/auth/google', 
@@ -205,7 +215,13 @@ app.get('/logout', (req, res, next) => {
 });
 
 import sellerRouter from "./routes/sellerRoute.js";
-app.use('/', sellerRouter);
+const isSeller = (req, res, next) => {
+    if (!req.user || req.user.role !== 'seller') {
+        return res.redirect('/');
+    }
+    next();
+}
+app.use('/', isSeller, sellerRouter);
 
 app.use((req, res) => {
     res.render('404');

@@ -135,10 +135,17 @@
                             class="text-danger">*</span></label>
                     <input type="datetime-local" min="2025-01-01T00:00" max="2050-01-01T00:00" id="endTime" class="form-control" name="end_time" required>
                 </div>
-                <div class="mb-3">
-                    <label for="isAutoExtend" class="form-check-label fw-semibold ">Tự động gia hạn?</label>
-                    <input class="form-check-input ms-2 border-2" type="checkbox" id="isAutoExtend"
-                        style="width: 1.25rem; height: 1.25rem;" name="auto_extend" checked>
+                <div class="row mb-3">
+                    <div class="col-md">
+                        <label for="isAutoExtend" class="form-check-label fw-semibold ">Tự động gia hạn?</label>
+                        <input class="form-check-input ms-2 border-2" type="checkbox" id="isAutoExtend"
+                            style="width: 1.25rem; height: 1.25rem;" name="auto_extend" checked>
+                    </div>
+                    <div class="col-md">
+                        <label for="isBidderRatingRequired" class="form-check-label fw-semibold ">Yêu cầu bidder có đánh giá tốt?</label>
+                        <input class="form-check-input ms-2 border-2" type="checkbox" id="isBidderRatingRequired"
+                            style="width: 1.25rem; height: 1.25rem;" name="bidder_rating_required" checked>
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="editor" class="form-label fw-semibold">Mô tả sản phẩm <span

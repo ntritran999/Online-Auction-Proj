@@ -1,12 +1,13 @@
 import supabase from '../supabaseClient.js'
 
-export async function findAllParentCats() {
-    const { data, error } = await supabase.from('category').select('category_id, category_name').is('parent_cat', null);
-    return data;
-}
-
-export async function findSubCatsOf(parentId) {
-    const { data, error } = await supabase.from('category').select().eq('parent_cat', parentId);
+export async function findAllCatsWithSubCats() {
+    const { data, error } = await supabase
+                                .from('category')
+                                .select(`category_id, category_name,
+                                        subCats:category!parent_cat(
+                                            category_id, category_name
+                                        )`)
+                                .is('parent_cat', null);
     return data;
 }
 

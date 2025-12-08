@@ -1,3 +1,51 @@
+{{#section 'script'}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.querySelectorAll('.formDeny').forEach(form => form.addEventListener('submit', e => {
+        e.preventDefault();
+        e.submitter.parentNode.innerHTML = `<span class="text-muted">Đã từ chối</span>`;
+        e.target.submit();
+    }));
+
+    const formQuestion = document.querySelector("#formQuestion");
+    if (formQuestion) {
+        formQuestion.addEventListener('submit', e => {
+            e.preventDefault();
+
+            const content = document.querySelector("#question").value;
+            if (!content) {
+                Swal.fire({
+                    icon: "error",
+                    text: "Vui lòng nhập câu hỏi trước khi gửi.",
+                });
+                return;
+            }
+
+            e.target.submit();
+        });
+    }
+
+    const formAnswer = document.querySelector("#formAnswer");
+    if (formAnswer) {
+        formAnswer.addEventListener('submit', e => {
+            e.preventDefault();
+
+            const content = document.querySelector("#answer").value;
+            if (!content) {
+                Swal.fire({
+                    icon: "error",
+                    text: "Vui lòng nhập câu trả lời trước khi gửi.",
+                });
+                return;
+            }
+
+            e.target.submit();
+        });
+    }
+
+</script>
+{{/section}}
+
 {{#if fromAdmin}}
 <div class="container-md mt-3">
     <a href="/admin?proPage={{adminProPage}}" class="btn btn-secondary">
@@ -23,8 +71,8 @@
                                 <img src="{{image_url}}" class="object-fit-contain h-100 w-100 d-block stretched-link" 
                                      alt="Product image" data-bs-toggle="modal" data-bs-target="#img{{@index}}" />
                             </div>
-                            <div class="modal fade" id="img{{@index}}" tabindex="-1" role="dialog" 
-                                 aria-labelledby="modalTitleId" aria-hidden="true">
+                            <div class="modal fade" id="img{{@index}}" tabindex="-1" role="dialog"
+                                aria-labelledby="modalTitleId" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                     <div class="modal-content">
                                         <div class="modal-body">
@@ -111,12 +159,138 @@
             </div>
             {{/if}}
             <hr>
+            {{#if isAuthenticated}}
+            {{#if isSeller}}
+            <h4 class="fw-semibold mt-3">Danh sách bidder ra giá</h4>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr class="text-center">
+                            <th scope="col">#</th>
+                            <th scope="col">Bidder</th>
+                            <th scope="col">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {{#each bidders}}
+                        <tr class="text-center">
+                            <th scope="row">{{inc @index}}</th>
+                            <td>{{mask_name full_name}}</td>
+                            <td>
+                                <form class="formDeny" action="/denyBid" method="post">
+                                    <input type="hidden" name="product_id" value="{{product_id}}">
+                                    <input type="hidden" name="bidder_id" value="{{bidder_id}}">
+                                    <div>
+                                        {{#if is_denied}}
+                                        <span class="text-muted">Đã từ chối</span>
+                                        {{else}}
+                                        <button type="submit" class="btn btn-primary">
+                                            Từ chối ra giá
+                                        </button>
+                                        {{/if}}
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            <hr>
+            {{/if}}
+
+            <h4 class="fw-semibold">Lịch sử đấu giá</h4>
+            <div class="table-responsive" style="max-height: 500px;">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr class="table-active">
+                            <th scope="col">Thời điểm</th>
+                            <th scope="col">Người mua</th>
+                            <th scope="col">Giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>27/10/2025 10:43</td>
+                            <td>****Khoa</td>
+                            <td>6,000,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 9:43</td>
+                            <td>****Kha</td>
+                            <td>5,900,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 10:43</td>
+                            <td>****Khoa</td>
+                            <td>6,000,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 9:43</td>
+                            <td>****Kha</td>
+                            <td>5,900,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 10:43</td>
+                            <td>****Khoa</td>
+                            <td>6,000,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 9:43</td>
+                            <td>****Kha</td>
+                            <td>5,900,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 10:43</td>
+                            <td>****Khoa</td>
+                            <td>6,000,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 9:43</td>
+                            <td>****Kha</td>
+                            <td>5,900,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 10:43</td>
+                            <td>****Khoa</td>
+                            <td>6,000,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 9:43</td>
+                            <td>****Kha</td>
+                            <td>5,900,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 10:43</td>
+                            <td>****Khoa</td>
+                            <td>6,000,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 9:43</td>
+                            <td>****Kha</td>
+                            <td>5,900,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 10:43</td>
+                            <td>****Khoa</td>
+                            <td>6,000,000</td>
+                        </tr>
+                        <tr>
+                            <td>27/10/2025 9:43</td>
+                            <td>****Kha</td>
+                            <td>5,900,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            {{/if}}
         </div>
     </div>
 
     <div class="container-fluid border mt-5 p-3">
         <h3 class="fw-bold">Mô tả sản phẩm</h3>
-        <p>{{{product.description}}}</p>
+        {{{product.description}}}
     </div>
 </div>
 
@@ -147,7 +321,95 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary" id="confirmBidBtn">Xác nhận đặt giá</button>
+<div class="container-fluid">
+    <h1 class="fw-bold">Hỏi đáp</h1>
+    <div class="container-fluid mb-5">
+        <div class="card">
+            <div class="card-body p-4 overflow-auto" style="max-height: 800px;">
+                {{#each qa_list}}
+                <div class="d-flex flex-start mb-4">
+                    <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg" alt="avatar"
+                        width="32" height="32" />
+                    <div class="flex-grow-1 flex-shrink-1">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <p class="mb-1">
+                                    {{mask_name bidder.full_name}} <span class="small">- {{format_QAtime (convert_to_local created_at)}}</span>
+                                </p>
+                                {{#unless answer}}
+                                {{#if ../isAuthenticated}}
+                                {{#if ../isSeller}}
+                                <a class="link-underline link-underline-opacity-0" data-bs-toggle="collapse" href="#collapse" aria-expanded="false" aria-controls="collapse"><i
+                                        class="bi bi-reply"></i><span class="small">
+                                        reply</span></a>
+                                
+                                
+                                {{/if}}
+                                {{/if}}
+                                {{/unless}}
+                            </div>
+                            <p class="small mb-0">
+                                {{question_text}}
+                            </p>
+                        </div>
+                        <div class="d-flex flex-start mt-4">
+                            <div class="collapse w-100" id="collapse">
+                                <div class="card card-body">
+                                    <form id="formAnswer" action="/product/answer" method="post">
+                                        <textarea id="answer" class="form-control mb-3" rows="3" name="answer_text"></textarea>
+                                        <input type="hidden" name="question_id" value="{{question_id}}">
+                                        <button type="submit" class="btn btn-primary float-end">Đăng câu trả lời</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {{#each answer}}
+                        <div class="d-flex flex-start mt-4">
+                            <a class="me-3" href="#">
+                                <img class="rounded-circle shadow-1-strong me-3" src="/icons/person-circle.svg"
+                                    alt="avatar" width="32" height="32" />
+                            </a>
+                            <div class="flex-grow-1 flex-shrink-1">
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        {{#if ../../isAuthenticated}}
+                                        {{#if ../../isSeller}}
+                                        <p class="mb-1">
+                                            Tôi <span class="small">- {{format_QAtime (convert_to_local created_at)}}</span>
+                                        </p>
+                                        {{/if}}
+                                        {{else}}
+                                        <p class="mb-1">
+                                            {{seller.full_name}} <span class="small">- {{format_QAtime (convert_to_local created_at)}}</span>
+                                        </p>
+                                        {{/if}}
+                                    </div>
+                                    <p class="small mb-0">
+                                        {{answer_text}}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {{/each}}
+                    </div>
+                </div>
+                {{/each}}
+
             </div>
+
+            {{#if isAuthenticated}}
+            {{#unless isSeller}}
+            <hr class="mb-3">
+            <div class="card-body p-4 mb-3">
+                <form id="formQuestion" action="/product/question" method="post">
+                    <label for="question" class="form-label fw-semibold">Đặt câu hỏi</label>
+                    <textarea class="form-control mb-3" id="question" rows="3" name="question_text"></textarea>
+                    <input type="hidden" name="product_id" value="{{product.product_id}}">
+                    <button type="submit" class="btn btn-primary float-end">Đăng câu hỏi</button>
+                </form>
+            </div>
+            {{/unless}}
+            {{/if}}
         </div>
     </div>
 </div>

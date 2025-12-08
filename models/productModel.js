@@ -127,3 +127,32 @@ export async function updateProDescription(id, content) {
     if (error) 
         console.log(error);
 }
+
+export async function addQuestion(question) {
+    const { error } = await supabase.from('questions').insert(question);
+    if (error)
+        console.log(error);
+}
+
+export async function addAnswer(answer) {
+    const { error } = await supabase.from('answers').insert(answer);
+    if (error)
+        console.log(error);
+}
+
+export async function getQAHistory(pro_id) {
+    const { data, error } = await supabase
+                                .from('questions')
+                                .select(`question_id, user_id, question_text, created_at,
+                                    answer: answers!question_id(
+                                        answer_text, created_at,
+                                        seller: users!user_id(
+                                            full_name
+                                        )
+                                    ),
+                                    bidder: users!user_id(
+                                        full_name
+                                    )`)
+                                .eq('product_id', pro_id);
+    return data;
+}

@@ -163,6 +163,8 @@ app.post("/verify-otp", createUser);
 import adminRouter from './routes/adminRoute.js';
 app.use('/admin', adminRouter);
 
+import accountRouter from './routes/accountRoute.js';
+app.use('/account', isLoggedIn, accountRouter);
 
 // google
 app.get('/auth/google', 

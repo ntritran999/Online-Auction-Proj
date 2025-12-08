@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <title>Online Auction</title>
+</head>
+<body>
+    <header class="bg-secondary-subtle d-flex justify-content-between p-3 mb-3">
+        <h2 class="fw-semibold">Quản lý hồ sơ cá nhân</h2>
+        <a id="backNav" onclick="history.back()" class="btn btn-primary" role="button">Quay về</a>
+    </header>
+    <main class="container-fluid row">
+        <div class="col-md-3">
+            <div class="list-group mb-3">
+                <a class="list-group-item list-group-item-action active" aria-current="true" href="#">Cập nhật thông tin cá nhân</a>
+                <a class="list-group-item list-group-item-action" href="#">Xem đánh giá</a>
+                <a class="list-group-item list-group-item-action" href="#">Danh sách sản phẩm yêu thích</a>
+                <a class="list-group-item list-group-item-action" href="#">Danh sách sản phẩm đang đấu giá</a>
+                <a class="list-group-item list-group-item-action" href="#">Danh sách sản phẩm thắng đấu giá</a>
+                <a class="list-group-item list-group-item-action" href="#">Danh sách sản phẩm đã đăng</a>
+                <a class="list-group-item list-group-item-action" href="#">Danh sách sản phẩm đã có người thắng đấu giá</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card card-body">
+                {{{body}}}
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script>
+        document.querySelector('#backNav').setAttribute('href', document.referrer);
+    </script>
+    {{{_sections.script}}}
+</body>
+</html>

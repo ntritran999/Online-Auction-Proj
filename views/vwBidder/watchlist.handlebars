@@ -1,0 +1,90 @@
+<div class="container my-5">
+    <h1 class="fw-bold mb-4">Danh sách yêu thích</h1>
+
+    {{#if watchlist.length}}
+    <div class="row">
+        {{#each watchlist}}
+        <div class="col-md-3 col-6 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="position-relative">
+                    <img src="{{product.image_list.0.image_url}}" class="card-img-top" alt="{{product.product_name}}" 
+                         style="height: 200px; object-fit: cover;">
+                    {{#if (is_product_new product.created_at)}}
+                    <span class="position-absolute top-0 start-0 badge bg-danger m-2">Mới</span>
+                    {{/if}}
+                    <button class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 remove-watchlist" 
+                            data-product-id="{{product.product_id}}">
+                        <i class="bi bi-heart-fill"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{product.product_name}}</h5>
+                    <p class="card-text fw-bold text-primary">{{format_currency product.current_price}}</p>
+                    <p class="card-text small">
+                        <i class="bi bi-person"></i> 
+                        Bidder dẫn đầu: {{mask_name product.highest_bidder.full_name}}
+                    </p>
+                    <p class="card-text small">
+                        <i class="bi bi-tag"></i> 
+                        Giá mua ngay: {{format_currency product.buy_now_price}}
+                    </p>
+                    <p class="card-text small text-danger">
+                        <i class="bi bi-clock"></i> 
+                        {{format_endDatetime product.end_time}}
+                    </p>
+                    <p class="card-text small">
+                        <i class="bi bi-hammer"></i> 
+                        Lượt ra giá: {{product.bid_count}}
+                    </p>
+                    <a href="/product/details/{{product.product_id}}" class="btn btn-primary btn-sm w-100 mt-2">
+                        Xem chi tiết
+                    </a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    {{else}}
+    <div class="alert alert-info text-center">
+        <i class="bi bi-heart" style="font-size: 3rem;"></i>
+        <p class="mt-3">Bạn chưa có sản phẩm yêu thích nào</p>
+        <a href="/" class="btn btn-primary">Khám phá sản phẩm</a>
+    </div>
+    {{/if}}
+</div>
+
+<script>
+document.querySelectorAll('.remove-watchlist').forEach(btn => {
+    btn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const productId = this.dataset.productId;
+        
+        if (!confirm('Bạn có chắc muốn xóa sản phẩm này khỏi danh sách yêu thích?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/bidder/watchlist/toggle/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Có lỗi xảy ra');
+        }
+    });
+});
+</script>

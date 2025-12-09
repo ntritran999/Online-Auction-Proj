@@ -19,7 +19,7 @@ const PORT = 5000;
 
 // login
 function isLoggedIn(req, res, next) {
-    console.log("👉 isLoggedIn check:", {
+    console.log("IsLoggedIn check:", {
         isAuthenticated: req.isAuthenticated(),
         hasUser: !!req.user,
         sessionID: req.sessionID
@@ -30,6 +30,25 @@ function isLoggedIn(req, res, next) {
     }
     
     res.status(401).send('Unauthorized - Please login');
+}
+
+function requireRole(role) {
+    return (req, res, next) => {
+        console.log("IsLoggedIn check:", {
+            isAuthenticated: req.isAuthenticated(),
+            hasUser: !!req.user,
+            sessionID: req.sessionID
+        });
+        if (!req.isAuthenticated()) {
+            return res.status(401).send("Unauthorized - Please login");
+        }
+
+        if (req.user.role !== role) {
+            return res.status(403).send("Forbidden");
+        }
+
+        next();
+    };
 }
 
 // dayjs config
@@ -107,6 +126,9 @@ app.engine('handlebars', engine({
         lt: function(a, b) {
             return a < b;
         },
+        eqString: function(a ,b){
+            return a == b;
+        },
         inc: function(idx) {
             return parseInt(idx) + 1;
         },
@@ -142,6 +164,7 @@ app.use(loadCategoryList)
 
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.isAuthenticated();
+    res.locals.currentUser = req.user; 
     next();
 })
 
@@ -161,8 +184,10 @@ import { createUser } from "./controllers/userController.js";
 app.post("/verify-otp", createUser);
 
 import adminRouter from './routes/adminRoute.js';
-app.use('/admin', adminRouter);
+app.use('/admin', requireRole('admin'), adminRouter);
 
+import bidderRouter from './routes/bidderRoute.js';
+app.use('/bidder', requireRole('bidder'), bidderRouter);
 import accountRouter from './routes/accountRoute.js';
 app.use('/account', isLoggedIn, accountRouter);
 
@@ -182,9 +207,6 @@ app.get('/auth/failure', (req, res) =>{
     res.send('failure');
 });
 
-app.get('/protected', isLoggedIn, (req, res) =>{
-    res.send(`Hello ${req.user.email}`);
-});
 
 app.get('/logout', (req, res, next) => {
   req.logout(function (err) {

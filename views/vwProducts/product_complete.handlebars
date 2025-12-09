@@ -1,0 +1,193 @@
+{{#section 'script'}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const formCancel = document.querySelector('#formCancel');
+    if (formCancel) {
+        formCancel.addEventListener('submit', e => {
+            e.preventDefault();
+
+            document.querySelector('#confirmCancelBtn').addEventListener('click', e => {
+                formCancel.submit();
+            })
+        });
+    }
+
+    document.querySelector("#formMsg").addEventListener('submit', e => {
+        e.preventDefault();
+
+        const content = document.querySelector("#msgTextArea").value;
+        if (!content) {
+            Swal.fire({
+                icon: "info",
+                text: "Vui lòng nhập tin nhắn trước khi gửi.",
+            });
+            return;
+        }
+
+        e.target.submit();
+    });
+
+    document.querySelector("#reviewForm").addEventListener('submit', e => {
+        e.preventDefault();
+
+        const content = document.querySelector("#comment").value;
+        if (!content) {
+            const alertHolder = document.querySelector('#alertHolder');
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = `
+                <div class="alert alert-info d-flex align-items-center" role="alert">
+                    <div><i class="bi bi-info-circle-fill"></i> Vui lòng nhập nhận xét trước khi gửi.</div>
+                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            alertHolder.append(wrapper);
+            return;
+        }
+
+        e.target.submit();
+    });
+
+</script>
+{{/section}}
+
+<div class="container-fluid my-3">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="card mb-3">
+                <div class="card-header fw-semibold fs-5">Trạng thái đơn hàng</div>
+                <div class="card-body">
+                    <p class="card-text">
+                        {{#if transaction.is_canceled}}
+                        <span class="text-danger fw-bold">Giao dịch đã bị huỷ</span>
+                        {{else}}
+                        {{transaction.payment_status}}
+                        {{#if (eqString transaction.payment_status 'Chờ thanh toán')}}
+                        <i class="bi bi-circle-fill text-warning"></i>
+                        {{else}}
+                        <i class="bi bi-circle-fill text-success"></i>
+                        {{/if}}
+                    </p>
+                    {{/if}}
+                </div>
+                <div class="card-footer">
+                    {{#unless transaction.is_canceled}}
+                    {{#if is_seller}}
+                        {{#if (eqString transaction.payment_status 'Đã thanh toán')}}
+                        <a href="#" class="btn btn-primary float-end">Xác nhận đã nhận tiền</a>
+                        {{/if}}
+
+                        {{#if (eqString transaction.payment_status 'Chờ thanh toán')}}
+                        <form id="formCancel" action="" method="post">
+                            <button type="submit" class="btn btn-outline-danger float-end" data-bs-toggle="modal"
+                                data-bs-target="#confirmCancel">Huỷ giao dịch</button>
+                        </form>
+                        {{/if}}
+                    {{else}}
+                        {{#if (eqString transaction.payment_status 'Đã nhận tiền')}}
+                        <a href="#" class="btn btn-primary float-end">Xác nhận đã nhận hàng</a>
+                        {{/if}}
+
+                        {{#if (eqString transaction.payment_status 'Chờ thanh toán')}}
+                        <a href="#" class="btn btn-primary float-end">Thanh toán giao dịch</a>
+                        {{/if}}
+                    {{/if}}
+                    {{#if (eqString transaction.payment_status 'Giao dịch hoàn tất')}}
+                    <button type="button" class="btn btn-primary float-end"
+                        data-bs-toggle="modal" data-bs-target="#reviewModal">Đánh giá &amp; Nhận xét</button>
+                    {{/if}}
+                    {{/unless}}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <div class="card mb-3">
+                <div class="card-header fw-semibold fs-5">Khung chat</div>
+                <div class="card-body overflow-auto" style="max-height: 500px;">
+                    {{#each messages}}
+                    {{#if (eq ../currentUser.user_id sender_id)}}
+                    <div class="d-flex flex-row align-items-end justify-content-end mb-3">
+                        <small class="text-muted">{{format_QAtime (convert_to_local sent_at)}}</small>
+                        <div class="p-3 rounded-pill bg-primary">
+                            <small class="text-white">{{message_text}}</small>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div class="d-flex flex-row align-items-end justify-content-start mb-3">
+                        <div class="p-3 rounded-pill bg-body-secondary">
+                            <small>{{message_text}}</small>
+                        </div>
+                        <small class="text-muted">{{format_QAtime (convert_to_local sent_at)}}</small>
+                    </div>
+                    {{/if}}
+                    {{/each}}
+                </div>
+                <div class="card-footer text-muted">
+                    <form id="formMsg" action="/transaction/{{transaction.product_id}}/message" method="post">
+                        <div class="input-group">
+                            <textarea class="form-control" id="msgTextArea" rows="2" name="msg"></textarea>
+                            <input type="hidden" name="txn_id" value="{{transaction.transaction_id}}">
+                            <input type="hidden" name="sender" value="{{currentUser.user_id}}">
+                            {{#if transaction.is_canceled}}
+                            <button type="" class="btn btn-primary" disabled><i class="bi bi-send"></i></button>
+                            {{else}}
+                            <button type="" class="btn btn-primary"><i class="bi bi-send"></i></button>
+                            {{/if}}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="confirmCancel" tabindex="-1" aria-labelledby="confirmCancel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fw-bold fs-4">Xác nhận huỷ</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có muốn huỷ giao dịch này?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+                <button type="button" class="btn btn-primary" id="confirmCancelBtn">Có</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fw-bold fs-4">Đánh giá &amp; Nhận xét</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm" action="" method="post">
+                    <fieldset class="row mb-3">
+                        <legend class="col-form-label fw-semibold col-sm-3 pt-0">Đánh giá:</legend>
+                        <div class="col-sm-9">
+                            <div class="form-check">
+                                <label class="form-check-label" for="plus">(+1)</label>
+                                <input class="form-check-input" type="radio" name="reviewRadio" id="plus" checked>
+                            </div>
+                            <div class="form-check">
+                                <label class="form-check-label" for="minus">(-1)</label>
+                                <input class="form-check-input" type="radio" name="reviewRadio" id="minus">
+                            </div>
+                        </div>
+                    </fieldset>
+                    <label for="comment" class="form-label fw-semibold">Nhận xét:</label>
+                    <textarea class="form-control mb-3" id="comment" rows="3" name="comment"></textarea>
+                    <div id="alertHolder"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" form="reviewForm">Gửi</button>
+            </div>
+        </div>
+    </div>
+</div>

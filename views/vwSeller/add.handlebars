@@ -52,7 +52,7 @@
     });
 
     uppy.use(Uppy.XHRUpload, { 
-        endpoint: '/upload', 
+        endpoint: '/{{currentUser.user_id}}/upload', 
         fieldName: 'images',
         formData: true,
     });

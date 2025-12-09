@@ -16,6 +16,16 @@ const getCategories = async (req, res) => {
 };
 
 const uploadProduct = async (req, res) => {
+    if (req.body.images) {
+        const images = JSON.parse(req.body.images);
+        images.forEach((img, idx) => {
+            const oldPath = path.join('static', 'uploads', img);
+            if (!fs.existsSync(oldPath)) {
+                return res.redirect(`/${req.params.id}/add`);
+            }
+        });
+    }
+    
     const product = {
         seller_id: +req.params.id,
         category_id: +req.body.category_id,
@@ -63,4 +73,31 @@ const denyBid = async (req, res) => {
     res.redirect(req.headers.referer);
 };
 
-export { getCategories, uploadProduct, updateDescription, denyBid }
+const isSeller = (req, res, next) => {
+    if (req.user.role !== 'seller') {
+        return res.redirect('/');
+    }
+    next();
+}
+
+const isSameSeller = (req, res, next) => {
+    const sellerId = req.params.id;
+    if (parseInt(sellerId) !== req.user.user_id) {
+        return res.redirect('/');
+    }
+    next();
+}
+
+const isProOwnedBySeller = async (req, res, next) => {
+    const proId = req.params.id;
+    if (!parseInt(proId)) {
+        return res.redirect('/');
+    }
+    const check = await proModel.findProBySellerIdAndProId(req.user.user_id, proId);
+    if (!check) {
+        return res.redirect('/');
+    }
+    next();
+}
+
+export { getCategories, uploadProduct, updateDescription, denyBid, isSeller, isSameSeller, isProOwnedBySeller }

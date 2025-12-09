@@ -9,15 +9,15 @@ import {
 
 const router = Router();
 
-// 2.1 Watchlist routes
+// watchlist 
 router.post('/watchlist/toggle/:productId', toggleWatchlist);
 router.get('/watchlist', getWatchlist);
 router.get('/watchlist/check/:productId', checkWatchlistStatus);
 
-// 2.2 Bidding routes
+// bidding 
 router.post('/bid', placeBid);
 
-// 2.3 Bid history routes
+// bid history 
 router.get('/bid-history/:productId', getBidHistory);
 
 export default router;

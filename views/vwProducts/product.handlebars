@@ -42,7 +42,65 @@
         })
         .forEach(node => list.appendChild(node));
     });
-    
+    document.addEventListener('DOMContentLoaded', async function() {
+        const icons = document.querySelectorAll('.watchlistBtn');
+
+        for (const btn of icons) {
+            const pid = btn.dataset.productId;
+
+            try {
+                const res = await fetch(`/bidder/watchlist/check/${pid}`);
+                const data = await res.json();
+
+                const icon = document.querySelector(`#icon-${pid}`);
+
+                if (data.inWatchlist) {
+                    icon.classList.remove('bi-heart');
+                    icon.classList.add('bi-heart-fill');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    });
+
+   document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.watchlistBtn');
+        if (btn) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            const pid = btn.dataset.productId;
+            const icon = document.querySelector(`#icon-${pid}`);
+
+            try {
+                const res = await fetch(`/bidder/watchlist/toggle/${pid}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    if (data.action === 'added') {
+                        icon.classList.remove('bi-heart');
+                        icon.classList.add('bi-heart-fill');
+                    } else {
+                        icon.classList.remove('bi-heart-fill');
+                        icon.classList.add('bi-heart');
+                    }
+                    alert(data.message);
+                } else {
+                    alert(data.message);
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Có lỗi xảy ra");
+            }
+        }
+    });
+
 </script>
 {{/section}}
 
@@ -103,7 +161,7 @@
                                             </p>
                                         </div>
                                         <p class="card-text text-danger fw-bold end_time" data-end-time="{{end_time}}">Kết thúc phiên: {{format_endDatetime end_time}}</p>
-                                        <a href="/product/details/{{product_id}}" class="stretched-link"></a>
+                                        <a class="btn btn-primary text-nowrap" href="/product/details/{{product_id}}">Xem chi tiết</button>
                                     </div>
                                 </div>
                             </div>
@@ -120,6 +178,13 @@
                                 <div class="col-sm-8">
                                     <div class="card-body">
                                         <h5 class="card-title">{{product_name}}</h5>
+                                        {{#if ../isAuthenticated}}
+                                        <button class="btn btn-outline-danger btn-sm watchlistBtn" 
+                                                data-product-id="{{product_id}}"
+                                                style="position:absolute; top:10px; right:10px;">
+                                            <i class="bi bi-heart watchlistIcon" id="icon-{{product_id}}"></i>
+                                        </button>
+                                        {{/if}}
                                         <h2 class="card-text fw-bold current_price" data-current-price="{{current_price}}">
                                             {{format_currency current_price}}
                                         </h2>
@@ -138,7 +203,7 @@
                                             </p>
                                         </div>
                                         <p class="card-text text-danger fw-bold end_time" data-end-time="{{end_time}}">Kết thúc phiên: {{format_endDatetime end_time}}</p>
-                                        <a href="/product/details/{{product_id}}" class="stretched-link"></a>
+                                        <a class="btn btn-primary text-nowrap" href="/product/details/{{product_id}}">Xem chi tiết</a>
                                     </div>
                                 </div>
                             </div>

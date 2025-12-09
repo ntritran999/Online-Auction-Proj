@@ -2,7 +2,7 @@ import * as bidderModel from '../models/bidderModel.js';
 import * as productModel from '../models/productModel.js';
 import * as userModel from '../models/userModel.js';
 
-// 2.1 Thêm/Xóa sản phẩm khỏi watchlist
+// Thêm/Xóa sản phẩm khỏi watchlist
 export const toggleWatchlist = async (req, res) => {
     const userId = req.user.user_id;
     const productId = req.params.productId;
@@ -72,7 +72,7 @@ export const getWatchlist = async (req, res) => {
     }
 };
 
-// 2.2 Ra giá
+// Ra giá
 export const placeBid = async (req, res) => {
 
     const userId = req.user.user_id;
@@ -106,8 +106,17 @@ export const placeBid = async (req, res) => {
             });
         }
 
-        // Kiểm tra điều kiện bidder (cần thêm trường allow_new_bidder vào products)
-        const eligibility = await bidderModel.checkBidderEligibility(userId, false);
+        const highestBid = await bidderModel.getCurrentHighestBid(productId);
+
+        if (highestBid && highestBid.bidder_id === userId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Bạn đang là người giữ giá cao nhất nên không cần đặt giá.'
+            });
+        }
+
+        // Kiểm tra điều kiện bidder
+        const eligibility = await bidderModel.checkBidderEligibility(userId, true);
         if (!eligibility.eligible) {
             return res.status(403).json({ 
                 success: false, 
@@ -165,7 +174,7 @@ export const placeBid = async (req, res) => {
     }
 };
 
-// 2.3 Xem lịch sử đấu giá
+// Xem lịch sử đấu giá
 export const getBidHistory = async (req, res) => {
     const productId = req.params.productId;
 
@@ -217,9 +226,6 @@ export const getBidHistory = async (req, res) => {
 
 // Kiểm tra trạng thái watchlist (dùng cho hiển thị icon)
 export const checkWatchlistStatus = async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.json({ inWatchlist: false });
-    }
 
     const userId = req.user.user_id;
     const productId = req.params.productId;

@@ -126,6 +126,9 @@ app.engine('handlebars', engine({
         lt: function(a, b) {
             return a < b;
         },
+        eqString: function(a ,b){
+            return a == b;
+        },
         inc: function(idx) {
             return parseInt(idx) + 1;
         },

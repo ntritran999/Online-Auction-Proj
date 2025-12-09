@@ -43,6 +43,108 @@
         });
     }
 
+    const productId = '{{product.product_id}}';
+    const currentPrice = '{{product.current_price}}';
+    const stepPrice = '{{product.step_price}}';
+
+    // watchlist 
+    {{#if isAuthenticated}}
+    {{#if (eqString currentUser.role 'bidder')}}
+    document.addEventListener('DOMContentLoaded', async function() {
+        try {
+            const response = await fetch(`/bidder/watchlist/check/${productId}`);
+            const data = await response.json();
+            
+            const icon = document.getElementById('watchlistIcon');
+            if (data.inWatchlist) {
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+
+        // toggle 
+        document.getElementById('watchlistBtn').addEventListener('click', async function() {
+            console.log("hello");
+            try {
+                const response = await fetch(`/bidder/watchlist/toggle/${productId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    const icon = document.getElementById('watchlistIcon');
+                    if (data.action === 'added') {
+                        icon.classList.remove('bi-heart');
+                        icon.classList.add('bi-heart-fill');
+                    } else {
+                        icon.classList.remove('bi-heart-fill');
+                        icon.classList.add('bi-heart');
+                    }
+                    alert(data.message);
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Có lỗi xảy ra');
+            }
+        });
+
+        // tinh minimum bid
+        const minBid = currentPrice + stepPrice;
+        document.getElementById('minBidPrice').textContent = minBid.toLocaleString('vi-VN') + ' VNĐ';
+        document.getElementById('bidAmount').min = minBid;
+
+        // Confirm bid
+        document.getElementById('confirmBidBtn').addEventListener('click', async function() {
+            const bidAmount = parseFloat(document.getElementById('bidAmount').value);
+            
+            if (!bidAmount || bidAmount < minBid) {
+                alert('Giá đặt không hợp lệ!');
+                return;
+            }
+
+            if (!confirm(`Bạn có chắc chắn muốn đặt giá ${bidAmount.toLocaleString('vi-VN')} VNĐ?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/bidder/bid', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, bidAmount })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                    
+                    document.getElementById('currentPrice').textContent = 
+                        data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                    document.getElementById('modalCurrentPrice').textContent = 
+                        data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                    document.getElementById('bidCount').textContent = data.bidCount;
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('bidModal')).hide();
+                    document.getElementById('bidAmount').value = '';
+                    
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Có lỗi xảy ra khi đặt giá');
+            }
+        });
+    });
+    {{/if}}
+    {{/if}}
 </script>
 {{/section}}
 
@@ -101,7 +203,7 @@
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <h5 class="fw-bold">{{product.product_name}}</h5>
                 {{#if isAuthenticated}}
-                {{#if (eq currentUser.role 'bidder')}}
+                {{#if (eqString currentUser.role 'bidder')}}
                 <button class="btn btn-outline-danger btn-sm" id="watchlistBtn" data-product-id="{{product.product_id}}">
                     <i class="bi bi-heart" id="watchlistIcon"></i>
                 </button>
@@ -143,7 +245,7 @@
             <h4>Mua ngay với: <span class="fw-bold">{{format_currency product.buy_now_price}}</span></h4>
             
             {{#if isAuthenticated}}
-            {{#if (eq currentUser.role 'bidder')}}
+            {{#if (eqString currentUser.role 'bidder')}}
             <div class="mt-4">
                 <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#bidModal">
                     <i class="bi bi-hammer"></i> Đặt giá
@@ -198,92 +300,6 @@
             </div>
             <hr>
             {{/if}}
-
-            <h4 class="fw-semibold">Lịch sử đấu giá</h4>
-            <div class="table-responsive" style="max-height: 500px;">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr class="table-active">
-                            <th scope="col">Thời điểm</th>
-                            <th scope="col">Người mua</th>
-                            <th scope="col">Giá</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>27/10/2025 10:43</td>
-                            <td>****Khoa</td>
-                            <td>6,000,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 9:43</td>
-                            <td>****Kha</td>
-                            <td>5,900,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 10:43</td>
-                            <td>****Khoa</td>
-                            <td>6,000,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 9:43</td>
-                            <td>****Kha</td>
-                            <td>5,900,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 10:43</td>
-                            <td>****Khoa</td>
-                            <td>6,000,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 9:43</td>
-                            <td>****Kha</td>
-                            <td>5,900,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 10:43</td>
-                            <td>****Khoa</td>
-                            <td>6,000,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 9:43</td>
-                            <td>****Kha</td>
-                            <td>5,900,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 10:43</td>
-                            <td>****Khoa</td>
-                            <td>6,000,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 9:43</td>
-                            <td>****Kha</td>
-                            <td>5,900,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 10:43</td>
-                            <td>****Khoa</td>
-                            <td>6,000,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 9:43</td>
-                            <td>****Kha</td>
-                            <td>5,900,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 10:43</td>
-                            <td>****Khoa</td>
-                            <td>6,000,000</td>
-                        </tr>
-                        <tr>
-                            <td>27/10/2025 9:43</td>
-                            <td>****Kha</td>
-                            <td>5,900,000</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
             {{/if}}
         </div>
     </div>
@@ -294,7 +310,7 @@
     </div>
 </div>
 
-<!-- Bid Modal -->
+{{!-- UI giao dien dat gia --}}
 <div class="modal fade" id="bidModal" tabindex="-1" aria-labelledby="bidModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -321,6 +337,10 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary" id="confirmBidBtn">Xác nhận đặt giá</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="container-fluid">
     <h1 class="fw-bold">Hỏi đáp</h1>
     <div class="container-fluid mb-5">
@@ -438,111 +458,3 @@
         </div>
     </div>
 </div>
-
-<script>
-const productId = '{{product.product_id}}';
-const currentPrice = {{product.current_price}};
-const stepPrice = {{product.step_price}};
-
-// Watchlist functionality
-{{#if isAuthenticated}}
-{{#if (eq currentUser.role 'bidder')}}
-document.addEventListener('DOMContentLoaded', async function() {
-    // Check watchlist status
-    try {
-        const response = await fetch(`/bidder/watchlist/check/${productId}`);
-        const data = await response.json();
-        
-        const icon = document.getElementById('watchlistIcon');
-        if (data.inWatchlist) {
-            icon.classList.remove('bi-heart');
-            icon.classList.add('bi-heart-fill');
-        }
-    } catch (error) {
-        console.error(error);
-    }
-
-    // Toggle watchlist
-    document.getElementById('watchlistBtn').addEventListener('click', async function() {
-        try {
-            const response = await fetch(`/bidder/watchlist/toggle/${productId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            const data = await response.json();
-            
-            if (data.success) {
-                const icon = document.getElementById('watchlistIcon');
-                if (data.action === 'added') {
-                    icon.classList.remove('bi-heart');
-                    icon.classList.add('bi-heart-fill');
-                } else {
-                    icon.classList.remove('bi-heart-fill');
-                    icon.classList.add('bi-heart');
-                }
-                alert(data.message);
-            } else {
-                alert(data.message);
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Có lỗi xảy ra');
-        }
-    });
-
-    // Calculate minimum bid
-    const minBid = currentPrice + stepPrice;
-    document.getElementById('minBidPrice').textContent = minBid.toLocaleString('vi-VN') + ' VNĐ';
-    document.getElementById('bidAmount').min = minBid;
-
-    // Confirm bid
-    document.getElementById('confirmBidBtn').addEventListener('click', async function() {
-        const bidAmount = parseFloat(document.getElementById('bidAmount').value);
-        
-        if (!bidAmount || bidAmount < minBid) {
-            alert('Giá đặt không hợp lệ!');
-            return;
-        }
-
-        if (!confirm(`Bạn có chắc chắn muốn đặt giá ${bidAmount.toLocaleString('vi-VN')} VNĐ?`)) {
-            return;
-        }
-
-        try {
-            const response = await fetch('/bidder/bid', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId, bidAmount })
-            });
-
-            const data = await response.json();
-            
-            if (data.success) {
-                alert(data.message);
-                
-                // Update UI
-                document.getElementById('currentPrice').textContent = 
-                    data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-                document.getElementById('modalCurrentPrice').textContent = 
-                    data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-                document.getElementById('bidCount').textContent = data.bidCount;
-                
-                // Close modal and reset
-                bootstrap.Modal.getInstance(document.getElementById('bidModal')).hide();
-                document.getElementById('bidAmount').value = '';
-                
-                // Reload page to update all info
-                setTimeout(() => location.reload(), 1000);
-            } else {
-                alert(data.message);
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Có lỗi xảy ra khi đặt giá');
-        }
-    });
-});
-{{/if}}
-{{/if}}
-</script>

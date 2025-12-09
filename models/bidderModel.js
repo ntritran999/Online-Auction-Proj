@@ -1,6 +1,6 @@
 import supabase from '../supabaseClient.js';
 
-// Kiểm tra sản phẩm đã có trong watchlist chưa
+// Kiểm tra sản phẩm đã có trong watchlist 
 export async function checkInWatchlist(userId, productId) {
     const { data, error } = await supabase
         .from('watchlist')
@@ -12,7 +12,7 @@ export async function checkInWatchlist(userId, productId) {
     return data !== null;
 }
 
-// Thêm sản phẩm vào watchlist
+// Thêm vào watchlist
 export async function addToWatchlist(userId, productId) {
     const { data, error } = await supabase
         .from('watchlist')
@@ -30,7 +30,7 @@ export async function addToWatchlist(userId, productId) {
     return data;
 }
 
-// Xóa sản phẩm khỏi watchlist
+// Xóa khỏi watchlist
 export async function removeFromWatchlist(userId, productId) {
     const { error } = await supabase
         .from('watchlist')
@@ -45,7 +45,7 @@ export async function removeFromWatchlist(userId, productId) {
     return true;
 }
 
-// Lấy danh sách watchlist của user
+// Lấy watchlist của user
 export async function getWatchlistByUser(userId) {
     const { data, error } = await supabase
         .from('watchlist')
@@ -92,19 +92,35 @@ export async function placeBid(productId, bidderId, bidAmount) {
 
 // Cập nhật thông tin sản phẩm sau khi bid
 export async function updateProductAfterBid(productId, newPrice, bidderId) {
-    const { error } = await supabase
+    // bid_count hiện tại
+    const { data: product, error: getError } = await supabase
+        .from('products')
+        .select('bid_count')
+        .eq('product_id', productId)
+        .single();
+
+    if (getError) {
+        console.log(getError);
+        return false;
+    }
+
+    const newBidCount = product.bid_count + 1;
+
+    // Update full
+    const { error: updateError } = await supabase
         .from('products')
         .update({
             current_price: newPrice,
             highest_bidder: bidderId,
-            bid_count: supabase.raw('bid_count + 1')
+            bid_count: newBidCount
         })
         .eq('product_id', productId);
-    
-    if (error) {
-        console.log(error);
+
+    if (updateError) {
+        console.log(updateError);
         return false;
     }
+
     return true;
 }
 
@@ -174,7 +190,7 @@ export async function getCurrentHighestBid(productId) {
         .limit(1)
         .single();
     
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows
+    if (error && error.code !== 'PGRST116') { // ko co row
         console.log(error);
     }
     

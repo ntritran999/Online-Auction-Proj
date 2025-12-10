@@ -1,6 +1,38 @@
 {{#section 'script'}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src=" https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js "></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.19/dayjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.19/plugin/customParseFormat.js"></script>
 <script>
+    // dayjs
+    dayjs.extend(window.dayjs_plugin_customParseFormat);
+
+    // cleave
+    new Cleave('#cardNum', {
+        creditCard: true,
+    });
+
+    new Cleave('#expireDate', {
+        date: true,
+        dateMin: '2000-01-01',
+        dateMax: '2099-12-31',
+        datePattern: ['Y', 'm', 'd']
+    });
+
+    new Cleave('#cvvNum', {
+        blocks: [3],
+        numericOnly: true
+    });
+
+    // modal
+    document.querySelector('#paymentModal').addEventListener('hidden.bs.modal', e => {
+        document.querySelector('#cardNum').value = "";
+        document.querySelector('#expireDate').value = "";
+        document.querySelector('#cvvNum').value = "";
+        document.querySelector('#address').value = "";
+    });
+
+    // submit
     const formCancel = document.querySelector('#formCancel');
     if (formCancel) {
         formCancel.addEventListener('submit', e => {
@@ -27,25 +59,29 @@
         e.target.submit();
     });
 
-    document.querySelector("#reviewForm").addEventListener('submit', e => {
+    document.querySelector('#paymentForm').addEventListener('submit', e => {
         e.preventDefault();
 
-        const content = document.querySelector("#comment").value;
-        if (!content) {
-            const alertHolder = document.querySelector('#alertHolder');
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = `
-                <div class="alert alert-info d-flex align-items-center" role="alert">
-                    <div><i class="bi bi-info-circle-fill"></i> Vui lòng nhập nhận xét trước khi gửi.</div>
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-            alertHolder.append(wrapper);
+        const expireDate = document.querySelector("#expireDate").value;
+        if (!dayjs(expireDate, 'YYYY/MM/DD', true).isValid()) {
+            Swal.fire({
+                icon: "info",
+                text: "Vui lòng nhập đúng định dạng ngày hết hạn thẻ theo hướng dẫn.",
+            });
+            return;
+        }
+
+        const cvvNum = document.querySelector("#cvvNum").value;
+        if (cvvNum.length != 3) {
+            Swal.fire({
+                icon: "info",
+                text: "Vui lòng nhập đúng định dạng CVV theo hướng dẫn.",
+            });
             return;
         }
 
         e.target.submit();
-    });
+    })
 
 </script>
 {{/section}}
@@ -73,29 +109,58 @@
                     {{#unless transaction.is_canceled}}
                     {{#if is_seller}}
                         {{#if (eqString transaction.payment_status 'Đã thanh toán')}}
-                        <a href="#" class="btn btn-primary float-end">Xác nhận đã nhận tiền</a>
+                        <form action="/transaction/{{transaction.product_id}}/update" method="post">
+                            <input type="hidden" name="txnId" value="{{transaction.transaction_id}}">
+                            <input type="hidden" name="status" value="Đã nhận tiền">
+                            <button type="submit" class="btn btn-primary float-end mb-3 me-3">Xác nhận đã nhận tiền</button>
+                        </form>
                         {{/if}}
 
                         {{#if (eqString transaction.payment_status 'Chờ thanh toán')}}
-                        <form id="formCancel" action="" method="post">
+                        <form id="formCancel" action="/transaction/{{transaction.product_id}}/cancel" method="post">
+                            <input type="hidden" name="txnId" value="{{transaction.transaction_id}}">
+                            <input type="hidden" name="sender" value="{{transaction.seller_id}}">
+                            <input type="hidden" name="receiver" value="{{transaction.buyer_id}}">
                             <button type="submit" class="btn btn-outline-danger float-end" data-bs-toggle="modal"
                                 data-bs-target="#confirmCancel">Huỷ giao dịch</button>
                         </form>
                         {{/if}}
                     {{else}}
                         {{#if (eqString transaction.payment_status 'Đã nhận tiền')}}
-                        <a href="#" class="btn btn-primary float-end">Xác nhận đã nhận hàng</a>
+                        <form action="/transaction/{{transaction.product_id}}/update" method="post">
+                            <input type="hidden" name="txnId" value="{{transaction.transaction_id}}">
+                            <input type="hidden" name="status" value="Giao dịch hoàn tất">
+                            <button type="submit" class="btn btn-primary float-end">Xác nhận đã nhận hàng</button>
+                        </form>
                         {{/if}}
 
                         {{#if (eqString transaction.payment_status 'Chờ thanh toán')}}
-                        <a href="#" class="btn btn-primary float-end">Thanh toán giao dịch</a>
+                        <button type="button" class="btn btn-primary float-end"
+                        data-bs-toggle="modal" data-bs-target="#paymentModal">Thanh toán giao dịch</button>
                         {{/if}}
                     {{/if}}
                     {{#if (eqString transaction.payment_status 'Giao dịch hoàn tất')}}
                     <button type="button" class="btn btn-primary float-end"
                         data-bs-toggle="modal" data-bs-target="#reviewModal">Đánh giá &amp; Nhận xét</button>
                     {{/if}}
+
+                    {{#if (eqString transaction.payment_status 'Đã thanh toán')}}
+                    <button type="button" class="btn btn-primary float-end mb-3 me-3"
+                        data-bs-toggle="collapse" data-bs-target="#paymentDetailCollapse" 
+                        aria-expanded="false" aria-controls="paymentDetailCollapse">Xem hóa đơn và địa chỉ</button>
+                    {{/if}}
                     {{/unless}}
+                </div>
+            </div>
+
+            <div class="collapse" id="paymentDetailCollapse">
+                <div class="card card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <h5 class="fw-semibold mb-0">Hóa đơn: </h5>
+                        <a href="#" class="icon-link"><i class="bi bi-download fs-6 ms-2"></i></a>
+                    </div>
+                    <h5 class="fw-semibold">Địa chỉ: </h5>
+                    <p>{{transaction.shipping_address}}</p>
                 </div>
             </div>
         </div>
@@ -166,27 +231,72 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="reviewForm" action="" method="post">
+                <form id="reviewForm" action="/transaction/{{transaction.product_id}}/rating" method="post">
                     <fieldset class="row mb-3">
                         <legend class="col-form-label fw-semibold col-sm-3 pt-0">Đánh giá:</legend>
                         <div class="col-sm-9">
                             <div class="form-check">
                                 <label class="form-check-label" for="plus">(+1)</label>
-                                <input class="form-check-input" type="radio" name="reviewRadio" id="plus" checked>
+                                <input class="form-check-input" type="radio" name="rating" value="1" id="plus" checked required>
                             </div>
                             <div class="form-check">
                                 <label class="form-check-label" for="minus">(-1)</label>
-                                <input class="form-check-input" type="radio" name="reviewRadio" id="minus">
+                                <input class="form-check-input" type="radio" name="rating" value="-1" id="minus" required>
                             </div>
                         </div>
                     </fieldset>
                     <label for="comment" class="form-label fw-semibold">Nhận xét:</label>
-                    <textarea class="form-control mb-3" id="comment" rows="3" name="comment"></textarea>
+                    <textarea class="form-control mb-3" id="comment" rows="3" name="comment" required></textarea>
+                    <input type="hidden" name="sender" value="{{transaction.seller_id}}">
+                    <input type="hidden" name="receiver" value="{{transaction.buyer_id}}">
                     <div id="alertHolder"></div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="submit" class="btn btn-primary" form="reviewForm">Gửi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fw-bold fs-4">Thanh toán giao dịch</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentForm" action="/transaction/{{transaction.product_id}}/pay" method="post">
+                    <h5 class="fw-semibold">Chi tiết thanh toán:</h5>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="cardNum" placeholder="Số thẻ" required>
+                        <label for="cardNum">Số thẻ</label>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="expireDate" placeholder="Ngày hết hạn" required>
+                                <label for="expireDate">Ngày hết hạn</label>
+                                <div class="form-text">
+                                    Định dạng: YYYY-MM-DD
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="cvvNum" placeholder="CVV (3 chữ số)" required>
+                                <label for="cvvNum">CVV (3 chữ số)</label>
+                            </div>
+                        </div>
+                    </div>
+                    <label for="address" class="form-label fw-semibold h5">Địa chỉ giao hàng:</label>
+                    <textarea class="form-control mb-3" id="address" rows="3" name="address" required></textarea>
+                    <input type="hidden" name="txnId" value="{{transaction.transaction_id}}">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" form="paymentForm">Thanh toán</button>
             </div>
         </div>
     </div>

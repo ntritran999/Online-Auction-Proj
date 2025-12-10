@@ -97,6 +97,7 @@ create table Transactions (
     invoice_url text,
     shipping_address text,
     payment_status text,
+    is_canceled boolean default false,
     created_at timestamp default now()
 );
 

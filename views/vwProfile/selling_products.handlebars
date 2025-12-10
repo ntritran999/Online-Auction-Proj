@@ -1,0 +1,37 @@
+<div class="table-responsive" style="max-height: 1000px;">
+    <table class="table table-bordered">
+        <thead>
+            <tr class="text-center">
+                <th scope="col">#</th>
+                <th scope="col">Sản phẩm</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each products}}
+            <tr>
+                <td class="text-center">{{inc @index}}</td>
+                <td class="navbar navbar-expand-lg">
+                    <div class="container-md">
+                        <h5 class="navbar-brand">{{product_name}}</h5>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                            <ul class="navbar-nav ms-auto">
+                                <li class="nav-item me-3 mb-3">
+                                    <a href="/{{product_id}}/update_description" class="btn btn-primary ms-auto">Bổ sung mô tả</a>
+                                </li>
+                                <li class="nav-item me-3 mb-3">
+                                    <a href="/product/details/{{product_id}}" class="btn btn-outline-primary">Xem chi tiết <i class="bi bi-eye"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>

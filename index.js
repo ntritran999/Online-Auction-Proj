@@ -223,13 +223,10 @@ app.get('/logout', (req, res, next) => {
 });
 
 import sellerRouter from "./routes/sellerRoute.js";
-const isSeller = (req, res, next) => {
-    if (!req.user || req.user.role !== 'seller') {
-        return res.redirect('/');
-    }
-    next();
-}
-app.use('/', isSeller, sellerRouter);
+app.use('/', isLoggedIn, sellerRouter);
+
+import txnRouter from './routes/transactionRoute.js';
+app.use('/transaction', isLoggedIn, txnRouter);
 
 app.use((req, res) => {
     res.render('404');

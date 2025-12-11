@@ -1,13 +1,13 @@
 import { Router } from "express";
 import multer from "multer";
 
-import { denyBid, getCategories, updateDescription, uploadProduct } from "../controllers/sellerController.js";
+import { denyBid, getCategories, updateDescription, uploadProduct, isSeller, isSameSeller, isProOwnedBySeller } from "../controllers/sellerController.js";
 
 const router = Router();
 
-router.get('/:id/add', getCategories);
+router.get('/:id/add', isSeller, isSameSeller, getCategories);
 
-router.post('/:id/add', uploadProduct);
+router.post('/:id/add', isSeller, isSameSeller, uploadProduct);
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -21,17 +21,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post('/upload', upload.array('images'), (req, res) => {
+router.post('/:id/upload', isSeller, isSameSeller, upload.array('images'), (req, res) => {
     res.json({
         files: req.files
     });
 });
 
-router.get('/:id/update_description', (req, res) => {
+router.get('/:id/update_description', isProOwnedBySeller, (req, res) => {
     res.render('vwSeller/update_description');
 });
 
-router.post('/:id/update_description', updateDescription);
+router.post('/:id/update_description', isProOwnedBySeller, updateDescription);
 
 router.post('/denyBid', denyBid);
 

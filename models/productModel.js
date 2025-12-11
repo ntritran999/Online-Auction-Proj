@@ -14,7 +14,7 @@ export async function findProById(id) {
     return data;
 }
 
-export async function findTopProsByColumn(column, numPros) {
+export async function findTopProsByColumn(column, numPros, isAsc) {
     const { data, error } = await supabase
                                 .from('products')
                                 .select(`*,
@@ -25,7 +25,7 @@ export async function findTopProsByColumn(column, numPros) {
                                             image_url
                                         )`)
                                 .gt('end_time', new Date().toISOString())
-                                .order(column, { ascending: false })
+                                .order(column, { ascending: isAsc, nullsFirst: false })
                                 .limit(numPros);
     return data;
 }
@@ -154,5 +154,23 @@ export async function getQAHistory(pro_id) {
                                         full_name
                                     )`)
                                 .eq('product_id', pro_id);
+    return data;
+}
+
+export async function findProBySellerIdAndProId(sellerId, proId) {
+    const { data, error } = await supabase
+                                .from('products')
+                                .select()
+                                .eq('seller_id', sellerId)
+                                .eq('product_id', proId)
+                                .single();
+    return data;
+}
+
+export async function findProsBySeller(sellerId) {
+    const { data, error } = await supabase
+                                .from('products')
+                                .select('product_id, product_name')
+                                .eq('seller_id', sellerId);
     return data;
 }

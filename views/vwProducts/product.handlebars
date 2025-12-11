@@ -139,10 +139,14 @@
                                 </div>
                                 <div class="col-sm-8">
                                     <div class="card-body">
-                                        <div class="d-md-flex justify-content-between">
-                                            <h5 class="card-title">{{product_name}}</h5>
-                                            <span class="badge text-bg-warning">Mới</span>
-                                        </div>
+                                        <h5 class="card-title">{{product_name}} <span class="badge text-bg-warning">Mới</span></h5>
+                                        {{#if ../isAuthenticated}}
+                                        <button class="btn btn-outline-danger btn-sm watchlistBtn" 
+                                                data-product-id="{{product_id}}"
+                                                style="position:absolute; top:10px; right:10px;">
+                                            <i class="bi bi-heart watchlistIcon" id="icon-{{product_id}}"></i>
+                                        </button>
+                                        {{/if}}
                                         <h2 class="card-text fw-bold current_price" data-current-price="{{current_price}}">
                                             {{format_currency current_price}}
                                         </h2>
@@ -161,7 +165,7 @@
                                             </p>
                                         </div>
                                         <p class="card-text text-danger fw-bold end_time" data-end-time="{{end_time}}">Kết thúc phiên: {{format_endDatetime end_time}}</p>
-                                        <a class="btn btn-primary text-nowrap" href="/product/details/{{product_id}}">Xem chi tiết</button>
+                                        <a class="btn btn-primary text-nowrap" href="/product/details/{{product_id}}">Xem chi tiết</a>
                                     </div>
                                 </div>
                             </div>

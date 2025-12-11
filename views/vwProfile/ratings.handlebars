@@ -45,7 +45,7 @@
         <tbody>
             {{#each ratings}}
             <tr>
-                <td>{{format_datetime created_at}}</td>
+                <td>{{format_datetime (convert_to_local created_at)}}</td>
                 <td>{{mask_name rater.full_name}}</td>
                 <td>{{product.product_name}}</td>
                 <td class="text-center">

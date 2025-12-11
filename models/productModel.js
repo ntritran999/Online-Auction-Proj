@@ -171,6 +171,20 @@ export async function findProsBySeller(sellerId) {
     const { data, error } = await supabase
                                 .from('products')
                                 .select('product_id, product_name')
-                                .eq('seller_id', sellerId);
+                                .eq('seller_id', sellerId)
+                                .gt('end_time', new Date().toISOString());
+    return data;
+}
+
+export async function findProsWithTxnBySeller(seller) {
+    const { data, error } = await supabase
+                                .from('products')
+                                .select(`product_id, product_name,
+                                    transactions!inner (
+                                        transaction_id
+                                    )
+                                    `)
+                                .eq('seller_id', seller)
+                                .not('transactions.transaction_id', 'is', null);
     return data;
 }

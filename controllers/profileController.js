@@ -1,4 +1,5 @@
 import * as profileModel from '../models/profileModel.js';
+import * as proModel from '../models/productModel.js';
 
 // Trang cập nhật thông tin cá nhân
 export const getEditProfile = async (req, res) => {
@@ -141,4 +142,20 @@ export const postUpgradeRequest = async (req, res) => {
     }
     
     return res.status(400).json(result);
+};
+
+export const getSellingProducts = async (req, res) => {
+    const list = await proModel.findProsBySeller(req.user.user_id);
+    res.render('vwProfile/selling_products', {
+        layout: 'profile',
+        products: list,
+    })
+};
+
+export const getProductsWithBidWon = async (req, res) => {
+    const list = await proModel.findProsWithTxnBySeller(req.user.user_id);
+    res.render('vwProfile/transactions', {
+        layout: 'profile',
+        products: list,
+    })
 };

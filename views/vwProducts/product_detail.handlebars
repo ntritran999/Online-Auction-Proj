@@ -92,7 +92,7 @@
                 alert('Có lỗi xảy ra');
             }
         });
-        {{#if (not isSeller)}}
+        {{#unless isSeller}}
         // tinh minimum bid
         const minBid = parseInt(currentPrice) + parseInt(stepPrice);
         document.getElementById('minBidPrice').textContent = minBid.toLocaleString('vi-VN') + ' VNĐ';
@@ -141,7 +141,7 @@
                 alert('Có lỗi xảy ra khi đặt giá');
             }
         });
-        {{/if}}
+        {{/unless}}
     });
     {{/if}}
 </script>
@@ -237,21 +237,21 @@
             <h4>Giá hiện tại: <span class="fw-bold text-primary" id="currentPrice">{{format_currency product.current_price}}</span></h4>
             <p>Bước giá: <strong>{{format_currency product.step_price}}</strong></p>
             <p>Lượt ra giá: <strong id="bidCount">{{product.bid_count}}</strong></p>
-            <p>Ngày mở bán: {{format_datetime product.created_at}}</p>
+            <p>Ngày mở bán: {{format_datetime (convert_to_local product.created_at)}}</p>
             <p class="text-danger">Ngày kết thúc: {{format_endDatetime product.end_time}}</p>
             <h4>Mua ngay với: <span class="fw-bold">{{format_currency product.buy_now_price}}</span></h4>
             
             {{#if isAuthenticated}}
-            {{#if (not isSeller)}}
             <div class="mt-4">
+                {{#unless isSeller}}
                 <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#bidModal">
                     <i class="bi bi-hammer"></i> Đặt giá
                 </button>
+                {{/unless}}
                 <a href="/bidder/bid-history/{{product.product_id}}" class="btn btn-outline-secondary w-100">
                     <i class="bi bi-clock-history"></i> Xem lịch sử đấu giá
                 </a>
             </div>
-            {{/if}}
             {{else}}
             <div class="alert alert-info mt-4">
                 <a href="/login">Đăng nhập</a> để tham gia đấu giá
@@ -309,7 +309,7 @@
 
 
 {{!-- UI giao dien dat gia --}}
-{{#if (not isSeller)}}
+{{#unless isSeller}}
 <div class="modal fade" id="bidModal" tabindex="-1" aria-labelledby="bidModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -340,7 +340,7 @@
         </div>
     </div>
 </div>
-{{/if}}
+{{/unless}}
 
 <div class="container-fluid">
     <h1 class="fw-bold">Hỏi đáp</h1>
@@ -448,7 +448,7 @@
                         <p class="card-text fw-bold">{{format_currency current_price}}</p>
                         <p class="card-text">Bidder dẫn đầu: {{mask_name highest_bidder.full_name}}</p>
                         <p class="card-text">Giá mua ngay: {{format_currency buy_now_price}}</p>
-                        <p class="card-text">Bắt đầu: {{format_datetime created_at}}</p>
+                        <p class="card-text">Bắt đầu: {{format_datetime (convert_to_local created_at)}}</p>
                         <p class="card-text">Kết thúc: {{format_endDatetime end_time}}</p>
                         <p class="card-text">Lượt ra giá: {{bid_count}}</p>
                         <a href="/product/details/{{product_id}}" class="stretched-link"></a>

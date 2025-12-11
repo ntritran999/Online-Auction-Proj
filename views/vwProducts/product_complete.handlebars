@@ -247,8 +247,12 @@
                     </fieldset>
                     <label for="comment" class="form-label fw-semibold">Nhận xét:</label>
                     <textarea class="form-control mb-3" id="comment" rows="3" name="comment" required></textarea>
-                    <input type="hidden" name="sender" value="{{transaction.seller_id}}">
+                    <input type="hidden" name="sender" value="{{currentUser.user_id}}">
+                    {{#if is_seller}}
                     <input type="hidden" name="receiver" value="{{transaction.buyer_id}}">
+                    {{else}}
+                    <input type="hidden" name="receiver" value="{{transaction.seller_id}}">    
+                    {{/if}}
                     <div id="alertHolder"></div>
                 </form>
             </div>

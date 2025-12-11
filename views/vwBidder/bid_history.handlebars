@@ -17,7 +17,7 @@
                 </div>
                 <div class="col-md-6">
                     <p><strong>Tổng lượt đấu giá:</strong> {{product.bid_count}}</p>
-                    <p><strong>Ngày bắt đầu:</strong> {{format_datetime product.created_at}}</p>
+                    <p><strong>Ngày bắt đầu:</strong> {{format_datetime (convert_to_local product.created_at)}}</p>
                     <p><strong>Ngày kết thúc:</strong> <span class="text-danger">{{format_endDatetime product.end_time}}</span></p>
                 </div>
             </div>
@@ -45,7 +45,7 @@
                         {{#each history}}
                         <tr>
                             <td>{{@index}}</td>
-                            <td>{{format_datetime created_at}}</td>
+                            <td>{{format_datetime (convert_to_local created_at)}}</td>
                             <td>
                                 {{mask_name bidder_name}}
                                 {{#if (eq @index 0)}}

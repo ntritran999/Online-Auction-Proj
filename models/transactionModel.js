@@ -59,7 +59,7 @@ export async function updateTxnPaymentInfo(txn_id, address, invoice_url) {
 export async function findRating(proId, sender, receiver) {
     const { data, error } = await supabase
                                 .from('ratings')
-                                .select('rating_id')
+                                .select()
                                 .eq('product_id', proId)
                                 .eq('rater_id', sender)
                                 .eq('target_id', receiver)

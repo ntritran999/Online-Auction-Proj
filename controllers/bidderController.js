@@ -177,7 +177,7 @@ export const placeBid = async (req, res) => {
 // Xem lịch sử đấu giá
 export const getBidHistory = async (req, res) => {
     const productId = req.params.productId;
-
+    const previousPage = req.headers.referer || `/product/details/${productId}`;
     try {
         const product = await productModel.findProById(productId);
         if (!product) {
@@ -209,6 +209,7 @@ export const getBidHistory = async (req, res) => {
         res.render('vwBidder/bid_history', {
             product: product,
             history: formattedHistory,
+            previousPage,
             title: 'Lịch sử đấu giá'
         });
 

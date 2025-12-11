@@ -18,11 +18,14 @@
     <main class="container-fluid row">
         <div class="col-md-3">
             <div class="list-group mb-3">
-                <a class="list-group-item list-group-item-action active" aria-current="true" href="#">Cập nhật thông tin cá nhân</a>
-                <a class="list-group-item list-group-item-action" href="#">Xem đánh giá</a>
-                <a class="list-group-item list-group-item-action" href="#">Danh sách sản phẩm yêu thích</a>
-                <a class="list-group-item list-group-item-action" href="#">Danh sách sản phẩm đang đấu giá</a>
-                <a class="list-group-item list-group-item-action" href="#">Danh sách sản phẩm thắng đấu giá</a>
+                <a class="list-group-item list-group-item-action active" aria-current="true" href="/account/profile">Cập nhật thông tin cá nhân</a>
+                <a class="list-group-item list-group-item-action" href="/account/ratings">Xem đánh giá</a>
+                <a class="list-group-item list-group-item-action" href="/account/watchlist">Danh sách sản phẩm yêu thích</a>
+                <a class="list-group-item list-group-item-action" href="/account/bidding">Danh sách sản phẩm đang đấu giá</a>
+                <a class="list-group-item list-group-item-action" href="/account/won">Danh sách sản phẩm thắng đấu giá</a>
+                {{#if (not (eqString currentUser.role 'seller'))}}
+                <a class="list-group-item list-group-item-action" href="/account/upgrade-request">Xin cấp quyền thành seller</a>
+                {{/if}}
                 <a class="list-group-item list-group-item-action" href="#">Danh sách sản phẩm đã đăng</a>
                 <a class="list-group-item list-group-item-action" href="#">Danh sách sản phẩm đã có người thắng đấu giá</a>
             </div>

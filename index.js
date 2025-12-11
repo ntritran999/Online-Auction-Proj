@@ -129,6 +129,12 @@ app.engine('handlebars', engine({
         eqString: function(a ,b){
             return a == b;
         },
+        or: function(a, b){
+            return a || b;
+        },
+        not: function (value) {
+            return !value;
+        },
         inc: function(idx) {
             return parseInt(idx) + 1;
         },
@@ -187,7 +193,7 @@ import adminRouter from './routes/adminRoute.js';
 app.use('/admin', requireRole('admin'), adminRouter);
 
 import bidderRouter from './routes/bidderRoute.js';
-app.use('/bidder', requireRole('bidder'), bidderRouter);
+app.use('/bidder', isLoggedIn, bidderRouter);
 import accountRouter from './routes/accountRoute.js';
 app.use('/account', isLoggedIn, accountRouter);
 
@@ -198,7 +204,7 @@ app.get('/auth/google',
 
 app.get('/google/callback', 
     passport.authenticate('google', {
-        successRedirect: '/protected',
+        successRedirect: '/',
         failureRedirect: '/auth/failure',
     })
 );
@@ -206,7 +212,6 @@ app.get('/google/callback',
 app.get('/auth/failure', (req, res) =>{
     res.send('failure');
 });
-
 
 app.get('/logout', (req, res, next) => {
   req.logout(function (err) {

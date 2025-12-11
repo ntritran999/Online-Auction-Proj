@@ -1,0 +1,45 @@
+<h3 class="mb-4">Danh sách sản phẩm thắng đấu giá</h3>
+
+{{#if products.length}}
+<div class="alert alert-success">
+    <i class="bi bi-trophy"></i> 
+    Chúc mừng! Bạn đã thắng <strong>{{products.length}}</strong> sản phẩm
+</div>
+
+<div class="row">
+    {{#each products}}
+    <div class="col-md-4 col-sm-6 mb-4">
+        <div class="card h-100">
+            <div class="position-relative">
+                <img src="{{image_list.0.image_url}}" class="card-img-top" alt="{{product_name}}"
+                     style="height: 200px; object-fit: cover;">
+                <span class="position-absolute top-0 start-0 badge bg-success m-2">
+                    <i class="bi bi-trophy"></i> Thắng
+                </span>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{product_name}}</h5>
+                <p class="card-text">
+                    <strong class="text-success fs-5">{{format_currency current_price}}</strong><br>
+                    <small class="text-muted">
+                        <i class="bi bi-person"></i> Người bán: {{seller.full_name}}<br>
+                        <i class="bi bi-calendar-check"></i> Kết thúc: {{format_datetime end_time}}<br>
+                        <i class="bi bi-hammer"></i> Tổng lượt đấu giá: {{bid_count}}
+                    </small>
+                </p>
+                <a href="/product/details/{{product_id}}" class="btn btn-primary btn-sm w-100">
+                    <i class="bi bi-eye"></i> Xem chi tiết
+                </a>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+</div>
+
+{{else}}
+<div class="alert alert-info text-center">
+    <i class="bi bi-trophy" style="font-size: 3rem;"></i>
+    <p class="mt-3">Bạn chưa thắng sản phẩm nào</p>
+    <a href="/" class="btn btn-primary">Tham gia đấu giá ngay</a>
+</div>
+{{/if}}

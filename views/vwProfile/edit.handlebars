@@ -1,1 +1,176 @@
-<h1>Hello World</h1>
+{{#section 'script'}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+// Form cập nhật thông tin
+document.getElementById('formEditProfile').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        full_name: document.getElementById('full_name').value,
+        email: document.getElementById('email').value,
+        address: document.getElementById('address').value
+    };
+    
+    try {
+        const response = await fetch('/account/profile/edit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        console.log(data);
+        if (data.success) {
+            await Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: data.message
+            });
+            location.reload();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: data.message
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Có lỗi xảy ra'
+        });
+    }
+});
+
+// Form đổi mật khẩu
+document.getElementById('formChangePassword').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        old_password: document.getElementById('old_password').value,
+        new_password: document.getElementById('new_password').value,
+        confirm_password: document.getElementById('confirm_password').value
+    };
+    
+    // Kiểm tra mật khẩu mới khớp
+    if (formData.new_password !== formData.confirm_password) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Mật khẩu mới không khớp'
+        });
+        return;
+    }
+    
+    try {
+        const response = await fetch('/account/profile/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            await Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: data.message
+            });
+            this.reset();
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: data.message
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Có lỗi xảy ra'
+        });
+    }
+});
+</script>
+{{/section}}
+
+
+<h3 class="mb-4">Cập nhật thông tin cá nhân</h3>
+
+<ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" 
+                type="button" role="tab">
+            <i class="bi bi-person"></i> Thông tin cá nhân
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" 
+                type="button" role="tab">
+            <i class="bi bi-key"></i> Đổi mật khẩu
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="info" role="tabpanel">
+        <form id="formEditProfile">
+            <div class="mb-3">
+                <label for="full_name" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="full_name" name="full_name" 
+                       value="{{user.full_name}}" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="email" name="email" 
+                       value="{{user.email}}" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="address" class="form-label">Địa chỉ</label>
+                <textarea class="form-control" id="address" name="address" rows="3">{{user.address}}</textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Vai trò</label>
+                <input type="text" class="form-control" value="{{user.role}}" disabled>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Lưu thay đổi
+            </button>
+        </form>
+    </div>
+    
+    <div class="tab-pane fade" id="password" role="tabpanel">
+        <form id="formChangePassword">
+            <div class="mb-3">
+                <label for="old_password" class="form-label">Mật khẩu cũ <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="old_password" name="old_password" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="new_password" class="form-label">Mật khẩu mới <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="new_password" name="new_password" 
+                       minlength="6" required>
+                <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                       minlength="6" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-key"></i> Đổi mật khẩu
+            </button>
+        </form>
+    </div>
+</div>

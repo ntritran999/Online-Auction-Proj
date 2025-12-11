@@ -1,0 +1,79 @@
+<h3 class="mb-4">Xem đánh giá</h3>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h1 class="display-4 text-success">{{user.rating_plus}}</h1>
+                <p class="text-muted">Đánh giá tích cực</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h1 class="display-4 text-danger">{{user.rating_minus}}</h1>
+                <p class="text-muted">Đánh giá tiêu cực</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h1 class="display-4 text-primary">{{positivePercentage}}%</h1>
+                <p class="text-muted">Tỷ lệ tích cực</p>
+                <small class="text-muted">({{totalRatings}} đánh giá)</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 class="mb-3">Chi tiết đánh giá</h4>
+
+{{#if ratings.length}}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Thời gian</th>
+                <th>Người đánh giá</th>
+                <th>Sản phẩm</th>
+                <th>Đánh giá</th>
+                <th>Nhận xét</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each ratings}}
+            <tr>
+                <td>{{format_datetime created_at}}</td>
+                <td>{{mask_name rater.full_name}}</td>
+                <td>{{product.product_name}}</td>
+                <td class="text-center">
+                    {{#if (eq rating_value 1)}}
+                    <span class="badge bg-success">
+                        <i class="bi bi-hand-thumbs-up"></i> Tích cực
+                    </span>
+                    {{else}}
+                    <span class="badge bg-danger">
+                        <i class="bi bi-hand-thumbs-down"></i> Tiêu cực
+                    </span>
+                    {{/if}}
+                </td>
+                <td>
+                    {{#if comment}}
+                    {{comment}}
+                    {{else}}
+                    <em class="text-muted">Không có nhận xét</em>
+                    {{/if}}
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+{{else}}
+<div class="alert alert-info text-center">
+    <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+    <p class="mt-3">Bạn chưa có đánh giá nào</p>
+</div>
+{{/if}}

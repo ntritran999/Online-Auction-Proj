@@ -49,7 +49,6 @@
 
     // watchlist 
     {{#if isAuthenticated}}
-    {{#if (eqString currentUser.role 'bidder')}}
     document.addEventListener('DOMContentLoaded', async function() {
         try {
             const response = await fetch(`/bidder/watchlist/check/${productId}`);
@@ -93,9 +92,9 @@
                 alert('Có lỗi xảy ra');
             }
         });
-
+        {{#if (not isSeller)}}
         // tinh minimum bid
-        const minBid = currentPrice + stepPrice;
+        const minBid = parseInt(currentPrice) + parseInt(stepPrice);
         document.getElementById('minBidPrice').textContent = minBid.toLocaleString('vi-VN') + ' VNĐ';
         document.getElementById('bidAmount').min = minBid;
 
@@ -142,8 +141,8 @@
                 alert('Có lỗi xảy ra khi đặt giá');
             }
         });
+        {{/if}}
     });
-    {{/if}}
     {{/if}}
 </script>
 {{/section}}
@@ -203,11 +202,9 @@
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <h5 class="fw-bold">{{product.product_name}}</h5>
                 {{#if isAuthenticated}}
-                {{#if (eqString currentUser.role 'bidder')}}
                 <button class="btn btn-outline-danger btn-sm" id="watchlistBtn" data-product-id="{{product.product_id}}">
                     <i class="bi bi-heart" id="watchlistIcon"></i>
                 </button>
-                {{/if}}
                 {{/if}}
             </div>
             <hr>
@@ -245,7 +242,7 @@
             <h4>Mua ngay với: <span class="fw-bold">{{format_currency product.buy_now_price}}</span></h4>
             
             {{#if isAuthenticated}}
-            {{#if (eqString currentUser.role 'bidder')}}
+            {{#if (not isSeller)}}
             <div class="mt-4">
                 <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#bidModal">
                     <i class="bi bi-hammer"></i> Đặt giá
@@ -310,7 +307,9 @@
     </div>
 </div>
 
+
 {{!-- UI giao dien dat gia --}}
+{{#if (not isSeller)}}
 <div class="modal fade" id="bidModal" tabindex="-1" aria-labelledby="bidModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -341,6 +340,8 @@
         </div>
     </div>
 </div>
+{{/if}}
+
 <div class="container-fluid">
     <h1 class="fw-bold">Hỏi đáp</h1>
     <div class="container-fluid mb-5">

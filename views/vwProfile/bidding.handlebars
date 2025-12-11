@@ -1,0 +1,61 @@
+<h3 class="mb-4">Danh sách sản phẩm đang đấu giá</h3>
+
+{{#if products.length}}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> 
+    Bạn đang tham gia đấu giá <strong>{{products.length}}</strong> sản phẩm
+</div>
+
+<div class="row">
+    {{#each products}}
+    <div class="col-md-4 col-sm-6 mb-4">
+        <div class="card h-100">
+            <div class="position-relative">
+                <img src="{{image_list.0.image_url}}" class="card-img-top" alt="{{product_name}}"
+                     style="height: 200px; object-fit: cover;">
+                {{#if (is_product_new created_at)}}
+                <span class="position-absolute top-0 start-0 badge bg-danger m-2">Mới</span>
+                {{/if}}
+                
+                {{#if (eq highest_bidder ../currentUser.user_id)}}
+                <span class="position-absolute top-0 end-0 badge bg-success m-2">
+                    <i class="bi bi-trophy"></i> Đang dẫn đầu
+                </span>
+                {{/if}}
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{product_name}}</h5>
+                <p class="card-text">
+                    <strong class="text-primary">{{format_currency current_price}}</strong><br>
+                    {{#if highest_bidder}}
+                    <small class="text-muted">
+                        <i class="bi bi-person"></i> 
+                        Bidder dẫn đầu: {{mask_name highest_bidder.full_name}}
+                    </small>
+                    {{/if}}
+                </p>
+                <p class="card-text small">
+                    <i class="bi bi-tag"></i> Bước giá: {{format_currency step_price}}<br>
+                    <i class="bi bi-clock text-danger"></i> Kết thúc: {{format_endDatetime end_time}}<br>
+                    <i class="bi bi-hammer"></i> {{bid_count}} lượt ra giá
+                </p>
+                <div class="d-grid gap-2">
+                    <a href="/product/details/{{product_id}}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-eye"></i> Xem chi tiết
+                    </a>
+                    <a href="/bidder/bid-history/{{product_id}}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-clock-history"></i> Lịch sử
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+</div>
+{{else}}
+<div class="alert alert-info text-center">
+    <i class="bi bi-hammer" style="font-size: 3rem;"></i>
+    <p class="mt-3">Bạn chưa tham gia đấu giá sản phẩm nào</p>
+    <a href="/" class="btn btn-primary">Tìm sản phẩm để đấu giá</a>
+</div>
+{{/if}}

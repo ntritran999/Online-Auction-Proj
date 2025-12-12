@@ -235,11 +235,15 @@
             <hr>
 
             <h4>Giá hiện tại: <span class="fw-bold text-primary" id="currentPrice">{{format_currency product.current_price}}</span></h4>
+            {{#if isAuthenticated}}
             <p>Bước giá: <strong>{{format_currency product.step_price}}</strong></p>
             <p>Lượt ra giá: <strong id="bidCount">{{product.bid_count}}</strong></p>
+            {{/if}}
             <p>Ngày mở bán: {{format_datetime (convert_to_local product.created_at)}}</p>
             <p class="text-danger">Ngày kết thúc: {{format_endDatetime product.end_time}}</p>
+            {{#if product.buy_now_price}}
             <h4>Mua ngay với: <span class="fw-bold">{{format_currency product.buy_now_price}}</span></h4>
+            {{/if}}
             
             {{#if isAuthenticated}}
             <div class="mt-4">

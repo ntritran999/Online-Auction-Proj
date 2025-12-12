@@ -42,10 +42,26 @@ export async function findLimitedProsByCatId(currentProId, catId, numPros) {
                                         )`)
                                 .gt('end_time', new Date().toISOString())
                                 .eq('category_id', catId)
-                                .neq('product_id', currentProId)
-                                .order('created_at', { ascending: false })
-                                .limit(numPros);
-    return data;
+                                .neq('product_id', currentProId);
+
+    const { data: subdata, error: suberr } = await supabase
+                                                .from('products')
+                                                .select(`*,
+                                                        highest_bidder:users!highest_bidder(
+                                                            full_name
+                                                        ),
+                                                        image_list:productimages!product_id(
+                                                            image_url
+                                                        ),
+                                                        category!inner(
+                                                            parent_cat
+                                                        )`)
+                                                .gt('end_time', new Date().toISOString())
+                                                .eq('category.parent_cat', catId)
+                                                .neq('product_id', currentProId);
+    let result = data.concat(subdata);
+    result.sort((a, b) => (new Date(b.created_at)) - (new Date(a.created_at)));
+    return result.slice(0, numPros);
 }
 
 export async function findPageByCatId(catId, numPros, offset) {
@@ -59,9 +75,25 @@ export async function findPageByCatId(catId, numPros, offset) {
                                             image_url
                                         )`)
                                 .gt('end_time', new Date().toISOString())
-                                .eq('category_id', catId)
-                                .range(offset, offset + numPros - 1);
-    return data;
+                                .eq('category_id', catId);
+
+    const { data: subdata, error: suberr } = await supabase
+                                                .from('products')
+                                                .select(`*,
+                                                        highest_bidder:users!highest_bidder(
+                                                            full_name
+                                                        ),
+                                                        image_list:productimages!product_id(
+                                                            image_url
+                                                        ),
+                                                        category!inner(
+                                                            parent_cat
+                                                        )`)
+                                                .gt('end_time', new Date().toISOString())
+                                                .eq('category.parent_cat', catId);
+    let result = data.concat(subdata);
+    result.sort((a, b) => (new Date(b.created_at)) - (new Date(a.created_at)));
+    return result.slice(offset, offset + numPros);
 }
 
 export async function findPageBySearch(searchValue, numPros, offset) {
@@ -77,7 +109,8 @@ export async function findPageBySearch(searchValue, numPros, offset) {
                                         )`)
                                 .textSearch('fts', unaccent_search.data)
                                 .gt('end_time', new Date().toISOString())
-                                .range(offset, offset + numPros - 1);
+                                .range(offset, offset + numPros - 1)
+                                .order('created_at', { ascending: false });
     return data;
 }
 

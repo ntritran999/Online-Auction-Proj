@@ -7,8 +7,7 @@
         .sort((a, b) => {
             const date1 = new Date(a.querySelector('.end_time').dataset.endTime);
             const date2 = new Date(b.querySelector('.end_time').dataset.endTime);
-            console.log(date1, date2);
-            return date1 - date2;
+            return date2 - date1;
         })
         .forEach(node => list.appendChild(node));
     });
@@ -18,7 +17,7 @@
         .sort((a, b) => {
             const date1 = new Date(a.querySelector('.end_time').dataset.endTime);
             const date2 = new Date(b.querySelector('.end_time').dataset.endTime);
-            return date2 - date1;
+            return date1 - date2;
         })
         .forEach(node => list.appendChild(node));
     });

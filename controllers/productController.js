@@ -26,7 +26,7 @@ const getProByCat = async (req, res) => {
     const id = req.params.id;
     const cat = await categoryModel.findCatById(id);
     if (!cat) {
-        return res.redirect('/');
+        return res.render('vwProducts/product_notfound');
     }
     
     const result = validationResult(req);
@@ -63,7 +63,7 @@ const getProDetails = async (req, res) => {
     const id = req.params.id;
     const product = await productModel.findProById(id);
     if (!product) {
-        return res.redirect('/');
+        return res.render('vwProducts/product_notfound');
     }
 
     const seller = await userModel.findUserById(product.seller_id);

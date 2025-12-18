@@ -34,6 +34,7 @@ const uploadProduct = async (req, res) => {
         start_price: toNumber(req.body.start_price),
         step_price: toNumber(req.body.step_price),
         buy_now_price: toNumber(req.body.buy_now_price),
+        current_price: toNumber(req.body.start_price),
         auto_extend: req.body.auto_extend == "on",
         bidder_rating_required: req.body.bidder_rating_required == "on",
         end_time: req.body.end_time

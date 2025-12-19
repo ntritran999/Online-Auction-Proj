@@ -3,6 +3,7 @@ import * as categoryModel from '../models/categoryModel.js';
 import * as productModel from '../models/productModel.js';
 import * as userModel from '../models/userModel.js';
 import * as bidModel from '../models/sellerModel.js';
+import dayjs from 'dayjs';
 
 const numPros = 4;
 
@@ -65,6 +66,10 @@ const getProDetails = async (req, res) => {
     if (!product) {
         return res.render('vwProducts/product_notfound');
     }
+    const isOver = dayjs().isAfter(dayjs(product.end_time));
+    if (isOver && product.bid_count > 0 && req.user && (req.user.user_id === product.seller_id || req.user.user_id === product.highest_bidder)) {
+        return res.redirect(`/transaction/${product.product_id}`);
+    }
 
     const seller = await userModel.findUserById(product.seller_id);
     seller.total_rating = seller.rating_plus + seller.rating_minus;
@@ -98,6 +103,7 @@ const getProDetails = async (req, res) => {
         'bidders': bidder_list,
         'qa_list': qa_list,
         'isDenied': denial,
+        'isOver': isOver,
     };
     res.render('vwProducts/product_detail', pro_details);
 };

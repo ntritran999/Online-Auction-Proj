@@ -274,6 +274,7 @@
             {{/if}}
             
             {{#if isAuthenticated}}
+            {{#unless isOver}}
             <div class="mt-4">
                 {{#unless isSeller}}
                 {{#if isDenied}}
@@ -289,7 +290,8 @@
                 <a href="/bidder/bid-history/{{product.product_id}}" class="btn btn-outline-secondary w-100">
                     <i class="bi bi-clock-history"></i> Xem lịch sử đấu giá
                 </a>
-            </div>
+            </div>    
+            {{/unless}}
             {{else}}
             <div class="alert alert-info mt-4">
                 <a href="/login">Đăng nhập</a> để tham gia đấu giá
@@ -297,6 +299,7 @@
             {{/if}}
             <hr>
             {{#if isAuthenticated}}
+            {{#unless isOver}}
             {{#if isSeller}}
             <h4 class="fw-semibold mt-3">Danh sách bidder ra giá</h4>
             <div class="table-responsive">
@@ -334,7 +337,8 @@
                 </table>
             </div>
             <hr>
-            {{/if}}
+            {{/if}}    
+            {{/unless}}
             {{/if}}
         </div>
     </div>
@@ -459,6 +463,7 @@
             </div>
 
             {{#if isAuthenticated}}
+            {{#unless isOver}}
             {{#unless isSeller}}
             <hr class="mb-3">
             <div class="card-body p-4 mb-3">
@@ -469,6 +474,7 @@
                     <button type="submit" class="btn btn-primary float-end">Đăng câu hỏi</button>
                 </form>
             </div>
+            {{/unless}}
             {{/unless}}
             {{/if}}
         </div>

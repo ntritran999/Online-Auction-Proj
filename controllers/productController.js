@@ -3,6 +3,7 @@ import * as categoryModel from '../models/categoryModel.js';
 import * as productModel from '../models/productModel.js';
 import * as userModel from '../models/userModel.js';
 import * as bidModel from '../models/sellerModel.js';
+import dayjs from 'dayjs';
 
 const numPros = 4;
 
@@ -26,7 +27,7 @@ const getProByCat = async (req, res) => {
     const id = req.params.id;
     const cat = await categoryModel.findCatById(id);
     if (!cat) {
-        return res.redirect('/');
+        return res.render('vwProducts/product_notfound');
     }
     
     const result = validationResult(req);
@@ -63,7 +64,11 @@ const getProDetails = async (req, res) => {
     const id = req.params.id;
     const product = await productModel.findProById(id);
     if (!product) {
-        return res.redirect('/');
+        return res.render('vwProducts/product_notfound');
+    }
+    const isOver = dayjs().isAfter(dayjs(product.end_time));
+    if (isOver && product.bid_count > 0 && req.user && (req.user.user_id === product.seller_id || req.user.user_id === product.highest_bidder)) {
+        return res.redirect(`/transaction/${product.product_id}`);
     }
 
     const seller = await userModel.findUserById(product.seller_id);
@@ -83,6 +88,7 @@ const getProDetails = async (req, res) => {
     const bidder_list = await bidModel.findBiddersByProId(id);
 
     const qa_list = await productModel.getQAHistory(id);
+    const denial = (!req.user) ? null : await productModel.checkDenial(req.user.user_id, id);
 
     const pro_details = {
         'product' : product,
@@ -96,6 +102,8 @@ const getProDetails = async (req, res) => {
         'isSeller': isSeller,
         'bidders': bidder_list,
         'qa_list': qa_list,
+        'isDenied': denial,
+        'isOver': isOver,
     };
     res.render('vwProducts/product_detail', pro_details);
 };

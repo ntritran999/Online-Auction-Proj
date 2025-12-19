@@ -1,4 +1,5 @@
 import supabase from '../supabaseClient.js';
+import dayjs from 'dayjs';
 
 // Kiểm tra sản phẩm đã có trong watchlist 
 export async function checkInWatchlist(userId, productId) {
@@ -69,6 +70,144 @@ export async function getWatchlistByUser(userId) {
         return [];
     }
     return data;
+}
+
+export async function autoBid(productId, bidderId, maxBidAmount, extendTime, extendBoundary) {
+    const productQuery = await supabase
+                        .from("products")
+                        .select()
+                        .eq("product_id", productId)
+                        .single();
+    if (productQuery.error) {
+        console.log(productQuery.error);
+        return null;
+    }
+
+    const { 
+        current_price: currentPrice, 
+        step_price: stepPrice, 
+        buy_now_price: buyNowPrice,
+        bid_count: bidCount,
+        auto_extend: autoExtend,
+        end_time: endTime,
+    } = productQuery.data;
+    
+    let placeBidResult;
+    if (bidCount === 0) {
+        const res = await supabase
+                        .from("autobids")
+                        .insert({
+                            product_id: productId,
+                            bidder_id: bidderId,
+                            max_bid: maxBidAmount
+                        });
+        if (res.error) {
+            console.log(res.error);
+            return null;
+        }
+        if (buyNowPrice && buyNowPrice === currentPrice) {
+            placeBidResult = placeBuyNowBid(productId, bidderId, currentPrice);
+        }
+        else {
+            placeBidResult = placeBid(productId, bidderId, currentPrice);
+        }
+    }
+    else {
+        const autoBidQuery = await supabase
+                        .from("autobids")
+                        .select()
+                        .eq("product_id", productId)
+                        .single();
+        if (autoBidQuery.error) {
+            console.log(autoBidQuery.error);
+            return null;
+        }
+
+        const {
+            autobid_id: autoBidId,
+            bidder_id: currentHighestBidder,
+            max_bid: currentMaxBid,
+        } = autoBidQuery.data;
+        
+        if (maxBidAmount <= currentMaxBid) {
+            const bidAmount = Math.min(maxBidAmount, currentMaxBid);
+            if (buyNowPrice && buyNowPrice === bidAmount) {
+                placeBidResult = placeBuyNowBid(productId, currentHighestBidder, bidAmount);
+            }
+            else {
+                placeBidResult = placeBid(productId, currentHighestBidder, bidAmount);
+            }
+        }
+        else {
+            const bidAmount = currentMaxBid + stepPrice;
+            const res = await supabase
+                            .from("autobids")
+                            .update({
+                                bidder_id: bidderId,
+                                max_bid: maxBidAmount,
+                            })
+                            .eq("autobid_id", autoBidId);
+            if (res.error) {
+                console.log(res.error);
+                return null;
+            }
+            if (buyNowPrice && buyNowPrice === bidAmount) {
+                placeBidResult = placeBuyNowBid(productId, bidderId, bidAmount);
+            }
+            else {
+                placeBidResult = placeBid(productId, bidderId, bidAmount);
+            }
+        }
+    }
+
+    if (autoExtend) {
+        const now = dayjs();
+        let end = dayjs(endTime);
+        if (end.diff(now, 'ms') < extendBoundary) {
+            end = end.add(extendTime, 'ms');
+            const { error } = await supabase
+                                    .from("products")
+                                    .update({
+                                        end_time: end.format()
+                                    })
+                                    .eq("product_id", productId);
+            if (error) {
+                console.log(error);
+                return null;
+            }
+        }
+    }
+    return placeBidResult;
+}
+
+export async function placeBuyNowBid(productId, bidderId, bidAmount) {
+    const productQuery = await supabase
+                        .from("products")
+                        .update({
+                           end_time: dayjs().format()
+                        })
+                        .eq("product_id", productId)
+                        .select()
+                        .single();
+    if (productQuery.error) {
+        console.log(productQuery.error);
+        return null;
+    }
+    
+    const txnQuery = await supabase
+                        .from("transactions")
+                        .insert({
+                            product_id: productId,
+                            buyer_id: bidderId,
+                            seller_id: productQuery.data.seller_id,
+                            payment_status: "Chờ thanh toán",
+                        });
+    if (txnQuery.error) {
+        console.log(txnQuery.error);
+        return null;
+    }
+
+    return placeBid(productId, bidderId, bidAmount);
 }
 
 // Thêm bid mới

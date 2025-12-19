@@ -3,6 +3,7 @@ import fs from "fs";
 import * as catModel from "../models/categoryModel.js";
 import * as proModel from "../models/productModel.js";
 import * as sellerModel from "../models/sellerModel.js";
+import { findUserById } from "../models/userModel.js";
 
 function toNumber(formatted_string) {
     return +(formatted_string.replace(/\./g, '').replace(/,/g, '.'));
@@ -34,6 +35,7 @@ const uploadProduct = async (req, res) => {
         start_price: toNumber(req.body.start_price),
         step_price: toNumber(req.body.step_price),
         buy_now_price: toNumber(req.body.buy_now_price),
+        current_price: toNumber(req.body.start_price),
         auto_extend: req.body.auto_extend == "on",
         bidder_rating_required: req.body.bidder_rating_required == "on",
         end_time: req.body.end_time
@@ -69,6 +71,22 @@ const updateDescription = async (req, res) => {
 
 const denyBid = async (req, res) => {
     const deny = req.body;
+    const productId = parseInt(deny.product_id) || 0;
+    const bidderId = parseInt(deny.bidder_id) || 0;
+    if (!productId || !bidderId) {
+        return res.redirect(req.headers.referer);
+    }
+    
+    const product = await proModel.findProById(productId);
+    if (!product) {
+        return res.redirect(req.headers.referer);
+    }
+    
+    const bidder = await findUserById(bidderId);
+    if (!bidder) {
+        return res.redirect(req.headers.referer);
+    }
+
     await sellerModel.addDeny(deny);
     res.redirect(req.headers.referer);
 };

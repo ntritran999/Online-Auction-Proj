@@ -1,5 +1,6 @@
 import supabase from '../supabaseClient.js';
 import bcrypt from 'bcrypt';
+import dayjs from 'dayjs';
 
 // Lấy thông tin user
 export async function getUserById(userId) {
@@ -119,7 +120,7 @@ export async function getUserBiddingProducts(userId) {
             )
         `)
         .eq('bidder_id', userId)
-        .gt('products.end_time', new Date().toISOString())
+        .gt('products.end_time', dayjs().format())
         .order('created_at', { ascending: false });
     
     if (error) {
@@ -151,7 +152,7 @@ export async function getUserWonProducts(userId) {
             image_list:productimages!product_id(image_url)
         `)
         .eq('highest_bidder', userId)
-        .lt('end_time', new Date().toISOString())
+        .lt('end_time', dayjs().format())
         .order('end_time', { ascending: false });
     
     if (error) {

@@ -1,4 +1,5 @@
 import * as transactModel from '../models/transactionModel.js';
+import * as usrModel from '../models/userModel.js';
 
 const renderTransactionPage = async (req, res) => {
     if (isNaN(parseInt(req.params.id))) {
@@ -33,6 +34,7 @@ const sendMsg = async (req, res) => {
 const cancelTranx = async (req, res) => {
     const txnId = req.body.txnId;
     await transactModel.updateCancelTxn(txnId);
+    await usrModel.addMinusRating(req.body.receiver, 1);
     await transactModel.addRating({
         rater_id: req.body.sender,
         target_id: req.body.receiver,
@@ -68,6 +70,33 @@ const createRating = async (req, res) => {
             comment: comment,
         });
     }
+
+    const is_positive = (rating_value === 1) ? true : false;
+    let rating_plus_value = 0;
+    let rating_minus_value = 0;
+    if (rating) {
+        if (rating.rating_value !== rating_value) {
+            if (is_positive) {
+                rating_plus_value = 1;
+                rating_minus_value = -1;
+            }
+            else {
+                rating_plus_value = -1;
+                rating_minus_value = 1;
+            }
+        }
+    }
+    else {
+        if (is_positive) {
+            rating_plus_value = 1;
+        }
+        else {
+            rating_minus_value = 1;
+        }
+    }
+    await usrModel.addPlusRating(target_id, rating_plus_value);
+    await usrModel.addMinusRating(target_id, rating_minus_value);
+
     res.redirect(`/transaction/${req.params.id}`);
 };
 

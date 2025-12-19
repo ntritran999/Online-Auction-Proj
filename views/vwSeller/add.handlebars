@@ -82,6 +82,33 @@
         }
         document.querySelector("#productDescription").value = DOMPurify.sanitize(quill.getSemanticHTML());
 
+        const start_price = +(document.querySelector("#startPrice").value.replace(/\./g, '').replace(/,/g, '.'));
+        if (start_price <= 0) {
+            Swal.fire({
+                icon: "error",
+                text: "Vui lòng nhập giá khởi điểm lớn hơn 0"
+            });
+            return;
+        }
+
+        const step_price = +(document.querySelector("#priceStep").value.replace(/\./g, '').replace(/,/g, '.'));
+        if (step_price <= 0 || step_price > start_price) {
+            Swal.fire({
+                icon: "error",
+                text: "Vui lòng nhập bước giá lớn hơn 0 và không vượt quá giá khởi tạo"
+            });
+            return;
+        }
+
+        const buy_now_price = +(document.querySelector("#buyNowPrice").value.replace(/\./g, '').replace(/,/g, '.'));
+        if (buy_now_price <= 0 || buy_now_price < start_price) {
+            Swal.fire({
+                icon: "error",
+                text: "Vui lòng nhập bước giá lớn hơn 0 và không nhỏ hơn giá khởi tạo"
+            });
+            return;
+        }
+        
         const end_time = new Date(document.querySelector('#endTime').value);
         const now = new Date();
         if (end_time < now) {

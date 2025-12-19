@@ -92,7 +92,7 @@ if (form) {
         <h5>Trạng thái yêu cầu hiện tại</h5>
     </div>
     <div class="card-body">
-        <p><strong>Ngày gửi:</strong> {{format_datetime existingRequest.created_at}}</p>
+        <p><strong>Ngày gửi:</strong> {{format_datetime (convert_to_local existingRequest.created_at)}}</p>
         <p><strong>Lý do:</strong> {{existingRequest.note}}</p>
         <p><strong>Trạng thái:</strong> 
             {{#if (eqString existingRequest.status 'pending')}}

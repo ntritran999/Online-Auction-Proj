@@ -46,6 +46,7 @@
     const productId = '{{product.product_id}}';
     const currentPrice = '{{product.current_price}}';
     const stepPrice = '{{product.step_price}}';
+    const isNoBid = !'{{product.highest_bidder}}';
 
     // watchlist 
     {{#if isAuthenticated}}
@@ -92,22 +93,46 @@
                 alert('Có lỗi xảy ra');
             }
         });
-        {{#if (not isSeller)}}
+        {{#unless isSeller}}
+        const bidAmount = document.querySelector("#bidAmount");
+        const bidModal = document.querySelector("#bidModal");
+        bidModal.addEventListener("hidden.bs.modal", e => {
+            bidAmount.value = bidAmount.defaultValue;
+        });
+
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+        const appendAlert = (message, type) => {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = 
+                `<div class="alert alert-${type} alert-dismissible d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>${message}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+
+            alertPlaceholder.append(wrapper);
+        };
+
         // tinh minimum bid
-        const minBid = parseInt(currentPrice) + parseInt(stepPrice);
-        document.getElementById('minBidPrice').textContent = minBid.toLocaleString('vi-VN') + ' VNĐ';
-        document.getElementById('bidAmount').min = minBid;
+        let minBid = parseInt(currentPrice);
+        if (!isNoBid)
+            minBid += parseInt(stepPrice);
 
         // Confirm bid
         document.getElementById('confirmBidBtn').addEventListener('click', async function() {
             const bidAmount = parseFloat(document.getElementById('bidAmount').value);
             
             if (!bidAmount || bidAmount < minBid) {
-                alert('Giá đặt không hợp lệ!');
+                appendAlert('Giá đặt không hợp lệ!', 'danger');
                 return;
             }
 
-            if (!confirm(`Bạn có chắc chắn muốn đặt giá ${bidAmount.toLocaleString('vi-VN')} VNĐ?`)) {
+            if (bidAmount % stepPrice !== 0) {
+                appendAlert('Giá đặt phải là bội số của bước giá', 'danger');
+                return;
+            }
+
+            if (!confirm(`Bạn có chắc chắn muốn đặt giá tối đa là ${bidAmount.toLocaleString('vi-VN')} VNĐ?`)) {
                 return;
             }
 
@@ -115,7 +140,7 @@
                 const response = await fetch('/bidder/bid', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productId, bidAmount })
+                    body: JSON.stringify({ productId, bidAmount, buyNow: false })
                 });
 
                 const data = await response.json();
@@ -132,7 +157,10 @@
                     bootstrap.Modal.getInstance(document.getElementById('bidModal')).hide();
                     document.getElementById('bidAmount').value = '';
                     
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => {
+                        bidModal.value = bidModal.defaultValue;
+                        location.reload();
+                    }, 1000);
                 } else {
                     alert(data.message);
                 }
@@ -141,7 +169,40 @@
                 alert('Có lỗi xảy ra khi đặt giá');
             }
         });
-        {{/if}}
+
+        // buy now
+        document.querySelector("#confirmBuyNowBtn").addEventListener('click', async function() {
+            const bidAmount = parseFloat('{{product.buy_now_price}}');
+            try {
+                const response = await fetch('/bidder/bid', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, bidAmount, buyNow: true })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                    
+                    document.getElementById('currentPrice').textContent = 
+                        data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                    document.getElementById('modalCurrentPrice').textContent = 
+                        data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                    document.getElementById('bidCount').textContent = data.bidCount;
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('buyNowModal')).hide();
+                    
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Có lỗi xảy ra khi đặt giá');
+            }
+        }) ;
+        {{/unless}}
     });
     {{/if}}
 </script>
@@ -235,23 +296,40 @@
             <hr>
 
             <h4>Giá hiện tại: <span class="fw-bold text-primary" id="currentPrice">{{format_currency product.current_price}}</span></h4>
+            {{#if isAuthenticated}}
             <p>Bước giá: <strong>{{format_currency product.step_price}}</strong></p>
             <p>Lượt ra giá: <strong id="bidCount">{{product.bid_count}}</strong></p>
-            <p>Ngày mở bán: {{format_datetime product.created_at}}</p>
+            {{/if}}
+            <p>Ngày mở bán: {{format_datetime (convert_to_local product.created_at)}}</p>
             <p class="text-danger">Ngày kết thúc: {{format_endDatetime product.end_time}}</p>
+            {{#if product.buy_now_price}}
             <h4>Mua ngay với: <span class="fw-bold">{{format_currency product.buy_now_price}}</span></h4>
+            {{/if}}
             
             {{#if isAuthenticated}}
-            {{#if (not isSeller)}}
+            {{#unless isOver}}
             <div class="mt-4">
+                {{#unless isSeller}}
+                {{#if isDenied}}
+                <button class="btn btn-warning w-100 mb-2" disabled>
+                    <i class="bi bi-ban"></i> Bạn đã bị từ chối ra giá bởi người bán
+                </button>
+                {{else}}
                 <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#bidModal">
                     <i class="bi bi-hammer"></i> Đặt giá
                 </button>
+                {{#if product.buy_now_price}}
+                <button class="btn btn-success w-100 mb-2" data-bs-toggle="modal" data-bs-target="#buyNowModal">
+                    <i class="bi bi-star-fill"></i> Mua ngay
+                </button>    
+                {{/if}}
+                {{/if}}
+                {{/unless}}
                 <a href="/bidder/bid-history/{{product.product_id}}" class="btn btn-outline-secondary w-100">
                     <i class="bi bi-clock-history"></i> Xem lịch sử đấu giá
                 </a>
-            </div>
-            {{/if}}
+            </div>    
+            {{/unless}}
             {{else}}
             <div class="alert alert-info mt-4">
                 <a href="/login">Đăng nhập</a> để tham gia đấu giá
@@ -259,6 +337,7 @@
             {{/if}}
             <hr>
             {{#if isAuthenticated}}
+            {{#unless isOver}}
             {{#if isSeller}}
             <h4 class="fw-semibold mt-3">Danh sách bidder ra giá</h4>
             <div class="table-responsive">
@@ -296,7 +375,8 @@
                 </table>
             </div>
             <hr>
-            {{/if}}
+            {{/if}}    
+            {{/unless}}
             {{/if}}
         </div>
     </div>
@@ -309,7 +389,7 @@
 
 
 {{!-- UI giao dien dat gia --}}
-{{#if (not isSeller)}}
+{{#unless isSeller}}
 <div class="modal fade" id="bidModal" tabindex="-1" aria-labelledby="bidModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -323,15 +403,17 @@
                     <p class="fw-bold text-primary" id="modalCurrentPrice">{{format_currency product.current_price}}</p>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Giá tối thiểu phải đặt:</label>
-                    <p class="fw-bold" id="minBidPrice"></p>
-                </div>
-                <div class="mb-3">
-                    <label for="bidAmount" class="form-label">Giá của bạn (VNĐ):</label>
-                    <input type="number" class="form-control" id="bidAmount" 
-                           placeholder="Nhập giá đặt" min="{{product.current_price}}" step="{{product.step_price}}">
+                    <label for="bidAmount" class="form-label">Giá đặt tối đa của bạn (VNĐ):</label>
+                    {{#if product.highest_bidder}}
+                    <input type="number" class="form-control" id="bidAmount" value="{{add product.current_price product.step_price}}" name="bidAmount"
+                        placeholder="Nhập giá đặt" min="{{add product.current_price product.step_price}}" step="{{product.step_price}}">
+                    {{else}}
+                    <input type="number" class="form-control" id="bidAmount" value="{{product.current_price}}" name="bidAmount"
+                        placeholder="Nhập giá đặt" min="{{product.current_price}}" step="{{product.step_price}}">
+                    {{/if}}
                     <div class="form-text">Bước giá: {{format_currency product.step_price}}</div>
                 </div>
+                <div id="liveAlertPlaceholder"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -340,7 +422,7 @@
         </div>
     </div>
 </div>
-{{/if}}
+{{/unless}}
 
 <div class="container-fluid">
     <h1 class="fw-bold">Hỏi đáp</h1>
@@ -419,6 +501,7 @@
             </div>
 
             {{#if isAuthenticated}}
+            {{#unless isOver}}
             {{#unless isSeller}}
             <hr class="mb-3">
             <div class="card-body p-4 mb-3">
@@ -429,6 +512,7 @@
                     <button type="submit" class="btn btn-primary float-end">Đăng câu hỏi</button>
                 </form>
             </div>
+            {{/unless}}
             {{/unless}}
             {{/if}}
         </div>
@@ -448,7 +532,7 @@
                         <p class="card-text fw-bold">{{format_currency current_price}}</p>
                         <p class="card-text">Bidder dẫn đầu: {{mask_name highest_bidder.full_name}}</p>
                         <p class="card-text">Giá mua ngay: {{format_currency buy_now_price}}</p>
-                        <p class="card-text">Bắt đầu: {{format_datetime created_at}}</p>
+                        <p class="card-text">Bắt đầu: {{format_datetime (convert_to_local created_at)}}</p>
                         <p class="card-text">Kết thúc: {{format_endDatetime end_time}}</p>
                         <p class="card-text">Lượt ra giá: {{bid_count}}</p>
                         <a href="/product/details/{{product_id}}" class="stretched-link"></a>
@@ -459,3 +543,25 @@
         </div>
     </div>
 </div>
+
+{{#unless isSeller}}
+{{#if product.buy_now_price}}
+<div class="modal fade" id="buyNowModal" tabindex="-1" aria-labelledby="buyNowModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="buyNowModalLabel">Xác nhận mua ngay</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn mua ngay sản phẩm với giá {{format_currency product.buy_now_price}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="confirmBuyNowBtn">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{/if}}
+{{/unless}}

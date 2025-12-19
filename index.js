@@ -138,6 +138,9 @@ app.engine('handlebars', engine({
         inc: function(idx) {
             return parseInt(idx) + 1;
         },
+        add: function(a, b) {
+            return +a + +b;
+        },
         format_QAtime: function(time) {
             const now = dayjs();
             const qaTime = dayjs(time);

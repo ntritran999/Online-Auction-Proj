@@ -1,0 +1,31 @@
+<h3 class="mb-3">Danh sách sản phẩm đã có người thắng đấu giá</h3>
+
+{{#if products}}
+<div class="table-responsive" style="max-height: 1000px;">
+    <table class="table table-bordered">
+        <thead>
+            <tr class="text-center">
+                <th scope="col">#</th>
+                <th scope="col">Sản phẩm</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each products}}
+            <tr>
+                <td class="text-center">{{inc @index}}</td>
+                <td class="navbar navbar-expand-lg">
+                    <div class="container-md">
+                        <p>{{product_name}}</p>
+                        <a href="/transaction/{{product_id}}" class="btn btn-outline-primary"><i class="bi bi-arrow-right"></i></a>
+                    </div>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+{{else}}
+<div class="alert alert-info text-center">
+    <p class="mt-3">Bạn chưa có sản phẩm nào có người thắng đấu giá</p>
+</div>  
+{{/if}}

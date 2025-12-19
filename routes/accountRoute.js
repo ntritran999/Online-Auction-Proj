@@ -1,9 +1,7 @@
 import { Router } from "express";
 import * as accountController from '../controllers/profileController.js';
-import * as proModel from '../models/productModel.js';
 
 const router = Router();
-
 
 // Thông tin cá nhân
 router.get('/profile', accountController.getEditProfile);
@@ -26,12 +24,8 @@ router.get('/won', accountController.getWonProducts);
 router.get('/upgrade-request', accountController.getUpgradeRequest);
 router.post('/upgrade-request', accountController.postUpgradeRequest);
 
-router.get('/selling', async (req, res) => {
-    const list = await proModel.findProsBySeller(req.user.user_id);
-    res.render('vwProfile/selling_products', {
-        layout: 'profile',
-        products: list,
-    })
-})
+router.get('/selling', accountController.getSellingProducts);
+
+router.get('/transactions', accountController.getProductsWithBidWon);
 
 export default router;

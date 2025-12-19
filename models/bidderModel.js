@@ -71,6 +71,76 @@ export async function getWatchlistByUser(userId) {
     return data;
 }
 
+export async function autoBid(productId, bidderId, maxBidAmount) {
+    const productQuery = await supabase
+                        .from("products")
+                        .select()
+                        .eq("product_id", productId)
+                        .single();
+    if (productQuery.error) {
+        console.log(productQuery.error);
+        return null;
+    }
+
+    const { 
+        current_price: currentPrice, 
+        step_price: stepPrice, 
+        bid_count: bidCount 
+    } = productQuery.data;
+    
+    if (bidCount === 0) {
+        const res = await supabase
+                        .from("autobids")
+                        .insert({
+                            product_id: productId,
+                            bidder_id: bidderId,
+                            max_bid: maxBidAmount
+                        });
+        if (res.error) {
+            console.log(res.error);
+            return null;
+        }
+        return placeBid(productId, bidderId, currentPrice);
+    }
+    else {
+        const autoBidQuery = await supabase
+                        .from("autobids")
+                        .select()
+                        .eq("product_id", productId)
+                        .single();
+        if (autoBidQuery.error) {
+            console.log(autoBidQuery.error);
+            return null;
+        }
+
+        const {
+            autobid_id: autoBidId,
+            bidder_id: currentHighestBidder,
+            max_bid: currentMaxBid,
+        } = autoBidQuery.data;
+        
+        if (maxBidAmount <= currentMaxBid) {
+            const bidAmount = Math.min(maxBidAmount, currentMaxBid);
+            return placeBid(productId, currentHighestBidder, bidAmount);
+        }
+        else {
+            const bidAmount = currentMaxBid + stepPrice;
+            const res = await supabase
+                            .from("autobids")
+                            .update({
+                                bidder_id: bidderId,
+                                max_bid: maxBidAmount,
+                            })
+                            .eq("autobid_id", autoBidId);
+            if (res.error) {
+                console.log(res.error);
+                return null;
+            }
+            return placeBid(productId, bidderId, bidAmount);
+        }
+    }
+}
+
 // Thêm bid mới
 export async function placeBid(productId, bidderId, bidAmount) {
     const { data, error } = await supabase

@@ -46,6 +46,7 @@
     const productId = '{{product.product_id}}';
     const currentPrice = '{{product.current_price}}';
     const stepPrice = '{{product.step_price}}';
+    const isNoBid = {{product.bid_count}} == 0;
 
     // watchlist 
     {{#if isAuthenticated}}
@@ -93,21 +94,45 @@
             }
         });
         {{#unless isSeller}}
+        const bidAmount = document.querySelector("#bidAmount");
+        const bidModal = document.querySelector("#bidModal");
+        bidModal.addEventListener("hidden.bs.modal", e => {
+            bidAmount.value = bidAmount.defaultValue;
+        });
+
+        const alertPlaceholder = document.getElementById('liveAlertPlaceholder');
+        const appendAlert = (message, type) => {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = 
+                `<div class="alert alert-${type} alert-dismissible d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>${message}</div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+
+            alertPlaceholder.append(wrapper);
+        };
+
         // tinh minimum bid
-        const minBid = parseInt(currentPrice) + parseInt(stepPrice);
-        document.getElementById('minBidPrice').textContent = minBid.toLocaleString('vi-VN') + ' VNĐ';
-        document.getElementById('bidAmount').min = minBid;
+        let minBid = parseInt(currentPrice);
+        if (!isNoBid)
+            minBid += parseInt(stepPrice);
 
         // Confirm bid
         document.getElementById('confirmBidBtn').addEventListener('click', async function() {
             const bidAmount = parseFloat(document.getElementById('bidAmount').value);
             
             if (!bidAmount || bidAmount < minBid) {
-                alert('Giá đặt không hợp lệ!');
+                appendAlert('Giá đặt không hợp lệ!', 'danger');
                 return;
             }
 
-            if (!confirm(`Bạn có chắc chắn muốn đặt giá ${bidAmount.toLocaleString('vi-VN')} VNĐ?`)) {
+            if (bidAmount % stepPrice !== 0) {
+                appendAlert('Giá đặt phải là bội số của bước giá', 'danger');
+                return;
+            }
+
+            if (!confirm(`Bạn có chắc chắn muốn đặt giá tối đa là ${bidAmount.toLocaleString('vi-VN')} VNĐ?`)) {
                 return;
             }
 
@@ -132,7 +157,10 @@
                     bootstrap.Modal.getInstance(document.getElementById('bidModal')).hide();
                     document.getElementById('bidAmount').value = '';
                     
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => {
+                        bidModal.value = bidModal.defaultValue;
+                        location.reload();
+                    }, 1000);
                 } else {
                     alert(data.message);
                 }
@@ -248,9 +276,15 @@
             {{#if isAuthenticated}}
             <div class="mt-4">
                 {{#unless isSeller}}
+                {{#if isDenied}}
+                <button class="btn btn-warning w-100 mb-2" disabled>
+                    <i class="bi bi-ban"></i> Bạn đã bị từ chối ra giá bởi người bán
+                </button>
+                {{else}}
                 <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#bidModal">
                     <i class="bi bi-hammer"></i> Đặt giá
                 </button>
+                {{/if}}
                 {{/unless}}
                 <a href="/bidder/bid-history/{{product.product_id}}" class="btn btn-outline-secondary w-100">
                     <i class="bi bi-clock-history"></i> Xem lịch sử đấu giá
@@ -327,15 +361,17 @@
                     <p class="fw-bold text-primary" id="modalCurrentPrice">{{format_currency product.current_price}}</p>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Giá tối thiểu phải đặt:</label>
-                    <p class="fw-bold" id="minBidPrice"></p>
-                </div>
-                <div class="mb-3">
-                    <label for="bidAmount" class="form-label">Giá của bạn (VNĐ):</label>
-                    <input type="number" class="form-control" id="bidAmount" 
-                           placeholder="Nhập giá đặt" min="{{product.current_price}}" step="{{product.step_price}}">
+                    <label for="bidAmount" class="form-label">Giá đặt tối đa của bạn (VNĐ):</label>
+                    {{#if product.bid_count}}
+                    <input type="number" class="form-control" id="bidAmount" value="{{add product.current_price product.step_price}}" name="bidAmount"
+                        placeholder="Nhập giá đặt" min="{{add product.current_price product.step_price}}" step="{{product.step_price}}">
+                    {{else}}
+                    <input type="number" class="form-control" id="bidAmount" value="{{product.current_price}}" name="bidAmount"
+                        placeholder="Nhập giá đặt" min="{{product.current_price}}" step="{{product.step_price}}">
+                    {{/if}}
                     <div class="form-text">Bước giá: {{format_currency product.step_price}}</div>
                 </div>
+                <div id="liveAlertPlaceholder"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>

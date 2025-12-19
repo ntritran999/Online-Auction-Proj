@@ -221,3 +221,13 @@ export async function findProsWithTxnBySeller(seller) {
                                 .not('transactions.transaction_id', 'is', null);
     return data;
 }
+
+export async function checkDenial(userId, productId) {
+    const { data, error } = await supabase
+                                .from("denied")
+                                .select()
+                                .eq("bidder_id", userId)
+                                .eq("product_id", productId)
+                                .single();
+    return data;
+}

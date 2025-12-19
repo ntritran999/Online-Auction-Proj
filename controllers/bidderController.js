@@ -116,7 +116,7 @@ export const placeBid = async (req, res) => {
         }
 
         // Kiểm tra điều kiện bidder
-        const eligibility = await bidderModel.checkBidderEligibility(userId, true);
+        const eligibility = await bidderModel.checkBidderEligibility(userId, !product.bidder_rating_required);
         if (!eligibility.eligible) {
             return res.status(403).json({ 
                 success: false, 
@@ -125,7 +125,10 @@ export const placeBid = async (req, res) => {
         }
 
         // Kiểm tra giá hợp lệ
-        const minBid = parseFloat(product.current_price) + parseFloat(product.step_price);
+        let minBid = parseFloat(product.current_price);
+        if (product.bid_count > 0) {
+            minBid += parseFloat(product.step_price);
+        }
         const bidAmountNum = parseFloat(bidAmount);
 
         if (bidAmountNum < minBid) {
@@ -136,7 +139,7 @@ export const placeBid = async (req, res) => {
         }
 
         // Đặt bid
-        const bid = await bidderModel.placeBid(productId, userId, bidAmountNum);
+        const bid = await bidderModel.autoBid(productId, userId, bidAmountNum);
         if (!bid) {
             return res.status(500).json({ 
                 success: false, 
@@ -146,9 +149,9 @@ export const placeBid = async (req, res) => {
 
         // Cập nhật thông tin sản phẩm
         const updated = await bidderModel.updateProductAfterBid(
-            productId, 
-            bidAmountNum, 
-            userId
+            bid.product_id,
+            bid.bid_amount,
+            bid.bidder_id
         );
 
         if (!updated) {
@@ -161,7 +164,7 @@ export const placeBid = async (req, res) => {
         return res.json({ 
             success: true, 
             message: 'Đặt giá thành công',
-            newPrice: bidAmountNum,
+            newPrice: bid.bid_amount,
             bidCount: product.bid_count + 1
         });
 

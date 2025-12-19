@@ -83,6 +83,7 @@ const getProDetails = async (req, res) => {
     const bidder_list = await bidModel.findBiddersByProId(id);
 
     const qa_list = await productModel.getQAHistory(id);
+    const denial = (!req.user) ? null : await productModel.checkDenial(req.user.user_id, id);
 
     const pro_details = {
         'product' : product,
@@ -96,6 +97,7 @@ const getProDetails = async (req, res) => {
         'isSeller': isSeller,
         'bidders': bidder_list,
         'qa_list': qa_list,
+        'isDenied': denial,
     };
     res.render('vwProducts/product_detail', pro_details);
 };

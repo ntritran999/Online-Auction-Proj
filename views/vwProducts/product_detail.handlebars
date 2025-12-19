@@ -140,7 +140,7 @@
                 const response = await fetch('/bidder/bid', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productId, bidAmount })
+                    body: JSON.stringify({ productId, bidAmount, buyNow: false })
                 });
 
                 const data = await response.json();
@@ -169,6 +169,39 @@
                 alert('Có lỗi xảy ra khi đặt giá');
             }
         });
+
+        // buy now
+        document.querySelector("#confirmBuyNowBtn").addEventListener('click', async function() {
+            const bidAmount = parseFloat('{{product.buy_now_price}}');
+            try {
+                const response = await fetch('/bidder/bid', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, bidAmount, buyNow: true })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                    
+                    document.getElementById('currentPrice').textContent = 
+                        data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                    document.getElementById('modalCurrentPrice').textContent = 
+                        data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                    document.getElementById('bidCount').textContent = data.bidCount;
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('buyNowModal')).hide();
+                    
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Có lỗi xảy ra khi đặt giá');
+            }
+        }) ;
         {{/unless}}
     });
     {{/if}}
@@ -285,6 +318,11 @@
                 <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#bidModal">
                     <i class="bi bi-hammer"></i> Đặt giá
                 </button>
+                {{#if product.buy_now_price}}
+                <button class="btn btn-success w-100 mb-2" data-bs-toggle="modal" data-bs-target="#buyNowModal">
+                    <i class="bi bi-star-fill"></i> Mua ngay
+                </button>    
+                {{/if}}
                 {{/if}}
                 {{/unless}}
                 <a href="/bidder/bid-history/{{product.product_id}}" class="btn btn-outline-secondary w-100">
@@ -505,3 +543,25 @@
         </div>
     </div>
 </div>
+
+{{#unless isSeller}}
+{{#if product.buy_now_price}}
+<div class="modal fade" id="buyNowModal" tabindex="-1" aria-labelledby="buyNowModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="buyNowModalLabel">Xác nhận mua ngay</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn mua ngay sản phẩm với giá {{format_currency product.buy_now_price}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="confirmBuyNowBtn">Đồng ý</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{/if}}
+{{/unless}}

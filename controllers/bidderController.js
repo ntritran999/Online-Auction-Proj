@@ -76,7 +76,7 @@ export const getWatchlist = async (req, res) => {
 export const placeBid = async (req, res) => {
 
     const userId = req.user.user_id;
-    const { productId, bidAmount } = req.body;
+    const { productId, bidAmount, buyNow } = req.body;
 
     try {
         // Lấy thông tin sản phẩm
@@ -108,7 +108,7 @@ export const placeBid = async (req, res) => {
 
         const highestBid = await bidderModel.getCurrentHighestBid(productId);
 
-        if (highestBid && highestBid.bidder_id === userId) {
+        if (!buyNow && highestBid && highestBid.bidder_id === userId) {
             return res.status(400).json({
                 success: false,
                 message: 'Bạn đang là người giữ giá cao nhất nên không cần đặt giá.'
@@ -139,7 +139,13 @@ export const placeBid = async (req, res) => {
         }
 
         // Đặt bid
-        const bid = await bidderModel.autoBid(productId, userId, bidAmountNum);
+        let bid;
+        if (buyNow) {
+            bid = await bidderModel.placeBuyNowBid(productId, userId, bidAmountNum);
+        }
+        else {
+            bid = await bidderModel.autoBid(productId, userId, bidAmountNum);
+        }
         if (!bid) {
             return res.status(500).json({ 
                 success: false, 

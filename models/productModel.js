@@ -1,4 +1,5 @@
 import supabase from '../supabaseClient.js'
+import dayjs from 'dayjs';
 
 export async function findProById(id) {
     const { data, error } = await supabase
@@ -24,7 +25,7 @@ export async function findTopProsByColumn(column, numPros, isAsc) {
                                         image_list:productimages!product_id(
                                             image_url
                                         )`)
-                                .gt('end_time', new Date().toISOString())
+                                .gt('end_time', dayjs().format())
                                 .order(column, { ascending: isAsc, nullsFirst: false })
                                 .limit(numPros);
     return data;
@@ -40,7 +41,7 @@ export async function findLimitedProsByCatId(currentProId, catId, numPros) {
                                         image_list:productimages!product_id(
                                             image_url
                                         )`)
-                                .gt('end_time', new Date().toISOString())
+                                .gt('end_time', dayjs().format())
                                 .eq('category_id', catId)
                                 .neq('product_id', currentProId);
 
@@ -56,7 +57,7 @@ export async function findLimitedProsByCatId(currentProId, catId, numPros) {
                                                         category!inner(
                                                             parent_cat
                                                         )`)
-                                                .gt('end_time', new Date().toISOString())
+                                                .gt('end_time', dayjs().format())
                                                 .eq('category.parent_cat', catId)
                                                 .neq('product_id', currentProId);
     let result = data.concat(subdata);
@@ -74,7 +75,7 @@ export async function findPageByCatId(catId, numPros, offset) {
                                         image_list:productimages!product_id(
                                             image_url
                                         )`)
-                                .gt('end_time', new Date().toISOString())
+                                .gt('end_time', dayjs().format())
                                 .eq('category_id', catId);
 
     const { data: subdata, error: suberr } = await supabase
@@ -89,7 +90,7 @@ export async function findPageByCatId(catId, numPros, offset) {
                                                         category!inner(
                                                             parent_cat
                                                         )`)
-                                                .gt('end_time', new Date().toISOString())
+                                                .gt('end_time', dayjs().format())
                                                 .eq('category.parent_cat', catId);
     let result = data.concat(subdata);
     result.sort((a, b) => (new Date(b.created_at)) - (new Date(a.created_at)));
@@ -108,7 +109,7 @@ export async function findPageBySearch(searchValue, numPros, offset) {
                                             image_url
                                         )`)
                                 .textSearch('fts', unaccent_search.data)
-                                .gt('end_time', new Date().toISOString())
+                                .gt('end_time', dayjs().format())
                                 .range(offset, offset + numPros - 1)
                                 .order('created_at', { ascending: false });
     return data;
@@ -118,7 +119,7 @@ export async function countProsByCatId(catId) {
     const { count } = await supabase
                         .from('products')
                         .select('*', { count: 'exact', head: true })
-                        .gt('end_time', new Date().toISOString())
+                        .gt('end_time', dayjs().format())
                         .eq('category_id', catId);
     return count;
 }
@@ -129,7 +130,7 @@ export async function countProsBySearch(searchValue) {
                                 .from('products')
                                 .select('*', { count: 'exact', head: true })
                                 .textSearch('fts', unaccent_search.data)
-                                .gt('end_time', new Date().toISOString());
+                                .gt('end_time', dayjs().format());
     return count;
 }
 
@@ -205,7 +206,7 @@ export async function findProsBySeller(sellerId) {
                                 .from('products')
                                 .select('product_id, product_name')
                                 .eq('seller_id', sellerId)
-                                .gt('end_time', new Date().toISOString());
+                                .gt('end_time', dayjs().format());
     return data;
 }
 

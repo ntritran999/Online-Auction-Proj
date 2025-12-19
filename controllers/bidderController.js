@@ -126,7 +126,7 @@ export const placeBid = async (req, res) => {
 
         // Kiểm tra giá hợp lệ
         let minBid = parseFloat(product.current_price);
-        if (product.bid_count > 0) {
+        if (product.highest_bidder) {
             minBid += parseFloat(product.step_price);
         }
         const bidAmountNum = parseFloat(bidAmount);

@@ -46,7 +46,7 @@
     const productId = '{{product.product_id}}';
     const currentPrice = '{{product.current_price}}';
     const stepPrice = '{{product.step_price}}';
-    const isNoBid = {{product.bid_count}} == 0;
+    const isNoBid = !'{{product.highest_bidder}}';
 
     // watchlist 
     {{#if isAuthenticated}}
@@ -404,7 +404,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="bidAmount" class="form-label">Giá đặt tối đa của bạn (VNĐ):</label>
-                    {{#if product.bid_count}}
+                    {{#if product.highest_bidder}}
                     <input type="number" class="form-control" id="bidAmount" value="{{add product.current_price product.step_price}}" name="bidAmount"
                         placeholder="Nhập giá đặt" min="{{add product.current_price product.step_price}}" step="{{product.step_price}}">
                     {{else}}

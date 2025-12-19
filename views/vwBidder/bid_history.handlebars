@@ -49,7 +49,11 @@
                             <td>
                                 {{mask_name bidder_name}}
                                 {{#if (eq @index 0)}}
+                                {{#if (not ../product.highest_bidder)}}
+                                <span class="badge bg-danger ms-2">Bị từ chối</span>
+                                {{else}}
                                 <span class="badge bg-success ms-2">Dẫn đầu</span>
+                                {{/if}}
                                 {{/if}}
                             </td>
                             <td>

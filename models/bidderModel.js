@@ -72,7 +72,7 @@ export async function getWatchlistByUser(userId) {
     return data;
 }
 
-export async function autoBid(productId, bidderId, maxBidAmount) {
+export async function autoBid(productId, bidderId, maxBidAmount, extendTime, extendBoundary) {
     const productQuery = await supabase
                         .from("products")
                         .select()
@@ -87,9 +87,12 @@ export async function autoBid(productId, bidderId, maxBidAmount) {
         current_price: currentPrice, 
         step_price: stepPrice, 
         buy_now_price: buyNowPrice,
-        bid_count: bidCount 
+        bid_count: bidCount,
+        auto_extend: autoExtend,
+        end_time: endTime,
     } = productQuery.data;
     
+    let placeBidResult;
     if (bidCount === 0) {
         const res = await supabase
                         .from("autobids")
@@ -103,10 +106,10 @@ export async function autoBid(productId, bidderId, maxBidAmount) {
             return null;
         }
         if (buyNowPrice && buyNowPrice === currentPrice) {
-            return placeBuyNowBid(productId, bidderId, currentPrice);
+            placeBidResult = placeBuyNowBid(productId, bidderId, currentPrice);
         }
         else {
-            return placeBid(productId, bidderId, currentPrice);
+            placeBidResult = placeBid(productId, bidderId, currentPrice);
         }
     }
     else {
@@ -129,10 +132,10 @@ export async function autoBid(productId, bidderId, maxBidAmount) {
         if (maxBidAmount <= currentMaxBid) {
             const bidAmount = Math.min(maxBidAmount, currentMaxBid);
             if (buyNowPrice && buyNowPrice === bidAmount) {
-                return placeBuyNowBid(productId, currentHighestBidder, bidAmount);
+                placeBidResult = placeBuyNowBid(productId, currentHighestBidder, bidAmount);
             }
             else {
-                return placeBid(productId, currentHighestBidder, bidAmount);
+                placeBidResult = placeBid(productId, currentHighestBidder, bidAmount);
             }
         }
         else {
@@ -149,13 +152,32 @@ export async function autoBid(productId, bidderId, maxBidAmount) {
                 return null;
             }
             if (buyNowPrice && buyNowPrice === bidAmount) {
-                return placeBuyNowBid(productId, bidderId, bidAmount);
+                placeBidResult = placeBuyNowBid(productId, bidderId, bidAmount);
             }
             else {
-                return placeBid(productId, bidderId, bidAmount);
+                placeBidResult = placeBid(productId, bidderId, bidAmount);
             }
         }
     }
+
+    if (autoExtend) {
+        const now = dayjs();
+        let end = dayjs(endTime);
+        if (end.diff(now, 'ms') < extendBoundary) {
+            end = end.add(extendTime, 'ms');
+            const { error } = await supabase
+                                    .from("products")
+                                    .update({
+                                        end_time: end.format()
+                                    })
+                                    .eq("product_id", productId);
+            if (error) {
+                console.log(error);
+                return null;
+            }
+        }
+    }
+    return placeBidResult;
 }
 
 export async function placeBuyNowBid(productId, bidderId, bidAmount) {

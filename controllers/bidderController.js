@@ -144,7 +144,7 @@ export const placeBid = async (req, res) => {
             bid = await bidderModel.placeBuyNowBid(productId, userId, bidAmountNum);
         }
         else {
-            bid = await bidderModel.autoBid(productId, userId, bidAmountNum);
+            bid = await bidderModel.autoBid(productId, userId, bidAmountNum, req.app.locals.extendTime, req.app.locals.extendBoundary);
         }
         if (!bid) {
             return res.status(500).json({ 

@@ -4,6 +4,7 @@ import * as productModel from '../models/productModel.js';
 import * as userModel from '../models/userModel.js';
 import * as bidModel from '../models/sellerModel.js';
 import dayjs from 'dayjs';
+import * as emailService from './emailService.js';
 
 const numPros = 4;
 
@@ -150,7 +151,14 @@ const createQuestion = async (req, res) => {
         question_text: req.body.question_text
     };
 
-    await productModel.addQuestion(question);
+    const result = await productModel.addQuestion(question);
+    console.log('Question added:', result);
+
+    // Gửi email thông báo cho người bán
+    if (result && result.question_id) {
+        emailService.sendQuestionAskedEmail(question.product_id, result.question_id)
+            .catch(err => console.error('Email error:', err));
+    }
 
     res.redirect(req.headers.referer);
 }
@@ -162,9 +170,21 @@ const createAnswer = async (req, res) => {
         answer_text: req.body.answer_text
     };
 
-    await productModel.addAnswer(answer);
+    const result = await productModel.addAnswer(answer);
+    if (!result) return res.redirect(req.headers.referer);
+
+    const qaInfo = await productModel.getQAByQuestionId(req.body.question_id);
+    console.log('QA Info:', qaInfo);
+    if (qaInfo && qaInfo.users?.email) {
+        await emailService.sendAnswerPostedEmails(
+            qaInfo.product_id,
+            qaInfo.question_id,
+            qaInfo.users.email
+        );
+    }
 
     res.redirect(req.headers.referer);
-}
+};
+
 
 export { getProByCat, getProDetails, getProsBySearch, createQuestion, createAnswer }

@@ -235,4 +235,7 @@ app.use((req, res) => {
     res.render('404');
 })
 
+import { startAuctionScheduler } from './controllers/auctionScheduler.js';
+startAuctionScheduler();
+
 app.listen(PORT, ()=> console.log(`http://localhost:${PORT}/`));

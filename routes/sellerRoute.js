@@ -1,5 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
+import fs from "fs";
+import path from "path";
 
 import { denyBid, getCategories, updateDescription, uploadProduct, isSeller, isSameSeller, isProOwnedBySeller } from "../controllers/sellerController.js";
 
@@ -11,6 +13,10 @@ router.post('/:id/add', isSeller, isSameSeller, uploadProduct);
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
+        const uploadDir = path.join('static', 'uploads');
+        if (!fs.existsSync(uploadDir)){
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
         cb(null, 'static/uploads')
     },
     filename: function (req, file, cb) {

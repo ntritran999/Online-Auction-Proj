@@ -335,3 +335,26 @@ export async function getCurrentHighestBid(productId) {
     
     return data;
 }
+
+
+export async function addTransactionAfterAuction(productId, buyerId, sellerId, finalPrice) {
+  const { data, error } = await supabase
+    .from('transactions')
+    .insert({
+      product_id: productId,
+      buyer_id: buyerId,
+      seller_id: sellerId,
+      total_price: finalPrice,
+      payment_status: 'Chờ thanh toán',
+      created_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error('addTransactionAfterAuction error:', error);
+    throw error;
+  }
+
+  return data;
+}

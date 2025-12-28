@@ -1,6 +1,7 @@
 import * as bidderModel from '../models/bidderModel.js';
 import * as productModel from '../models/productModel.js';
 import * as userModel from '../models/userModel.js';
+import * as emailService from './emailService.js';
 
 // Thêm/Xóa sản phẩm khỏi watchlist
 export const toggleWatchlist = async (req, res) => {
@@ -81,6 +82,8 @@ export const placeBid = async (req, res) => {
     try {
         // Lấy thông tin sản phẩm
         const product = await productModel.findProById(productId);
+        const previousBidderId = product.highest_bidder;
+
         if (!product) {
             return res.status(404).json({ 
                 success: false, 
@@ -167,6 +170,9 @@ export const placeBid = async (req, res) => {
             });
         }
 
+        // Gửi email thông báo
+        emailService.sendBidSuccessEmails(productId, userId, bid.bid_amount, previousBidderId)
+        .catch(err => console.error('Email error:', err));
         return res.json({ 
             success: true, 
             message: 'Đặt giá thành công',

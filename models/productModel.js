@@ -163,15 +163,33 @@ export async function updateProDescription(id, content) {
 }
 
 export async function addQuestion(question) {
-    const { error } = await supabase.from('questions').insert(question);
-    if (error)
-        console.log(error);
+    const { data, error } = await supabase
+        .from('questions')
+        .insert(question)
+        .select('question_id')
+        .single();
+
+    if (error) {
+        console.error('addQuestion error:', error);
+        return null;
+    }
+
+    return data; // { question_id: ... }
 }
 
 export async function addAnswer(answer) {
-    const { error } = await supabase.from('answers').insert(answer);
-    if (error)
-        console.log(error);
+    const { data, error } = await supabase
+        .from('answers')
+        .insert(answer)
+        .select('answer_id')
+        .single();
+
+    if (error) {
+        console.error('addAnswer error:', error);
+        return null;
+    }
+
+    return data; // { answer_id }
 }
 
 export async function getQAHistory(pro_id) {
@@ -230,5 +248,71 @@ export async function checkDenial(userId, productId) {
                                 .eq("bidder_id", userId)
                                 .eq("product_id", productId)
                                 .single();
+    return data;
+}
+
+// Lấy danh sách đấu giá vừa kết thúc 
+export async function getRecentlyEndedAuctions() {
+  // Lấy giờ VN (UTC +7)
+  const vnNow = new Date(Date.now() + 7 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 19)
+    .replace('T', ' ');
+
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .lte('end_time', vnNow)
+    .or('auction_email_sent.is.null,auction_email_sent.eq.false');
+
+  return { data, error };
+}
+
+//Lấy lịch sử bid với thông tin user
+
+export async function getBidHistory(productId) {
+const { data, error } = await supabase
+    .from('bids')
+    .select(`
+        *,
+        users!bidder_id (
+            user_id,
+            full_name,
+            email
+        )
+    `)
+    .eq('product_id', productId)
+    .order('created_at', { ascending: false });
+
+return { data, error };
+}
+
+export async function getQAByQuestionId(questionId) {
+    const { data, error } = await supabase
+        .from('questions')
+        .select(`
+            question_id,
+            question_text,
+            user_id,
+            product_id,
+            products (
+                product_id,
+                product_name,
+                seller_id
+            ),
+            users (
+                user_id,
+                email,
+                full_name
+            )
+        `)
+        .eq('question_id', questionId)
+        .single();
+
+    if (error) {
+        console.error('getQAByQuestionId error:', error);
+        return null;
+    }
+
     return data;
 }

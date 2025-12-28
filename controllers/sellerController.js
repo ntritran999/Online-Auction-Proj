@@ -4,6 +4,7 @@ import * as catModel from "../models/categoryModel.js";
 import * as proModel from "../models/productModel.js";
 import * as sellerModel from "../models/sellerModel.js";
 import { findUserById } from "../models/userModel.js";
+import * as emailService from "./emailService.js";
 
 function toNumber(formatted_string) {
     return +(formatted_string.replace(/\./g, '').replace(/,/g, '.'));
@@ -88,6 +89,9 @@ const denyBid = async (req, res) => {
     }
 
     await sellerModel.addDeny(deny);
+
+    emailService.sendBidDeniedEmail(productId, bidderId)
+    .catch(err => console.error('Email error:', err));
     res.redirect(req.headers.referer);
 };
 

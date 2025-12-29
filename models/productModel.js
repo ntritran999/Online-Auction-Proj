@@ -121,7 +121,16 @@ export async function countProsByCatId(catId) {
                         .select('*', { count: 'exact', head: true })
                         .gt('end_time', dayjs().format())
                         .eq('category_id', catId);
-    return count;
+    let { count: subCount } = await supabase
+                        .from('products')
+                        .select(`*,
+                            category!inner(
+                                parent_cat
+                            )`, { count: 'exact', head: true })
+                        .gt('end_time', dayjs().format())
+                        .eq('category.parent_cat', catId);
+    subCount = subCount || 0;
+    return count + subCount;
 }
 
 export async function countProsBySearch(searchValue) {

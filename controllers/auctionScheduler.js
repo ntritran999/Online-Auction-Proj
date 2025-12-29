@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import * as productModel from '../models/productModel.js';
 import * as emailLogModel from '../models/emailLogModel.js';
 import * as emailService from './emailService.js';
-import { placeBuyNowBid } from '../models/bidderModel.js';
+import * as bidderModel from '../models/bidderModel.js';
 
 export function startAuctionScheduler() {
     console.log('Starting Auction Email Scheduler...');
@@ -41,7 +41,6 @@ async function checkEndedAuctions() {
                 product.product_id,
                 product.highest_bidder,
                 product.seller_id,
-                product.current_price
             );
         }
         await emailLogModel.markAuctionEmailSent(product.product_id);

@@ -93,6 +93,18 @@
         registerForm.addEventListener("submit", async (e) => {
             e.preventDefault();
 
+            const password = document.getElementById("password").value.trim();
+            const passwordConfirm = document.getElementById("passwordConfirm").value.trim();
+
+            if (password.length < 6) {
+                messageDiv.innerText = "Mật khẩu phải có ít nhất 6 ký tự.";
+                return;
+            }
+            if (password !== passwordConfirm) {
+                messageDiv.innerText = "Mật khẩu xác nhận không khớp.";
+                return;
+            }
+
             const formData = new FormData(registerForm);
             const data = Object.fromEntries(formData.entries());
             const token = grecaptcha.getResponse(); 

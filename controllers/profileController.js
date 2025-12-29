@@ -1,5 +1,7 @@
 import * as profileModel from '../models/profileModel.js';
 import * as proModel from '../models/productModel.js';
+import { sendOTP, verifyOTP } from './otp.js';
+import * as otpModel from '../models/otpModel.js';
 
 // Trang cập nhật thông tin cá nhân
 export const getEditProfile = async (req, res) => {
@@ -16,42 +18,15 @@ export const getEditProfile = async (req, res) => {
 // Xử lý cập nhật thông tin
 export const postEditProfile = async (req, res) => {
     const userId = req.user.user_id;
-    const { full_name, email, address } = req.body;
+    const { full_name, email, dob, address } = req.body;
     
-    const updated = await profileModel.updateUserInfo(userId, { full_name, email, address });
+    const updated = await profileModel.updateUserInfo(userId, { full_name, email, dob, address });
     
     if (updated) {
         return res.json({ success: true, message: 'Cập nhật thông tin thành công' });
     }
     
     return res.status(500).json({ success: false, message: 'Có lỗi xảy ra' });
-};
-
-// Xử lý đổi mật khẩu
-export const postChangePassword = async (req, res) => {
-    const userId = req.user.user_id;
-    const { old_password, new_password, confirm_password } = req.body;
-    
-    // Validate
-    if (!old_password || !new_password || !confirm_password) {
-        return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ thông tin' });
-    }
-    
-    if (new_password !== confirm_password) {
-        return res.status(400).json({ success: false, message: 'Mật khẩu mới không khớp' });
-    }
-    
-    if (new_password.length < 6) {
-        return res.status(400).json({ success: false, message: 'Mật khẩu phải có ít nhất 6 ký tự' });
-    }
-    
-    const result = await profileModel.changePassword(userId, old_password, new_password);
-    
-    if (result.success) {
-        return res.json(result);
-    }
-    
-    return res.status(400).json(result);
 };
 
 // Xem đánh giá
@@ -158,4 +133,89 @@ export const getProductsWithBidWon = async (req, res) => {
         layout: 'profile',
         products: list,
     })
+};
+
+// otp password reset
+export const sendPasswordResetOTP = async (req, res) => {
+    try {
+        const userId = req.user.user_id;
+        const user = await profileModel.getUserById(userId);
+        
+        if (!user || !user.email) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Không tìm thấy email của bạn' 
+            });
+        }
+
+        // Gửi OTP
+        await sendOTP(user.email);
+        
+        return res.json({ 
+            success: true, 
+            message: `Mã OTP đã được gửi đến email ${user.email}`,
+            email: user.email
+        });
+    } catch (error) {
+        console.error('Error sending password reset OTP:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Có lỗi xảy ra khi gửi OTP' 
+        });
+    }
+};
+
+export const postChangePasswordWithOTP = async (req, res) => {
+    const userId = req.user.user_id;
+    const { old_password, new_password, confirm_password, otp } = req.body;
+    
+    try {
+        // Validate
+        if (!old_password || !new_password || !confirm_password || !otp) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Vui lòng điền đầy đủ thông tin' 
+            });
+        }
+
+        // Lấy thông tin user
+        const user = await profileModel.getUserById(userId);
+        if (!user || !user.email) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Không tìm thấy thông tin người dùng' 
+            });
+        }
+        
+        // Xác thực OTP
+        const isOTPValid = await verifyOTP(user.email, otp);
+        if (!isOTPValid) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Mã OTP không đúng hoặc đã hết hạn' 
+            });
+        }
+        
+        // Đổi mật khẩu
+        const result = await profileModel.changePassword(userId, old_password, new_password);
+        
+        if (result.success) {
+            // Xóa OTP đã sử dụng
+            await otpModel.deleteOtp(user.email, otp);
+            
+            return res.json({
+                success: true,
+                message: 'Đổi mật khẩu thành công!'
+            });
+        }
+        
+        return res.status(400).json(result);
+        
+    } catch (error) {
+        console.error('Error changing password with OTP:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Có lỗi xảy ra' 
+        });
+    }
 };

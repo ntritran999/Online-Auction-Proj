@@ -130,6 +130,41 @@ create table Denied (
     primary key(product_id, bidder_id)
 );
 
+create table if not exists otp_requests (
+    email text not null,
+    otp varchar(20) not null,
+    expired_at timestamp not null,
+
+    primary key (email, otp)
+);
+
+
+create table if not exists auction_email_logs (
+    log_id serial primary key,
+    product_id integer not null,
+    email_type varchar(50) not null,
+    sent_at timestamp default now(),
+    sent_to text[],
+
+    constraint fk_product
+        foreign key (product_id)
+        references products(product_id)
+        on delete cascade
+);
+
+create index if not exists idx_auction_email_logs_product
+    on auction_email_logs(product_id);
+
+create index if not exists idx_auction_email_logs_type
+    on auction_email_logs(product_id, email_type);
+
+
+alter table products
+add column if not exists auction_email_sent boolean default false;
+
+alter table users
+add column if not exists dob date;
+
 create extension if not exists unaccent;
 create or replace function immutable_unaccent(word text) returns text
 as $$

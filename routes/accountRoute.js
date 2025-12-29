@@ -6,7 +6,11 @@ const router = Router();
 // Thông tin cá nhân
 router.get('/profile', accountController.getEditProfile);
 router.post('/profile/edit', accountController.postEditProfile);
-router.post('/profile/change-password', accountController.postChangePassword);
+
+// OTP đổi mật khẩu
+router.post('/profile/send-otp', accountController.sendPasswordResetOTP);
+router.post('/profile/change-password-otp', accountController.postChangePasswordWithOTP);
+
 
 // Đánh giá
 router.get('/ratings', accountController.getRatings);

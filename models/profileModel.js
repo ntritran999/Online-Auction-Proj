@@ -18,10 +18,11 @@ export async function getUserById(userId) {
 }
 
 // Cập nhật thông tin cá nhân (không password)
-export async function updateUserInfo(userId, { full_name, email, address }) {
+export async function updateUserInfo(userId, { full_name, email, dob, address }) {
+
     const { data, error } = await supabase
         .from('users')
-        .update({ full_name, email, address })
+        .update({ full_name, email, dob, address })
         .eq('user_id', userId)
         .select()
         .single();

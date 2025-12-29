@@ -221,53 +221,77 @@ insert into category (category_name) values
 insert into category (category_name, parent_cat) values
 ('Điện thoại', 1),
 ('Máy tính', 1),
-('Tai nghe', 1),
+('Tivi', 1),
 
 ('Quần áo nam', 2),
 ('Quần áo nữ', 2),
 ('Giày dép', 2),
 
-('Sách nấu ăn', 3),
-('Sách Thiếu nhi', 3),
+('Truyện, tiểu thuyết', 3),
+('Sách khoa học', 3),
 
 ('Đồ nhà bếp', 4),
 ('Đồ phòng ngủ', 4),
 
 ('Tiền xu', 5),
-('Tem', 5);
+('Bình cổ', 5);
 
 insert into products (seller_id, category_id, product_name, description, start_price, step_price, buy_now_price, end_time)
 values
-(1, 1, 'Điện thoại iPhone 14 Pro', 'Điện thoại Apple 256GB, hàng chính hãng', 20000000, 500000, 25000000, now() + interval '3 days'),
-(1, 1, 'Tivi Samsung 55 inch', 'Tivi thông minh 4K UHD', 12000000, 300000, 15000000, now() + interval '4 days'),
-(1, 1, 'Laptop Macbook Air M2', 'Máy tính xách tay Apple M2 2023', 25000000, 500000, 28000000, now() + interval '5 days'),
-(1, 2, 'Giày Nike Air Max', 'Giày thể thao nam chính hãng', 2000000, 100000, 2500000, now() + interval '3 days'),
-(1, 3, 'Bộ truyện Harry Potter', 'Trọn bộ 7 tập, bản tiếng Việt', 800000, 50000, 1000000, now() + interval '2 days'),
-(5, 4, 'Máy xay sinh tố Panasonic', 'Công suất 600W, 2 cối thủy tinh', 1500000, 50000, 1800000, now() + interval '4 days'),
-(5, 4, 'Nồi chiên không dầu Philips', 'Dung tích 3 lít, tiết kiệm điện', 2200000, 100000, 2500000, now() + interval '4 days'),
-(5, 5, 'Bộ tiền xu cổ Việt Nam', 'Tiền sưu tầm hiếm thế kỷ 20', 3000000, 100000, 4000000, now() + interval '3 days'),
-(5, 2, 'Áo khoác Adidas nam', 'Chống gió, giữ ấm tốt', 1800000, 100000, 2200000, now() + interval '3 days'),
-(8, 3, 'Bộ tiểu thuyết Chúa Nhẫn', 'Ấn bản sưu tầm tiếng Việt', 2000000, 100000, 2500000, now() + interval '2 days'),
-(8, 1, 'Laptop Dell XPS 13', 'Core i7, RAM 16GB, SSD 512GB', 23000000, 500000, 26000000, now() + interval '5 days'),
-(8, 2, 'Túi xách Gucci nữ', 'Chính hãng, da thật 100%', 15000000, 500000, 20000000, now() + interval '4 days'),
-(8, 2, 'Đồng hồ Casio nam', 'Dây thép không gỉ, chống nước', 2500000, 100000, 3000000, now() + interval '3 days'),
-(8, 3, 'Sách Atomic Habits', 'Thói quen nguyên tử - James Clear', 400000, 50000, 600000, now() + interval '2 days'),
-(8, 4, 'Robot hút bụi Xiaomi', 'Bản quốc tế, điều khiển qua app', 4500000, 100000, 5000000, now() + interval '4 days'),
-(5, 5, 'Bình gốm cổ', 'Đồ cổ thế kỷ 19, hoa văn rồng phượng', 6000000, 200000, 8000000, now() + interval '5 days'),
+(1, 6, 'Điện thoại iPhone 14 Pro', 'Điện thoại Apple 256GB, hàng chính hãng', 20000000, 500000, 25000000, now() + interval '3 days'),
+(1, 8, 'Tivi Samsung 55 inch', 'Tivi thông minh 4K UHD', 12000000, 300000, 15000000, now() + interval '4 days'),
+(1, 7, 'Laptop Macbook Air M2', 'Máy tính xách tay Apple M2 2023', 25000000, 500000, 28000000, now() + interval '5 days'),
+(1, 11, 'Giày Nike Air Max', 'Giày thể thao nam chính hãng', 2000000, 100000, 3000000, now() + interval '3 days'),
+(1, 12, 'Bộ truyện Harry Potter', 'Trọn bộ 7 tập, bản tiếng Việt', 800000, 50000, 2000000, now() + interval '2 days'),
+(5, 14, 'Máy xay sinh tố Panasonic', 'Công suất 600W, 2 cối thủy tinh', 1500000, 50000, 1800000, now() + interval '4 days'),
+(5, 14, 'Nồi chiên không dầu Philips', 'Dung tích 3 lít, tiết kiệm điện', 2200000, 100000, 3000000, now() + interval '4 days'),
+(5, 16, 'Bộ tiền xu cổ Việt Nam', 'Tiền sưu tầm hiếm thế kỷ 20', 3000000, 100000, 4000000, now() + interval '3 days'),
+(5, 9, 'Áo khoác Adidas nam', 'Chống gió, giữ ấm tốt', 1800000, 100000, 2400000, now() + interval '3 days'),
+(8, 12, 'Bộ tiểu thuyết Chúa Nhẫn', 'Ấn bản sưu tầm tiếng Việt', 2000000, 100000, 2500000, now() + interval '2 days'),
+(8, 7, 'Laptop Dell XPS 13', 'Core i7, RAM 16GB, SSD 512GB', 23000000, 500000, 26000000, now() + interval '5 days'),
+(8, 10, 'Túi xách Gucci nữ', 'Chính hãng, da thật 100%', 15000000, 500000, 20000000, now() + interval '4 days'),
+(8, 9, 'Đồng hồ Casio nam', 'Dây thép không gỉ, chống nước', 2500000, 100000, 3000000, now() + interval '3 days'),
+(8, 3, 'Sách Atomic Habits', 'Thói quen nguyên tử - James Clear', 400000, 50000, 800000, now() + interval '2 days'),
+(8, 15, 'Robot hút bụi Xiaomi', 'Bản quốc tế, điều khiển qua app', 4500000, 100000, 5000000, now() + interval '4 days'),
+(5, 17, 'Bình gốm cổ', 'Đồ cổ thế kỷ 19, hoa văn rồng phượng', 6000000, 200000, 8000000, now() + interval '5 days'),
 (1, 1, 'Máy quay GoPro Hero 11', 'Quay phim 5K, chống nước 10m', 7000000, 200000, 8500000, now() + interval '3 days'),
-(1, 4, 'Loa Bluetooth Sony', 'Âm thanh sống động, pin 12h', 2500000, 100000, 3000000, now() + interval '4 days'),
-(5, 3, 'Sách Dữ liệu lớn & Trí tuệ nhân tạo', 'Hướng dẫn Python và Machine Learning', 1000000, 50000, 1300000, now() + interval '3 days'),
-(5, 2, 'Quần jean Levi’s', 'Chính hãng, phong cách cổ điển', 1200000, 100000, 1500000, now() + interval '2 days'),
-(8, 4, 'Máy lạnh LG Inverter 1.5HP', 'Tiết kiệm điện, vận hành êm', 15000000, 500000, 18000000, now() + interval '5 days'),
-(8, 4, 'Lò vi sóng Sharp 20L', 'Có chức năng rã đông, hẹn giờ', 2500000, 100000, 3000000, now() + interval '3 days'),
+(1, 1, 'Loa Bluetooth Sony', 'Âm thanh sống động, pin 12h', 2500000, 100000, 3000000, now() + interval '4 days'),
+(5, 13, 'Sách Dữ liệu lớn & Trí tuệ nhân tạo', 'Hướng dẫn Python và Machine Learning', 1000000, 50000, 1300000, now() + interval '3 days'),
+(5, 2, 'Quần jean Levi’s', 'Chính hãng, phong cách cổ điển', 1200000, 100000, 1800000, now() + interval '2 days'),
+(8, 1, 'Máy lạnh LG Inverter 1.5HP', 'Tiết kiệm điện, vận hành êm', 15000000, 500000, 18000000, now() + interval '5 days'),
+(8, 14, 'Lò vi sóng Sharp 20L', 'Có chức năng rã đông, hẹn giờ', 2500000, 100000, 3000000, now() + interval '3 days'),
 (1, 2, 'Kính mát Rayban', 'Chống tia UV400, gọng kim loại', 3500000, 100000, 4000000, now() + interval '2 days'),
-(5, 1, 'Máy tính bảng iPad Pro 12.9', 'Chip M2, 256GB, hỗ trợ bút Pencil', 22000000, 500000, 25000000, now() + interval '4 days'),
-(8, 3, 'Giết con chim nhại', 'Tác phẩm kinh điển Mỹ', 800000, 50000, 1000000, now() + interval '2 days');
+(5, 7, 'Máy tính bảng iPad Pro 12.9', 'Chip M2, 256GB, hỗ trợ bút Pencil', 22000000, 500000, 25000000, now() + interval '4 days'),
+(8, 12, 'Giết con chim nhại', 'Tác phẩm kinh điển Mỹ', 800000, 50000, 1200000, now() + interval '2 days');
 
 
 insert into productimages (product_id, image_url)
-select product_id, concat('https://example.com/hinhanh/sanpham_', product_id, '.jpg')
-from products;
+values
+(1,'/product_images/1/0.jpg'),(1,'/product_images/1/1.jpg'),(1,'/product_images/1/2.jpg'),(1,'/product_images/1/3.jpg'),
+(2,'/product_images/2/0.jpg'),(2,'/product_images/2/1.jpg'),(2,'/product_images/2/2.jpg'),(2,'/product_images/2/3.jpg'),
+(3,'/product_images/3/0.jpg'),(3,'/product_images/3/1.jpg'),(3,'/product_images/3/2.jpg'),(3,'/product_images/3/3.jpg'),
+(4,'/product_images/4/0.jpg'),(4,'/product_images/4/1.jpg'),(4,'/product_images/4/2.jpg'),(4,'/product_images/4/3.jpg'),
+(5,'/product_images/5/0.jpg'),(5,'/product_images/5/1.jpg'),(5,'/product_images/5/2.jpg'),(5,'/product_images/5/3.jpg'),
+(6,'/product_images/6/0.jpg'),(6,'/product_images/6/1.jpg'),(6,'/product_images/6/2.jpg'),(6,'/product_images/6/3.jpg'),
+(7,'/product_images/7/0.jpg'),(7,'/product_images/7/1.jpg'),(7,'/product_images/7/2.jpg'),(7,'/product_images/7/3.jpg'),
+(8,'/product_images/8/0.jpg'),(8,'/product_images/8/1.jpg'),(8,'/product_images/8/2.jpg'),(8,'/product_images/8/3.jpg'),
+(9,'/product_images/9/0.jpg'),(9,'/product_images/9/1.jpg'),(9,'/product_images/9/2.jpg'),(9,'/product_images/9/3.jpg'),
+(10,'/product_images/10/0.jpg'),(10,'/product_images/10/1.jpg'),(10,'/product_images/10/2.jpg'),(10,'/product_images/10/3.jpg'),
+(11,'/product_images/11/0.jpg'),(11,'/product_images/11/1.jpg'),(11,'/product_images/11/2.jpg'),(11,'/product_images/11/3.jpg'),
+(12,'/product_images/12/0.jpg'),(12,'/product_images/12/1.jpg'),(12,'/product_images/12/2.jpg'),(12,'/product_images/12/3.jpg'),
+(13,'/product_images/13/0.jpg'),(13,'/product_images/13/1.jpg'),(13,'/product_images/13/2.jpg'),(13,'/product_images/13/3.jpg'),
+(14,'/product_images/14/0.jpg'),(14,'/product_images/14/1.jpg'),(14,'/product_images/14/2.jpg'),(14,'/product_images/14/3.jpg'),
+(15,'/product_images/15/0.jpg'),(15,'/product_images/15/1.jpg'),(15,'/product_images/15/2.jpg'),(15,'/product_images/15/3.jpg'),
+(16,'/product_images/16/0.jpg'),(16,'/product_images/16/1.jpg'),(16,'/product_images/16/2.jpg'),(16,'/product_images/16/3.jpg'),
+(17,'/product_images/17/0.jpg'),(17,'/product_images/17/1.jpg'),(17,'/product_images/17/2.jpg'),(17,'/product_images/17/3.jpg'),
+(18,'/product_images/18/0.jpg'),(18,'/product_images/18/1.jpg'),(18,'/product_images/18/2.jpg'),(18,'/product_images/18/3.jpg'),
+(19,'/product_images/19/0.jpg'),(19,'/product_images/19/1.jpg'),(19,'/product_images/19/2.jpg'),(19,'/product_images/19/3.jpg'),
+(20,'/product_images/20/0.jpg'),(20,'/product_images/20/1.jpg'),(20,'/product_images/20/2.jpg'),(20,'/product_images/20/3.jpg'),
+(21,'/product_images/21/0.jpg'),(21,'/product_images/21/1.jpg'),(21,'/product_images/21/2.jpg'),(21,'/product_images/21/3.jpg'),
+(22,'/product_images/22/0.jpg'),(22,'/product_images/22/1.jpg'),(22,'/product_images/22/2.jpg'),(22,'/product_images/22/3.jpg'),
+(23,'/product_images/23/0.jpg'),(23,'/product_images/23/1.jpg'),(23,'/product_images/23/2.jpg'),(23,'/product_images/23/3.jpg'),
+(24,'/product_images/24/0.jpg'),(24,'/product_images/24/1.jpg'),(24,'/product_images/24/2.jpg'),(24,'/product_images/24/3.jpg'),
+(25,'/product_images/25/0.jpg'),(25,'/product_images/25/1.jpg'),(25,'/product_images/25/2.jpg'),(25,'/product_images/25/3.jpg');
 
 
 do $$
@@ -275,18 +299,35 @@ declare
     p record;
     b integer;
     base numeric(12,2);
+    current_bidder_id integer;
+    last_bid_amount numeric(12,2);
 begin
     for p in select product_id, start_price, step_price from products loop
         base := p.start_price;
-        for b in 1..5 loop
+        for b in 0..4 loop
+            select user_id into current_bidder_id 
+            from users 
+            where role='bidder' 
+            order by random() 
+            limit 1;
+
+            last_bid_amount := p.start_price + (b * p.step_price);
+
             insert into bids (product_id, bidder_id, bid_amount, created_at)
             values (
                 p.product_id,
-                (select user_id from users where role='bidder' order by random() limit 1),
-                base + (b * p.step_price),
+                current_bidder_id,
+                last_bid_amount,
                 now() - (interval '1 hour' * (6 - b))
             );
         end loop;
+        update products
+        set 
+            highest_bidder = current_bidder_id,
+            current_price = last_bid_amount,
+            bid_count = 5
+        where product_id = p.product_id;
+
     end loop;
 end $$;
 

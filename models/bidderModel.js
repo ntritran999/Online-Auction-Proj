@@ -337,14 +337,13 @@ export async function getCurrentHighestBid(productId) {
 }
 
 
-export async function addTransactionAfterAuction(productId, buyerId, sellerId, finalPrice) {
+export async function addTransactionAfterAuction(productId, buyerId, sellerId) {
   const { data, error } = await supabase
     .from('transactions')
     .insert({
       product_id: productId,
       buyer_id: buyerId,
       seller_id: sellerId,
-      total_price: finalPrice,
       payment_status: 'Chờ thanh toán',
       created_at: new Date().toISOString()
     })

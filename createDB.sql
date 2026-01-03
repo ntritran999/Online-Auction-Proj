@@ -95,6 +95,7 @@ create table Transactions (
     buyer_id integer references Users(user_id) on delete cascade,
     seller_id integer references Users(user_id) on delete cascade,
     invoice_url text,
+    shipping_label_url text,
     shipping_address text,
     payment_status text,
     is_canceled boolean default false,

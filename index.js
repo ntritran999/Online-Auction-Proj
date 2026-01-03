@@ -1,8 +1,8 @@
+import 'dotenv/config'
 import express from "express";
 import session from "express-session";
 import passport from "passport";
 import path, { dirname } from "path";
-import dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import { engine } from 'express-handlebars';
 import express_handlebars_sections from 'express-handlebars-sections';
@@ -12,7 +12,6 @@ import updateLocale from "dayjs/plugin/updateLocale.js";
 import utc from "dayjs/plugin/utc.js";
 import "./auth.js";
 
-dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const PORT = 5000;

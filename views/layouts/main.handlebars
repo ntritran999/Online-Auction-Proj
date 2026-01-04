@@ -82,10 +82,18 @@
                     </ul>
                     {{/if}}
                 </div>
-                <form id="searchForm" class="d-flex" role="search" action="/product/results">
-                    <input id="search" class="form-control me-2" type="search" placeholder="Tìm sản phẩm" aria-label="Search"
-                        name="item" />
-                    <button class="btn btn-primary text-nowrap" type="submit">Tìm Kiếm</button>
+                <form id="searchForm" class="d-flex mt-2" role="search" action="/product/results">
+                    <div class="input-group">
+                        <input id="search" class="form-control" type="search" placeholder="Tìm sản phẩm" aria-label="Search"
+                            name="item" />
+                        <select name="catId" class="form-select w-auto" style="max-width: 150px;">
+                            <option value="">Tất cả</option>
+                            {{#each parentList}}
+                                <option value="{{category_id}}">{{category_name}}</option>
+                            {{/each}}
+                        </select>
+                        <button class="btn btn-primary text-nowrap" type="submit">Tìm Kiếm</button>
+                    </div>
                 </form>
             </div>
         </nav>

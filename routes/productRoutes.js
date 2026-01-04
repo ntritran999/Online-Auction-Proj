@@ -9,7 +9,7 @@ router.get('/cat/:id', query('page').optional().isNumeric(), getProByCat)
 
 router.get('/details/:id', getProDetails)
 
-router.get('/results', query('item').notEmpty().escape(), query('page').optional().isNumeric(), getProsBySearch)
+router.get('/results', query('item').notEmpty().escape(), query('catId').optional({ values: 'falsy' }).isNumeric(), query('page').optional().isNumeric(), getProsBySearch)
 
 router.post('/question', createQuestion)
 

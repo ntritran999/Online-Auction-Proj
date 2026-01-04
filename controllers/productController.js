@@ -117,20 +117,21 @@ const getProsBySearch = async (req, res) => {
     }
 
     const data = matchedData(req);
+    const catId = data.catId;
     const page = data.page || 1;
     const offset = (page - 1) * numPros;
 
     let searchValue = data.item;
     searchValue = searchValue.trim().replace(/\s/g, " & ").toLowerCase();
 
-    const total = await productModel.countProsBySearch(searchValue);
+    const total = await productModel.countProsBySearch(searchValue, catId);
     const page_counts = Math.ceil(total / numPros);
 
     if (page_counts && page > page_counts) {
         return res.render('vwProducts/product_notfound');
     }
     
-    const list = await productModel.findPageBySearch(searchValue, numPros, offset);
+    const list = await productModel.findPageBySearch(searchValue, numPros, offset, catId);
     const product_category = {
         'cat_name' : 'Kết quả tìm kiếm',
         'products' : list,
@@ -140,6 +141,7 @@ const getProsBySearch = async (req, res) => {
         'page_counts': page_counts,
         'page_nums': getPageNums(page_counts),
         'item': data.item,
+        'catId': catId,
     };
     res.render('vwProducts/product', product_category);
 };

@@ -1,0 +1,53 @@
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">Chi tiết đánh giá</h1>
+        <a href="{{prevPage}}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Thời gian</th>
+                            <th>Người đánh giá</th>
+                            <th>Sản phẩm</th>
+                            <th>Đánh giá</th>
+                            <th>Nhận xét</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each ratings}}
+                        <tr>
+                            <td>{{format_datetime (convert_to_local created_at)}}</td>
+                            <td>{{mask_name rater.full_name}}</td>
+                            <td>{{product.product_name}}</td>
+                            <td>
+                                {{#if (eq rating_value 1)}}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-hand-thumbs-up"></i> Tích cực
+                                </span>
+                                {{else}}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-hand-thumbs-down"></i> Tiêu cực
+                                </span>
+                                {{/if}}
+                            </td>
+                            <td>
+                                {{#if comment}}
+                                {{comment}}
+                                {{else}}
+                                <em class="text-muted">Không có nhận xét</em>
+                                {{/if}}
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

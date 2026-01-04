@@ -3,6 +3,7 @@ import * as categoryModel from '../models/categoryModel.js';
 import * as productModel from '../models/productModel.js';
 import * as userModel from '../models/userModel.js';
 import * as bidModel from '../models/sellerModel.js';
+import { getUserRatings } from '../models/profileModel.js';
 import dayjs from 'dayjs';
 import * as emailService from './emailService.js';
 
@@ -185,5 +186,15 @@ const createAnswer = async (req, res) => {
     res.redirect(req.headers.referer);
 };
 
+const renderRatings = async (req, res) => {
+    const id = req.params.userId;
+    const ratings = await getUserRatings(id);
+    const previousPage = req.headers.referer || '/';
 
-export { getProByCat, getProDetails, getProsBySearch, createQuestion, createAnswer }
+    res.render('vwUser/user_ratings', {
+        ratings: ratings,
+        prevPage: previousPage,
+    });
+};
+
+export { getProByCat, getProDetails, getProsBySearch, createQuestion, createAnswer, renderRatings }

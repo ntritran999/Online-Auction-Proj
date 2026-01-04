@@ -339,9 +339,9 @@
                     <h6 class="fw-bold">Seller: {{seller.full_name}} 
                         <small class="text-muted">({{seller.total_rating}})</small>
                     </h6>
-                    <p class="text-decoration-underline ps-2">
+                    <a href="/product/user-rating/{{seller.user_id}}" class="text-decoration-underline ps-2">
                         {{positive_percentage seller.rating_plus seller.total_rating}}% đánh giá tích cực
-                    </p>
+                    </a>
                 </div>
                 <div class="col-1">
                     <div class="vr" style="height: 100%;"></div>
@@ -351,9 +351,9 @@
                     <h6 class="fw-bold">Bidder dẫn đầu: {{mask_name top_bidder.full_name}}
                         <small class="text-muted">({{top_bidder.total_rating}})</small>
                     </h6>
-                    <p class="text-decoration-underline ps-2">
+                    <a href="/product/user-rating/{{top_bidder.user_id}}" class="text-decoration-underline ps-2">
                         {{positive_percentage top_bidder.rating_plus top_bidder.total_rating}}% đánh giá tích cực
-                    </p>
+                    </a>
                 </div>
                 {{/if}}
             </div>
@@ -417,7 +417,7 @@
                         {{#each bidders}}
                         <tr class="text-center">
                             <th scope="row">{{inc @index}}</th>
-                            <td>{{mask_name full_name}}</td>
+                            <td><a href="/product/user-rating/{{bidder_id}}">{{mask_name full_name}}</a></td>
                             <td>
                                 <form class="formDeny" action="/denyBid" method="post">
                                     <input type="hidden" name="product_id" value="{{product_id}}">

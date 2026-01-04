@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { query } from 'express-validator';
 
-import { getProByCat, getProDetails, getProsBySearch, createQuestion, createAnswer } from '../controllers/productController.js';
+import { getProByCat, getProDetails, getProsBySearch, createQuestion, createAnswer, renderRatings } from '../controllers/productController.js';
 
 const router = Router();
 
@@ -14,5 +14,7 @@ router.get('/results', query('item').notEmpty().escape(), query('page').optional
 router.post('/question', createQuestion)
 
 router.post('/answer', createAnswer)
+
+router.get('/user-rating/:userId', renderRatings)
 
 export default router;

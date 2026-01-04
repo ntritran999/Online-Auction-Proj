@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import * as transactModel from '../models/transactionModel.js';
 import * as usrModel from '../models/userModel.js';
 
@@ -104,8 +106,42 @@ const createPayment = async (req, res) => {
     const txnId = +req.body.txnId;
     const invoice = `/invoices/invoice_${txnId}.pdf`;
     const address = req.body.address;
+
+    if(req.body.invoice) {
+        const invoiceDir = path.join('static', 'invoices');
+        if (!fs.existsSync(invoiceDir)){
+            fs.mkdirSync(invoiceDir, { recursive: true });
+        }
+        const invoice = JSON.parse(req.body.invoice)[0];
+        const oldPath = path.join('static', 'uploads', invoice);
+        const fileName = `invoice_${txnId}.pdf`;
+        const newPath = path.join(invoiceDir, fileName);
+        fs.renameSync(oldPath, newPath);
+    }
     await transactModel.updateTxnPaymentInfo(txnId, address, invoice);
     res.redirect(`/transaction/${req.params.id}`);
 }
 
-export { renderTransactionPage, sendMsg, cancelTranx, changeTranxStatus, createRating, createPayment }
+const createShipment = async (req, res) => {
+    const txnId = +req.body.txnId;
+    const shipping_invoice = `/invoices/shipping_label_${txnId}.pdf`;
+    const status = req.body.status;
+
+    if(req.body.invoice) {
+        const invoiceDir = path.join('static', 'invoices');
+        if (!fs.existsSync(invoiceDir)){
+            fs.mkdirSync(invoiceDir, { recursive: true });
+        }
+        const shipping_invoice = JSON.parse(req.body.invoice)[0];
+        console.log(shipping_invoice, JSON.parse(req.body.invoice))
+        const oldPath = path.join('static', 'uploads', shipping_invoice);
+        const fileName = `shipping_label_${txnId}.pdf`;
+        const newPath = path.join(invoiceDir, fileName);
+        fs.renameSync(oldPath, newPath);
+    }
+    await transactModel.updateTxnStatus(txnId, status);
+    await transactModel.updateTxnShippingLabel(txnId, shipping_invoice);
+    res.redirect(`/transaction/${req.params.id}`);
+}
+
+export { renderTransactionPage, sendMsg, cancelTranx, changeTranxStatus, createRating, createPayment, createShipment }

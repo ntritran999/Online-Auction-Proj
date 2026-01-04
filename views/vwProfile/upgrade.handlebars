@@ -6,7 +6,7 @@ if (form) {
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        const note = document.getElementById('note').value;
+        const note = document.getElementById('note').value.trim();
         const agree = document.getElementById('agree').checked;
         console.log(note);
         console.log(agree);
@@ -133,19 +133,18 @@ if (form) {
         <h5>Gửi yêu cầu mới</h5>
     </div>
     <div class="card-body">
-        <form id="formUpgrade">
+        <form id="formUpgrade" novalidate>
             <div class="mb-3">
                 <label for="note" class="form-label">
                     Lý do muốn trở thành Seller <span class="text-danger">*</span>
                 </label>
                 <textarea class="form-control" id="note" name="note" rows="5" 
-                          placeholder="Vui lòng mô tả chi tiết lý do bạn muốn bán hàng trên hệ thống..."
-                          minlength="10" required></textarea>
+                          placeholder="Vui lòng mô tả chi tiết lý do bạn muốn bán hàng trên hệ thống..."></textarea>
                 <div class="form-text">Tối thiểu 10 ký tự</div>
             </div>
             
             <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" id="agree" required>
+                <input class="form-check-input" type="checkbox" id="agree">
                 <label class="form-check-label" for="agree">
                     Tôi cam kết tuân thủ các quy định của hệ thống và cung cấp sản phẩm chất lượng
                 </label>

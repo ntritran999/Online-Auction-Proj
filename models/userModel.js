@@ -7,6 +7,13 @@ export async function findUserById(id) {
     return data;
 }
 
+export async function findUserByEmail(email) {
+    const { data, error } = await supabase.from('users').select().eq('email', email).single();
+    if (error)
+        return null;
+    return data;
+}
+
 export async function addUser(full_name, email, address, password_hash) {
     const { data, error } = await supabase
                                 .from("users")

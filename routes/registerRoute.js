@@ -2,6 +2,7 @@ import { Router } from "express";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { sendOTP } from "../controllers/otp.js";
+import { findUserByEmail } from "../models/userModel.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,6 +16,11 @@ router.get('', (req, res) =>{
 
 router.post('', async (req, res) => {
   const { email, ["g-recaptcha-response"]: token } = req.body;
+
+  const emailCheck = await findUserByEmail(email);
+  if (emailCheck) {
+    return res.status(400).json({ error: "Email đã được sử dụng" });
+  }
 
   if(!token)
     return res.status(400).json({ error: "Missing reCAPTCHA token" });

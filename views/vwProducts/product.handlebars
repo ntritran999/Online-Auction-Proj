@@ -88,14 +88,23 @@
                         icon.classList.remove('bi-heart-fill');
                         icon.classList.add('bi-heart');
                     }
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'success', 
+                        text: data.message
+                    });
                 } else {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'error', 
+                        text: data.message 
+                    });
                 }
 
             } catch (err) {
                 console.error(err);
-                alert("Có lỗi xảy ra");
+                await Swal.fire({ 
+                    icon: 'error', 
+                    text: 'Có lỗi xảy ra' 
+                });
             }
         }
     });
@@ -226,7 +235,7 @@
                         {{else}}
                         <li class="page-item">
                             {{#if item}}
-                            <a class="page-link" href="?item={{item}}&page={{prev_page}}" aria-label="Previous">
+                            <a class="page-link" href="?item={{item}}&catId={{catId}}&page={{prev_page}}" aria-label="Previous">
                             {{else}}
                             <a class="page-link" href="?page={{prev_page}}" aria-label="Previous">
                             {{/if}}
@@ -237,7 +246,7 @@
                         
                         {{#each page_nums}}
                         {{#if ../item}}
-                        <li class="page-item"><a class="page-link" href="?item={{../item}}&page={{value}}">{{value}}</a></li>
+                        <li class="page-item"><a class="page-link" href="?item={{../item}}&catId={{../catId}}&page={{value}}">{{value}}</a></li>
                         {{else}}
                         <li class="page-item"><a class="page-link" href="?page={{value}}">{{value}}</a></li>
                         {{/if}}
@@ -252,7 +261,7 @@
                         {{else}}
                         <li class="page-item">
                             {{#if item}}
-                            <a class="page-link" href="?item={{item}}&page={{next_page}}" aria-label="Next">
+                            <a class="page-link" href="?item={{item}}&catId={{catId}}&page={{next_page}}" aria-label="Next">
                             {{else}}
                             <a class="page-link" href="?page={{next_page}}" aria-label="Next">
                             {{/if}}

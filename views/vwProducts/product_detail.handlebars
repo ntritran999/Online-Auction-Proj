@@ -1,10 +1,22 @@
 {{#section 'script'}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.querySelectorAll('.formDeny').forEach(form => form.addEventListener('submit', e => {
+    document.querySelectorAll('.formDeny').forEach(form => form.addEventListener('submit', async function(e) {
         e.preventDefault();
-        e.submitter.parentNode.innerHTML = `<span class="text-muted">Đã từ chối</span>`;
-        e.target.submit();
+            const result = await Swal.fire({
+            title: 'Xác nhận?',
+            text: 'Bạn có chắc chắn muốn từ chối bidder này? Sau khi từ chối, họ không thể tiếp tục đấu giá sản phẩm này.',
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: 'Hủy',
+            confirmButtonText: 'Từ chối'
+        });
+
+        if (result.isConfirmed) {
+            const container = e.submitter.parentNode;
+            container.innerHTML = `<span class="text-muted">Đang xử lý...</span>`;
+            
+            e.target.submit();
+        }
     }));
 
     const formQuestion = document.querySelector("#formQuestion");
@@ -84,13 +96,23 @@
                         icon.classList.remove('bi-heart-fill');
                         icon.classList.add('bi-heart');
                     }
-                    alert(data.message);
+
+                    await Swal.fire({ 
+                        icon: 'success', 
+                        text: data.message
+                    });
                 } else {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'error', 
+                        text: data.message 
+                    });
                 }
             } catch (error) {
                 console.error(error);
-                alert('Có lỗi xảy ra');
+                await Swal.fire({ 
+                    icon: 'error', 
+                    text: 'Có lỗi xảy ra' 
+                });
             }
         });
         {{#unless isSeller}}
@@ -132,9 +154,15 @@
                 return;
             }
 
-            if (!confirm(`Bạn có chắc chắn muốn đặt giá tối đa là ${bidAmount.toLocaleString('vi-VN')} VNĐ?`)) {
-                return;
-            }
+            const result = await Swal.fire({
+                text: `Bạn có chắc chắn muốn đặt giá tối đa là ${bidAmount.toLocaleString('vi-VN')} VNĐ?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (!result.isConfirmed) return;
 
             try {
                 const response = await fetch('/bidder/bid', {
@@ -146,7 +174,10 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'success', 
+                        text: data.message
+                    });
                     
                     document.getElementById('currentPrice').textContent = 
                         data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
@@ -162,11 +193,17 @@
                         location.reload();
                     }, 1000);
                 } else {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'error', 
+                        text: data.message 
+                    });
                 }
             } catch (error) {
                 console.error(error);
-                alert('Có lỗi xảy ra khi đặt giá');
+                await Swal.fire({ 
+                    icon: 'error', 
+                    text: 'Có lỗi xảy ra khi đặt giá' 
+                });
             }
         });
 
@@ -183,7 +220,10 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'success', 
+                        text: data.message
+                    });
                     
                     document.getElementById('currentPrice').textContent = 
                         data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
@@ -195,11 +235,17 @@
                     
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'error', 
+                        text: data.message 
+                    });
                 }
             } catch (error) {
                 console.error(error);
-                alert('Có lỗi xảy ra khi đặt giá');
+                await Swal.fire({ 
+                    icon: 'error', 
+                    text: 'Có lỗi xảy ra khi đặt giá' 
+                });
             }
         }) ;
         {{/unless}}
@@ -219,8 +265,23 @@
 <div class="container-md my-5">
     <div class="row">
         <div class="col-md-7 mb-3 m-md-0">
-            <div class="bg-body-secondary rounded mb-3" style="height: 500px;">
-                <img src="{{main_image.image_url}}" alt="" class="object-fit-contain h-100 w-100 p-5">
+            <div id="mainCarousel" class="carousel carousel-dark slide bg-body-secondary rounded mb-3" data-bs-ride="carousel">
+                <div class="carousel-inner" style="height: 500px;">
+                    {{#each product.image_list}}
+                    <div class="carousel-item h-100 {{#if (eq @index 0)}}active{{/if}}">
+                        <img src="{{image_url}}" alt="product image" class="object-fit-contain h-100 w-100 p-5"
+                            data-bs-toggle="modal" data-bs-target="#img{{@index}}">
+                    </div>
+                    {{/each}}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
             </div>
 
             <div id="carouselId" class="carousel carousel-dark slide">
@@ -263,6 +324,9 @@
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <h5 class="fw-bold">{{product.product_name}}</h5>
                 {{#if isAuthenticated}}
+                {{#if (eq product.highest_bidder currentUser.user_id)}}
+                <span class="badge text-bg-success me-3 mb-3">Bạn đang giữ giá</span>
+                {{/if}}
                 <button class="btn btn-outline-danger btn-sm" id="watchlistBtn" data-product-id="{{product.product_id}}">
                     <i class="bi bi-heart" id="watchlistIcon"></i>
                 </button>
@@ -275,9 +339,9 @@
                     <h6 class="fw-bold">Seller: {{seller.full_name}} 
                         <small class="text-muted">({{seller.total_rating}})</small>
                     </h6>
-                    <p class="text-decoration-underline ps-2">
+                    <a href="/product/user-rating/{{seller.user_id}}" class="text-decoration-underline ps-2">
                         {{positive_percentage seller.rating_plus seller.total_rating}}% đánh giá tích cực
-                    </p>
+                    </a>
                 </div>
                 <div class="col-1">
                     <div class="vr" style="height: 100%;"></div>
@@ -287,9 +351,9 @@
                     <h6 class="fw-bold">Bidder dẫn đầu: {{mask_name top_bidder.full_name}}
                         <small class="text-muted">({{top_bidder.total_rating}})</small>
                     </h6>
-                    <p class="text-decoration-underline ps-2">
+                    <a href="/product/user-rating/{{top_bidder.user_id}}" class="text-decoration-underline ps-2">
                         {{positive_percentage top_bidder.rating_plus top_bidder.total_rating}}% đánh giá tích cực
-                    </p>
+                    </a>
                 </div>
                 {{/if}}
             </div>
@@ -353,7 +417,7 @@
                         {{#each bidders}}
                         <tr class="text-center">
                             <th scope="row">{{inc @index}}</th>
-                            <td>{{mask_name full_name}}</td>
+                            <td><a href="/product/user-rating/{{bidder_id}}">{{mask_name full_name}}</a></td>
                             <td>
                                 <form class="formDeny" action="/denyBid" method="post">
                                     <input type="hidden" name="product_id" value="{{product_id}}">
@@ -458,7 +522,7 @@
                         <div class="d-flex flex-start mt-4">
                             <div class="collapse w-100" id="collapse">
                                 <div class="card card-body">
-                                    <form id="formAnswer" action="/product/answer" method="post">
+                                    <form id="formAnswer" action="/product/answer" method="post" novalidate>
                                         <textarea id="answer" class="form-control mb-3" rows="3" name="answer_text"></textarea>
                                         <input type="hidden" name="question_id" value="{{question_id}}">
                                         <button type="submit" class="btn btn-primary float-end">Đăng câu trả lời</button>
@@ -505,7 +569,7 @@
             {{#unless isSeller}}
             <hr class="mb-3">
             <div class="card-body p-4 mb-3">
-                <form id="formQuestion" action="/product/question" method="post">
+                <form id="formQuestion" action="/product/question" method="post" novalidate>
                     <label for="question" class="form-label fw-semibold">Đặt câu hỏi</label>
                     <textarea class="form-control mb-3" id="question" rows="3" name="question_text"></textarea>
                     <input type="hidden" name="product_id" value="{{product.product_id}}">

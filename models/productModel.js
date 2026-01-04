@@ -97,21 +97,30 @@ export async function findPageByCatId(catId, numPros, offset) {
     return result.slice(offset, offset + numPros);
 }
 
-export async function findPageBySearch(searchValue, numPros, offset) {
+export async function findPageBySearch(searchValue, numPros, offset, catId) {
     const unaccent_search = await supabase.rpc('immutable_unaccent', { word: searchValue });
-    const { data, error } = await supabase
-                                .from('products')
-                                .select(`*,
-                                        highest_bidder:users!highest_bidder(
-                                            full_name
-                                        ),
-                                        image_list:productimages!product_id(
-                                            image_url
-                                        )`)
-                                .textSearch('fts', unaccent_search.data)
-                                .gt('end_time', dayjs().format())
-                                .range(offset, offset + numPros - 1)
-                                .order('created_at', { ascending: false });
+    let productQuery = supabase
+                .from('products')
+                .select(`*,
+                        highest_bidder:users!highest_bidder(
+                            full_name
+                        ),
+                        image_list:productimages!product_id(
+                            image_url
+                        ),
+                        category!inner(
+                            parent_cat
+                        )`)
+                .textSearch('fts', unaccent_search.data)
+                .gt('end_time', dayjs().format())
+
+    if (catId) {
+        productQuery = productQuery.or(`category_id.eq.${catId},parent_cat.eq.${catId}`, { referencedTable: 'category' });
+    }
+    
+    const { data, error } = await productQuery
+                            .range(offset, offset + numPros - 1)
+                            .order('created_at', { ascending: false });
     return data;
 }
 
@@ -133,13 +142,23 @@ export async function countProsByCatId(catId) {
     return count + subCount;
 }
 
-export async function countProsBySearch(searchValue) {
+export async function countProsBySearch(searchValue, catId) {
     const unaccent_search = await supabase.rpc('immutable_unaccent', { word: searchValue });
-    const { count } = await supabase
-                                .from('products')
-                                .select('*', { count: 'exact', head: true })
-                                .textSearch('fts', unaccent_search.data)
-                                .gt('end_time', dayjs().format());
+    let productQuery = supabase
+                    .from('products')
+                    .select(`*,
+                        category!inner(
+                            parent_cat
+                        )`, { count: 'exact' })
+                    .textSearch('fts', unaccent_search.data)
+                    .gt('end_time', dayjs().format());
+
+    if (catId) {
+        productQuery = productQuery.or(`category_id.eq.${catId},parent_cat.eq.${catId}`, { referencedTable: 'category' });
+    }
+
+    const { count, error } = await productQuery.limit(0);
+    if (error) return 0;
     return count;
 }
 

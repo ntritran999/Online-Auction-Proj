@@ -1,35 +1,80 @@
+{{#section 'css'}}
+<link href="https://releases.transloadit.com/uppy/v5.1.11/uppy.min.css" rel="stylesheet">
+{{/section}}
+
 {{#section 'script'}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src=" https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js "></script>
+<script src="https://releases.transloadit.com/uppy/v3.17.0/uppy.min.js"></script>
+<script src="https://releases.transloadit.com/uppy/locales/v3.3.1/vi_VN.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.19/dayjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.19/plugin/customParseFormat.js"></script>
 <script>
     // dayjs
     dayjs.extend(window.dayjs_plugin_customParseFormat);
 
-    // cleave
-    new Cleave('#cardNum', {
-        creditCard: true,
+    // Uppy
+    const uppy = new Uppy.Uppy({
+        locale: Uppy.locales.vi_VN,
+        restrictions: {
+            maxNumberOfFiles: 1,
+            allowedFileTypes: ['.pdf'],
+        },
     });
 
-    new Cleave('#expireDate', {
-        date: true,
-        dateMin: '2000-01-01',
-        dateMax: '2099-12-31',
-        datePattern: ['Y', 'm', 'd']
+    uppy.use(Uppy.XHRUpload, { 
+        endpoint: '/transaction/{{transaction.product_id}}/upload', 
+        fieldName: 'invoice',
+        formData: true,
     });
 
-    new Cleave('#cvvNum', {
-        blocks: [3],
-        numericOnly: true
+    let dashboardAttached = false;
+
+    document.querySelector('#paymentModal').addEventListener('shown.bs.modal', () => {
+        if (!dashboardAttached) {
+            uppy.use(Uppy.Dashboard, {
+                target: '#uppy',
+                inline: true,
+            });
+            dashboardAttached = true;
+        }
+    });
+
+    let shippingDashboardAttached = false;
+    document.querySelector('#shippingModal').addEventListener('shown.bs.modal', () => {
+        if (!dashboardAttached) {
+            uppy.use(Uppy.Dashboard, {
+                target: '#uppy-shipping',
+                inline: true,
+            });
+            dashboardAttached = true;
+        }
+    });
+
+    let uploaded_invoice = [];
+    uppy.on('upload-success', (file, response) => {
+        if(response.body && Array.isArray(response.body.files)) {
+            response.body.files.forEach( f => {
+                uploaded_invoice.push(f.filename);
+            });
+        }
+        const data = JSON.stringify(uploaded_invoice);
+        document.querySelector('#invoice').value = data;
+        document.querySelector('#invoice-shipping').value = data;
     });
 
     // modal
     document.querySelector('#paymentModal').addEventListener('hidden.bs.modal', e => {
-        document.querySelector('#cardNum').value = "";
-        document.querySelector('#expireDate').value = "";
-        document.querySelector('#cvvNum').value = "";
         document.querySelector('#address').value = "";
+        uppy.cancelAll();
+        uploaded_invoice = [];
+        const invoiceInput = document.querySelector('#invoice');
+        if (invoiceInput) invoiceInput.value = "";
+    });
+
+    document.querySelector('#shippingModal').addEventListener('hidden.bs.modal', e => {
+        uppy.cancelAll();
+        uploaded_invoice = [];
+        const invoiceInput = document.querySelector('#invoice');
+        if (invoiceInput) invoiceInput.value = "";
     });
 
     // submit
@@ -51,7 +96,7 @@
         if (!content) {
             Swal.fire({
                 icon: "info",
-                text: "Vui lòng nhập tin nhắn trước khi gửi.",
+                text: "Vui lòng nhập tin nhắn trước khi gửi",
             });
             return;
         }
@@ -62,26 +107,64 @@
     document.querySelector('#paymentForm').addEventListener('submit', e => {
         e.preventDefault();
 
-        const expireDate = document.querySelector("#expireDate").value;
-        if (!dayjs(expireDate, 'YYYY/MM/DD', true).isValid()) {
+        if (uploaded_invoice.length === 0) {
             Swal.fire({
-                icon: "info",
-                text: "Vui lòng nhập đúng định dạng ngày hết hạn thẻ theo hướng dẫn.",
+                icon: "error",
+                text: "Vui lòng tải lên hoá đơn thanh toán",
             });
             return;
         }
 
-        const cvvNum = document.querySelector("#cvvNum").value;
-        if (cvvNum.length != 3) {
+        const address = document.querySelector('#address').value.trim();
+        if (!address) {
             Swal.fire({
-                icon: "info",
-                text: "Vui lòng nhập đúng định dạng CVV theo hướng dẫn.",
+                icon: "error",
+                text: "Vui lòng nhập địa chỉ giao hàng",
             });
             return;
         }
 
         e.target.submit();
     })
+
+    document.querySelector('#shipForm').addEventListener('submit', e => {
+        e.preventDefault();
+
+        if (uploaded_invoice.length === 0) {
+            Swal.fire({
+                icon: "error",
+                text: "Vui lòng tải lên hoá đơn giao hàng"
+            });
+            return;
+        }
+
+        e.target.submit();
+    });
+
+    document.querySelector('#reviewForm').addEventListener('submit', e => {
+        e.preventDefault();
+
+        const ratingSelected = document.querySelector('input[name="rating"]:checked');
+        const comment = document.querySelector("#comment").value.trim();
+
+        if (!ratingSelected) {
+            Swal.fire({
+                icon: "warning",
+                text: "Vui lòng chọn đánh giá"
+            });
+            return;
+        }
+
+        if (!comment) {
+            Swal.fire({
+                icon: "warning",
+                text: "Vui lòng nhập nhận xét"
+            });
+            return;
+        }
+
+        e.target.submit();
+    });
 
 </script>
 {{/section}}
@@ -109,11 +192,8 @@
                     {{#unless transaction.is_canceled}}
                     {{#if is_seller}}
                         {{#if (eqString transaction.payment_status 'Đã thanh toán')}}
-                        <form action="/transaction/{{transaction.product_id}}/update" method="post">
-                            <input type="hidden" name="txnId" value="{{transaction.transaction_id}}">
-                            <input type="hidden" name="status" value="Đã nhận tiền">
-                            <button type="submit" class="btn btn-primary float-end mb-3 me-3">Xác nhận đã nhận tiền</button>
-                        </form>
+                        <button type="button" class="btn btn-primary float-end"
+                        data-bs-toggle="modal" data-bs-target="#shippingModal">Tải hoá đơn giao hàng</button>
                         {{/if}}
 
                         {{#if (eqString transaction.payment_status 'Chờ thanh toán')}}
@@ -127,16 +207,19 @@
                         {{/if}}
                     {{else}}
                         {{#if (eqString transaction.payment_status 'Đã nhận tiền')}}
+                        <button type="button" class="btn btn-primary float-end mb-3 me-3"
+                            data-bs-toggle="collapse" data-bs-target="#shippingDetailCollapse" 
+                            aria-expanded="false" aria-controls="shippingDetailCollapse">Xem hóa đơn vận chuyển</button>
                         <form action="/transaction/{{transaction.product_id}}/update" method="post">
                             <input type="hidden" name="txnId" value="{{transaction.transaction_id}}">
                             <input type="hidden" name="status" value="Giao dịch hoàn tất">
-                            <button type="submit" class="btn btn-primary float-end">Xác nhận đã nhận hàng</button>
+                            <button type="submit" class="btn btn-primary float-end mb-3 me-3">Xác nhận đã nhận hàng</button>
                         </form>
                         {{/if}}
 
                         {{#if (eqString transaction.payment_status 'Chờ thanh toán')}}
                         <button type="button" class="btn btn-primary float-end"
-                        data-bs-toggle="modal" data-bs-target="#paymentModal">Thanh toán giao dịch</button>
+                        data-bs-toggle="modal" data-bs-target="#paymentModal">Xác nhận thanh toán</button>
                         {{/if}}
                     {{/if}}
                     {{#if (eqString transaction.payment_status 'Giao dịch hoàn tất')}}
@@ -157,10 +240,19 @@
                 <div class="card card-body">
                     <div class="d-flex align-items-center mb-3">
                         <h5 class="fw-semibold mb-0">Hóa đơn: </h5>
-                        <a href="#" class="icon-link"><i class="bi bi-download fs-6 ms-2"></i></a>
+                        <a href="{{transaction.invoice_url}}" download class="icon-link"><i class="bi bi-download fs-6 ms-2"></i></a>
                     </div>
                     <h5 class="fw-semibold">Địa chỉ: </h5>
                     <p>{{transaction.shipping_address}}</p>
+                </div>
+            </div>
+
+            <div class="collapse" id="shippingDetailCollapse">
+                <div class="card card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <h5 class="fw-semibold mb-0">Hóa đơn: </h5>
+                        <a href="{{transaction.shipping_label_url}}" download class="icon-link"><i class="bi bi-download fs-6 ms-2"></i></a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -231,22 +323,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="reviewForm" action="/transaction/{{transaction.product_id}}/rating" method="post">
+                <form id="reviewForm" action="/transaction/{{transaction.product_id}}/rating" method="post" novalidate>
                     <fieldset class="row mb-3">
                         <legend class="col-form-label fw-semibold col-sm-3 pt-0">Đánh giá:</legend>
                         <div class="col-sm-9">
                             <div class="form-check">
                                 <label class="form-check-label" for="plus">(+1)</label>
-                                <input class="form-check-input" type="radio" name="rating" value="1" id="plus" checked required>
+                                <input class="form-check-input" type="radio" name="rating" value="1" id="plus" checked>
                             </div>
                             <div class="form-check">
                                 <label class="form-check-label" for="minus">(-1)</label>
-                                <input class="form-check-input" type="radio" name="rating" value="-1" id="minus" required>
+                                <input class="form-check-input" type="radio" name="rating" value="-1" id="minus">
                             </div>
                         </div>
                     </fieldset>
                     <label for="comment" class="form-label fw-semibold">Nhận xét:</label>
-                    <textarea class="form-control mb-3" id="comment" rows="3" name="comment" required></textarea>
+                    <textarea class="form-control mb-3" id="comment" rows="3" name="comment"></textarea>
                     <input type="hidden" name="sender" value="{{currentUser.user_id}}">
                     {{#if is_seller}}
                     <input type="hidden" name="receiver" value="{{transaction.buyer_id}}">
@@ -267,40 +359,52 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fw-bold fs-4">Thanh toán giao dịch</h1>
+                <h1 class="modal-title fw-bold fs-4">Xác nhận thanh toán</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="paymentForm" action="/transaction/{{transaction.product_id}}/pay" method="post">
-                    <h5 class="fw-semibold">Chi tiết thanh toán:</h5>
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="cardNum" placeholder="Số thẻ" required>
-                        <label for="cardNum">Số thẻ</label>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <div class="form-floating">
-                                <input type="text" class="form-control" id="expireDate" placeholder="Ngày hết hạn" required>
-                                <label for="expireDate">Ngày hết hạn</label>
-                                <div class="form-text">
-                                    Định dạng: YYYY-MM-DD
-                                </div>
-                            </div>
+                <form id="paymentForm" action="/transaction/{{transaction.product_id}}/pay" method="post" novalidate>
+                    <h5 class="fw-semibold mb-3">Chi tiết thanh toán:</h5>
+                    <div class="mb-3">
+                        <label for="invoiceFile" class="form-label">Hoá đơn chuyển tiền <span class="text-danger">*</span></label>
+                        <input type="hidden" id="invoice" name="invoice">
+                        <div id="uppy">
                         </div>
-                        <div class="col-6">
-                            <div class="form-floating">
-                                <input type="text" class="form-control" id="cvvNum" placeholder="CVV (3 chữ số)" required>
-                                <label for="cvvNum">CVV (3 chữ số)</label>
-                            </div>
-                        </div>
+                        
                     </div>
                     <label for="address" class="form-label fw-semibold h5">Địa chỉ giao hàng:</label>
-                    <textarea class="form-control mb-3" id="address" rows="3" name="address" required></textarea>
+                    <textarea class="form-control mb-3" id="address" rows="3" name="address"></textarea>
                     <input type="hidden" name="txnId" value="{{transaction.transaction_id}}">
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-primary" form="paymentForm">Thanh toán</button>
+                <button type="submit" class="btn btn-primary" form="paymentForm">Gửi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="shippingModal" tabindex="-1" aria-labelledby="shippingModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fw-bold fs-4">Hoá đơn giao hàng</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="shipForm" action="/transaction/{{transaction.product_id}}/ship" method="post" novalidate>
+                    <div class="mb-3">
+                        <label for="invoiceFile" class="form-label">Tải hoá đơn <span class="text-danger">*</span></label>
+                        <input type="hidden" id="invoice-shipping" name="invoice">
+                        <div id="uppy-shipping">
+                        </div>
+                    </div>
+                    <input type="hidden" name="txnId" value="{{transaction.transaction_id}}">
+                    <input type="hidden" name="status" value="Đã nhận tiền">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary" form="shipForm">Gửi</button>
             </div>
         </div>
     </div>

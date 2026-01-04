@@ -53,6 +53,7 @@
     {{/if}}
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.querySelectorAll('.remove-watchlist').forEach(btn => {
     btn.addEventListener('click', async function(e) {
@@ -61,9 +62,15 @@ document.querySelectorAll('.remove-watchlist').forEach(btn => {
         
         const productId = this.dataset.productId;
         
-        if (!confirm('Bạn có chắc muốn xóa sản phẩm này khỏi danh sách yêu thích?')) {
-            return;
-        }
+        const result = await Swal.fire({
+            text: 'Bạn có chắc muốn xóa sản phẩm này khỏi danh sách yêu thích?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xác nhận',
+            cancelButtonText: 'Hủy'
+        });
+
+        if (!result.isConfirmed) return;
 
         try {
             const response = await fetch(`/bidder/watchlist/toggle/${productId}`, {
@@ -76,14 +83,23 @@ document.querySelectorAll('.remove-watchlist').forEach(btn => {
             const data = await response.json();
 
             if (data.success) {
-                alert(data.message);
+                await Swal.fire({ 
+                    icon: 'success', 
+                    text: data.message
+                });
                 location.reload();
             } else {
-                alert(data.message);
+                await Swal.fire({ 
+                    icon: 'error', 
+                    text: data.message 
+                });
             }
         } catch (error) {
             console.error(error);
-            alert('Có lỗi xảy ra');
+            await Swal.fire({ 
+                icon: 'error', 
+                text: 'Có lỗi xảy ra' 
+            });
         }
     });
 });

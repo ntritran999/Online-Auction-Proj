@@ -11,6 +11,22 @@ document.getElementById('formEditProfile').addEventListener('submit', async func
         dob: document.getElementById('dob').value,
         address: document.getElementById('address').value
     };
+
+    if (!formData.full_name) {
+        await Swal.fire({ 
+            icon: 'warning', 
+            text: 'Họ tên không được để trống' 
+        });
+        return;
+    }
+
+    if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        await Swal.fire({ 
+            icon: 'warning', 
+            text: 'Email không hợp lệ' 
+        });
+        return;
+    }
     
     try {
         const response = await fetch('/account/profile/edit', {
@@ -100,11 +116,35 @@ document.getElementById('formChangePassword').addEventListener('submit', async f
     };
     
     // Validate
+    if (!formData.old_password || !formData.new_password) {
+        await Swal.fire({ 
+            icon: 'warning', 
+            text: 'Vui lòng nhập đầy đủ mật khẩu cũ và mới' 
+        });
+        return;
+    }
+
+    if (formData.new_password.length < 6 || formData.confirm_password.length < 6) {
+        await Swal.fire({ 
+            icon: 'warning', 
+            text: 'Mật khẩu mới phải có ít nhất 6 ký tự' 
+        });
+        return;
+    }
+
     if (!formData.otp) {
         Swal.fire({
             icon: 'warning',
             title: 'Thiếu OTP',
             text: 'Vui lòng nhấn "Gửi mã OTP" và nhập mã để tiếp tục'
+        });
+        return;
+    }
+
+    if (formData.otp.length != 6) {
+        Swal.fire({
+            icon: 'warning',
+            text: 'OTP không hợp lệ'
         });
         return;
     }
@@ -175,17 +215,17 @@ document.getElementById('formChangePassword').addEventListener('submit', async f
 
 <div class="tab-content">
     <div class="tab-pane fade show active" id="info" role="tabpanel">
-        <form id="formEditProfile">
+        <form id="formEditProfile" novalidate>
             <div class="mb-3">
                 <label for="full_name" class="form-label">Họ và tên <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="full_name" name="full_name" 
-                       value="{{user.full_name}}" required>
+                       value="{{user.full_name}}">
             </div>
             
             <div class="mb-3">
                 <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                 <input type="email" class="form-control" id="email" name="email" 
-                       value="{{user.email}}" required>
+                       value="{{user.email}}">
             </div>
 
             <div class="mb-3">
@@ -216,13 +256,13 @@ document.getElementById('formChangePassword').addEventListener('submit', async f
             Để đổi mật khẩu, bạn cần xác nhận qua mã OTP được gửi đến email.
         </div>
         
-        <form id="formChangePassword">
+        <form id="formChangePassword" novalidate>
             <div class="mb-3">
                 <label for="old_password" class="form-label">
                     Mật khẩu cũ <span class="text-danger">*</span>
                 </label>
                 <input type="password" class="form-control" id="old_password" 
-                       name="old_password" required>
+                       name="old_password">
             </div>
             
             <div class="mb-3">
@@ -230,7 +270,7 @@ document.getElementById('formChangePassword').addEventListener('submit', async f
                     Mật khẩu mới <span class="text-danger">*</span>
                 </label>
                 <input type="password" class="form-control" id="new_password" 
-                       name="new_password" minlength="6" required>
+                       name="new_password">
                 <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
             </div>
             
@@ -239,7 +279,7 @@ document.getElementById('formChangePassword').addEventListener('submit', async f
                     Xác nhận mật khẩu mới <span class="text-danger">*</span>
                 </label>
                 <input type="password" class="form-control" id="confirm_password" 
-                       name="confirm_password" minlength="6" required>
+                       name="confirm_password">
             </div>
             
             <div class="mb-3">
@@ -256,7 +296,7 @@ document.getElementById('formChangePassword').addEventListener('submit', async f
                     Mã OTP <span class="text-danger">*</span>
                 </label>
                 <input type="text" class="form-control" id="otp" name="otp" 
-                       placeholder="Nhập 6 số" maxlength="6">
+                       placeholder="Nhập 6 số">
                 <div class="form-text text-success">
                     Mã OTP đã được gửi đến email của bạn (có hiệu lực 2 phút)
                 </div>

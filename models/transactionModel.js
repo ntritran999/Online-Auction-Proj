@@ -56,6 +56,17 @@ export async function updateTxnPaymentInfo(txn_id, address, invoice_url) {
         console.log(error);
 }
 
+export async function updateTxnShippingLabel(txn_id, shipping_label_url) {
+    const { error } = await supabase
+                            .from('transactions')
+                            .update({ 
+                                shipping_label_url: shipping_label_url
+                            })
+                            .eq('transaction_id', txn_id);
+    if (error)
+        console.log(error);
+}
+
 export async function findRating(proId, sender, receiver) {
     const { data, error } = await supabase
                                 .from('ratings')

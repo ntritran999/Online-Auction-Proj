@@ -3,6 +3,7 @@ import * as categoryModel from '../models/categoryModel.js';
 import * as productModel from '../models/productModel.js';
 import * as userModel from '../models/userModel.js';
 import * as bidModel from '../models/sellerModel.js';
+import { getUserRatings } from '../models/profileModel.js';
 import dayjs from 'dayjs';
 import * as emailService from './emailService.js';
 
@@ -93,8 +94,7 @@ const getProDetails = async (req, res) => {
 
     const pro_details = {
         'product' : product,
-        'main_image': product.image_list[0],
-        'slides': getImageSlides(product.image_list.slice(1)),
+        'slides': getImageSlides(product.image_list),
         'seller' : seller,
         'top_bidder' : top_bidder,
         'related': list,
@@ -117,20 +117,21 @@ const getProsBySearch = async (req, res) => {
     }
 
     const data = matchedData(req);
+    const catId = data.catId;
     const page = data.page || 1;
     const offset = (page - 1) * numPros;
 
     let searchValue = data.item;
     searchValue = searchValue.trim().replace(/\s/g, " & ").toLowerCase();
 
-    const total = await productModel.countProsBySearch(searchValue);
+    const total = await productModel.countProsBySearch(searchValue, catId);
     const page_counts = Math.ceil(total / numPros);
 
     if (page_counts && page > page_counts) {
         return res.render('vwProducts/product_notfound');
     }
     
-    const list = await productModel.findPageBySearch(searchValue, numPros, offset);
+    const list = await productModel.findPageBySearch(searchValue, numPros, offset, catId);
     const product_category = {
         'cat_name' : 'Kết quả tìm kiếm',
         'products' : list,
@@ -140,6 +141,7 @@ const getProsBySearch = async (req, res) => {
         'page_counts': page_counts,
         'page_nums': getPageNums(page_counts),
         'item': data.item,
+        'catId': catId,
     };
     res.render('vwProducts/product', product_category);
 };
@@ -186,5 +188,15 @@ const createAnswer = async (req, res) => {
     res.redirect(req.headers.referer);
 };
 
+const renderRatings = async (req, res) => {
+    const id = req.params.userId;
+    const ratings = await getUserRatings(id);
+    const previousPage = req.headers.referer || '/';
 
-export { getProByCat, getProDetails, getProsBySearch, createQuestion, createAnswer }
+    res.render('vwUser/user_ratings', {
+        ratings: ratings,
+        prevPage: previousPage,
+    });
+};
+
+export { getProByCat, getProDetails, getProsBySearch, createQuestion, createAnswer, renderRatings }

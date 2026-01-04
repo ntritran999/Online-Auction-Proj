@@ -82,8 +82,8 @@
                     </ul>
                     {{/if}}
                 </div>
-                <form class="d-flex" role="search" action="/product/results">
-                    <input class="form-control me-2" type="search" placeholder="Tìm sản phẩm" aria-label="Search"
+                <form id="searchForm" class="d-flex" role="search" action="/product/results">
+                    <input id="search" class="form-control me-2" type="search" placeholder="Tìm sản phẩm" aria-label="Search"
                         name="item" />
                     <button class="btn btn-primary text-nowrap" type="submit">Tìm Kiếm</button>
                 </form>
@@ -118,7 +118,23 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelector('#searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
 
+            const searchInput = e.target.querySelector('#search').value.trim();
+            if (!searchInput) {
+                Swal.fire({
+                    icon: 'info',
+                    text: 'Vui lòng nhập từ khóa tìm kiếm',
+                });
+                return;
+            }
+
+            e.target.submit();
+        });
+    </script>
     {{{_sections.script}}}
 </body>
 

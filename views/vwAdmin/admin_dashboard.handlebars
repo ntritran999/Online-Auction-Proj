@@ -286,8 +286,8 @@
                 <input type="hidden" id="categoryId" name="category_id" />
                 <input type="hidden" id="formMethod" name="_method" value="POST" />
                 <div class="mb-3">
-                    <label class="form-label">Tên danh mục *</label>
-                    <input id="categoryName" name="category_name" class="form-control" required />
+                    <label class="form-label">Tên danh mục <span class="text-danger">*</span></label>
+                    <input id="categoryName" name="category_name" class="form-control"/>
                 </div>
             </div>
             <div class="modal-footer">
@@ -301,7 +301,7 @@
 <!-- User Modal -->
 <div class="modal fade" id="modalUser" tabindex="-1">
     <div class="modal-dialog">
-        <form id="formUser" method="POST" action="/admin/users" class="modal-content">
+        <form id="formUser" method="POST" action="/admin/users" class="modal-content" novalidate>
             <div class="modal-header">
                 <h5 class="modal-title" id="userModalTitle">Thêm user</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -310,15 +310,15 @@
                 <input type="hidden" id="userId" name="user_id" />
                 <input type="hidden" id="userFormMethod" name="_method" value="POST" />
                 <div class="mb-3">
-                    <label class="form-label">Họ tên *</label>
-                    <input id="userFullName" name="full_name" class="form-control" required />
+                    <label class="form-label">Họ tên <span class="text-danger">*</span></label>
+                    <input id="userFullName" name="full_name" class="form-control"/>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Email *</label>
-                    <input id="userEmail" name="email" type="email" class="form-control" required />
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input id="userEmail" name="email" type="email" class="form-control"/>
                 </div>
                 <div class="mb-3" id="passwordGroup">
-                    <label class="form-label">Mật khẩu *</label>
+                    <label class="form-label">Mật khẩu <span class="text-danger">*</span></label>
                     <input id="userPassword" name="password" type="password" class="form-control" />
                 </div>
                 <div class="mb-3">
@@ -364,7 +364,58 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    document.getElementById('formCategory').addEventListener('submit', e => {
+        e.preventDefault();
+        const categoryName = document.getElementById('categoryName').value.trim();
+        
+        if (!categoryName) {
+            Swal.fire({
+                icon: 'error',
+                text: 'Tên danh mục không được để trống'
+            });
+            return;
+        }
+
+        e.target.submit();
+    });
+
+    document.getElementById('formUser').addEventListener('submit', e => {
+        e.preventDefault();
+
+        const fullName = document.getElementById('userFullName').value.trim();
+        const email = document.getElementById('userEmail').value.trim();
+        const password = document.getElementById('userPassword').value;
+        const isEdit = document.getElementById('userId').value !== '';
+
+        if (!fullName || !email) {
+            Swal.fire({ 
+                icon: 'error', 
+                text: 'Vui lòng nhập đầy đủ họ tên và email' 
+            });
+            return;
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            Swal.fire({ 
+                icon: 'error', 
+                text: 'Định dạng email không hợp lệ' 
+            });
+            return;
+        }
+
+        if (!isEdit && password.length < 6) {
+            Swal.fire({ 
+                icon: 'error', 
+                text: 'Mật khẩu phải có ít nhất 6 ký tự' 
+            });
+            return;
+        }
+
+        e.target.submit();
+    });
+
     // Get current page numbers
     const urlParams = new URLSearchParams(window.location.search);
     const catPage = urlParams.get('catPage') || 1;
@@ -445,23 +496,28 @@
 
     // request function
     function approveUpgrade(requestId, userId) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/admin/upgrade-requests/${requestId}/approve`;
-        
-        const userIdInput = document.createElement('input');
-        userIdInput.type = 'hidden';
-        userIdInput.name = 'user_id';
-        userIdInput.value = userId;
-        form.appendChild(userIdInput);
-        
-        document.body.appendChild(form);
-        
-        if (confirm('Duyệt nâng cấp tài khoản thành seller?')) {
-            form.submit();
-        } else {
-            form.remove();
-        }
+        Swal.fire({
+            text: "Duyệt nâng cấp tài khoản thành seller?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/upgrade-requests/${requestId}/approve`;
+                
+                const userIdInput = document.createElement('input');
+                userIdInput.type = 'hidden';
+                userIdInput.name = 'user_id';
+                userIdInput.value = userId;
+                form.appendChild(userIdInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
     }
 
     function rejectUpgrade(requestId) {

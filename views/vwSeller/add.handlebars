@@ -9,7 +9,6 @@
 <script src="https://releases.transloadit.com/uppy/locales/v3.3.1/vi_VN.min.js"></script>
 <script src=" https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js "></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.3.0/dist/purify.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const quill = new Quill('#editor', {
         theme: 'snow'
@@ -82,7 +81,7 @@
         }
         document.querySelector("#productDescription").value = DOMPurify.sanitize(quill.getSemanticHTML());
 
-        const product_name = document.querySelector("#productName").value;
+        const product_name = document.querySelector("#productName").value.trim();
         if (!product_name) {
             Swal.fire({
                 icon: "error",
@@ -168,7 +167,7 @@
 {{/section}}
 
 <div class="container">
-    <form id="addProductForm" action="" method="post">
+    <form id="addProductForm" action="" method="post" novalidate>
         <div class="card my-3">
             <h5 class="card-header fw-bold">Đăng sản phẩm mới</h5>
             <div class="card-body">

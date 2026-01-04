@@ -10,26 +10,26 @@
         <div class="alert alert-danger text-center">{{error}}</div>
         {{/if}}
 
-        <form method="POST" action="/admin/others" class="p-4 shadow rounded bg-white">
+        <form id="configForm" method="POST" action="/admin/others" class="p-4 shadow rounded bg-white" novalidate>
 
             <div class="mb-3">
                 <label class="form-label">High Light Time (ms)</label>
-                <input type="number" name="highLightTime" class="form-control" value="{{config.highLightTime}}">
+                <input id="highlight" type="number" name="highLightTime" class="form-control" value="{{config.highLightTime}}">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Relative Time Days</label>
-                <input type="number" name="relativeTimeDays" class="form-control" value="{{config.relativeTimeDays}}">
+                <input id="relative" type="number" name="relativeTimeDays" class="form-control" value="{{config.relativeTimeDays}}">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Extend Boundary (ms)</label>
-                <input type="number" name="extendBoundary" class="form-control" value="{{config.extendBoundary}}">
+                <input id="boundary" type="number" name="extendBoundary" class="form-control" value="{{config.extendBoundary}}">
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Extend Time (ms)</label>
-                <input type="number" name="extendTime" class="form-control" value="{{config.extendTime}}">
+                <input id="extend" type="number" name="extendTime" class="form-control" value="{{config.extendTime}}">
             </div>
 
             <button type="submit" class="btn btn-success w-100 mt-3">Lưu cấu hình</button>
@@ -37,3 +37,36 @@
         </form>
     </div>
 </div>
+
+
+{{#section 'script'}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.querySelector('#configForm').addEventListener('submit', e => {
+        e.preventDefault();
+
+        const highlight = document.querySelector('#highlight').value;
+        const relative = document.querySelector('#relative').value;
+        const boundary = document.querySelector('#boundary').value;
+        const extend = document.querySelector('#extend').value;
+
+        if (!highlight || !relative || !boundary || !extend) {
+            Swal.fire({
+                icon: 'error',
+                text: 'Vui lòng nhập đầy đủ các thông số cấu hình'
+            });
+            return;
+        }
+
+        if (highlight <= 0 || relative <= 0 || boundary <= 0 || extend <= 0) {
+            Swal.fire({
+                icon: 'error',
+                text: 'Các thông số thời gian phải lớn hơn 0'
+            });
+            return;
+        }
+
+        e.target.submit();
+    });
+</script>
+{{/section }}

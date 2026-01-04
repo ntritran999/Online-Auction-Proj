@@ -332,18 +332,13 @@ begin
     end loop;
 end $$;
 
-insert into transactions (product_id, buyer_id, seller_id, invoice_url, shipping_address, payment_status)
-values
-(1, 2, 1, 'https://example.com/invoice/hd_1.pdf', 'Đà Nẵng', 'Đã thanh toán'),
-(3, 3, 1, 'https://example.com/invoice/hd_2.pdf', 'TP. Hồ Chí Minh', 'Đang giao hàng'),
-(6, 4, 5, 'https://example.com/invoice/hd_3.pdf', 'Huế', 'Đã thanh toán'),
-(9, 7, 5, 'https://example.com/invoice/hd_4.pdf', 'TP. Hồ Chí Minh', 'Chờ thanh toán'),
-(11, 9, 8, 'https://example.com/invoice/hd_5.pdf', 'Hải Phòng', 'Đã giao thành công'),
-(13, 3, 8, 'https://example.com/invoice/hd_6.pdf', 'TP. Hồ Chí Minh', 'Đã thanh toán'),
-(16, 4, 5, 'https://example.com/invoice/hd_7.pdf', 'Huế', 'Đang giao hàng'),
-(18, 7, 1, 'https://example.com/invoice/hd_8.pdf', 'TP. Hồ Chí Minh', 'Đã giao thành công'),
-(20, 6, 5, 'https://example.com/invoice/hd_9.pdf', 'Cần Thơ', 'Chờ thanh toán'),
-(23, 2, 1, 'https://example.com/invoice/hd_10.pdf', 'Đà Nẵng', 'Đã thanh toán');
+insert into autobids (product_id, bidder_id, max_bid)
+select distinct on (product_id)
+    product_id,
+    bidder_id,
+    bid_amount
+from bids
+order by product_id, bid_amount desc, created_at asc;
 
 insert into emailnotifications (user_id, subject, message)
 values
@@ -357,17 +352,6 @@ values
 (8, 'Tin nhắn mới từ người mua', 'Người mua Trần Thị B vừa gửi tin nhắn hỏi về "Đồng hồ Casio nam".'),
 (6, 'Sản phẩm mới từ người bán yêu thích', 'Người bán Nguyễn Văn A vừa đăng sản phẩm mới: "Kính mát Rayban".'),
 (10, 'Báo cáo hệ thống hàng tuần', 'Toàn hệ thống hoạt động ổn định, không phát sinh lỗi nghiêm trọng.');
-
-
-
-insert into chatmessages (transaction_id, sender_id, message_text)
-values
-(1, 2, 'Chào anh, cho em hỏi khi nào hàng được giao ạ?'),
-(1, 1, 'Chào bạn, hàng sẽ được giao trong 2 ngày tới nhé.'),
-(3, 3, 'Em đã chuyển khoản, anh kiểm tra giúp em nhé.'),
-(3, 1, 'Anh nhận được rồi, cảm ơn em!'),
-(5, 9, 'Máy hoạt động tốt, cảm ơn shop nhiều!'),
-(5, 8, 'Cảm ơn bạn đã mua hàng, hẹn gặp lại!');
 
 
 insert into systemconfig (key, value)

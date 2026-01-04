@@ -1,10 +1,22 @@
 {{#section 'script'}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.querySelectorAll('.formDeny').forEach(form => form.addEventListener('submit', e => {
+    document.querySelectorAll('.formDeny').forEach(form => form.addEventListener('submit', async function(e) {
         e.preventDefault();
-        e.submitter.parentNode.innerHTML = `<span class="text-muted">Đã từ chối</span>`;
-        e.target.submit();
+            const result = await Swal.fire({
+            title: 'Xác nhận?',
+            text: 'Bạn có chắc chắn muốn từ chối bidder này? Sau khi từ chối, họ không thể tiếp tục đấu giá sản phẩm này.',
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: 'Hủy',
+            confirmButtonText: 'Từ chối'
+        });
+
+        if (result.isConfirmed) {
+            const container = e.submitter.parentNode;
+            container.innerHTML = `<span class="text-muted">Đang xử lý...</span>`;
+            
+            e.target.submit();
+        }
     }));
 
     const formQuestion = document.querySelector("#formQuestion");
@@ -84,13 +96,23 @@
                         icon.classList.remove('bi-heart-fill');
                         icon.classList.add('bi-heart');
                     }
-                    alert(data.message);
+
+                    await Swal.fire({ 
+                        icon: 'success', 
+                        text: data.message
+                    });
                 } else {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'error', 
+                        text: data.message 
+                    });
                 }
             } catch (error) {
                 console.error(error);
-                alert('Có lỗi xảy ra');
+                await Swal.fire({ 
+                    icon: 'error', 
+                    text: 'Có lỗi xảy ra' 
+                });
             }
         });
         {{#unless isSeller}}
@@ -132,9 +154,15 @@
                 return;
             }
 
-            if (!confirm(`Bạn có chắc chắn muốn đặt giá tối đa là ${bidAmount.toLocaleString('vi-VN')} VNĐ?`)) {
-                return;
-            }
+            const result = await Swal.fire({
+                text: `Bạn có chắc chắn muốn đặt giá tối đa là ${bidAmount.toLocaleString('vi-VN')} VNĐ?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy'
+            });
+
+            if (!result.isConfirmed) return;
 
             try {
                 const response = await fetch('/bidder/bid', {
@@ -146,7 +174,10 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'success', 
+                        text: data.message
+                    });
                     
                     document.getElementById('currentPrice').textContent = 
                         data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
@@ -162,11 +193,17 @@
                         location.reload();
                     }, 1000);
                 } else {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'error', 
+                        text: data.message 
+                    });
                 }
             } catch (error) {
                 console.error(error);
-                alert('Có lỗi xảy ra khi đặt giá');
+                await Swal.fire({ 
+                    icon: 'error', 
+                    text: 'Có lỗi xảy ra khi đặt giá' 
+                });
             }
         });
 
@@ -183,7 +220,10 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'success', 
+                        text: data.message
+                    });
                     
                     document.getElementById('currentPrice').textContent = 
                         data.newPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
@@ -195,11 +235,17 @@
                     
                     setTimeout(() => location.reload(), 1000);
                 } else {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'error', 
+                        text: data.message 
+                    });
                 }
             } catch (error) {
                 console.error(error);
-                alert('Có lỗi xảy ra khi đặt giá');
+                await Swal.fire({ 
+                    icon: 'error', 
+                    text: 'Có lỗi xảy ra khi đặt giá' 
+                });
             }
         }) ;
         {{/unless}}
@@ -458,7 +504,7 @@
                         <div class="d-flex flex-start mt-4">
                             <div class="collapse w-100" id="collapse">
                                 <div class="card card-body">
-                                    <form id="formAnswer" action="/product/answer" method="post">
+                                    <form id="formAnswer" action="/product/answer" method="post" novalidate>
                                         <textarea id="answer" class="form-control mb-3" rows="3" name="answer_text"></textarea>
                                         <input type="hidden" name="question_id" value="{{question_id}}">
                                         <button type="submit" class="btn btn-primary float-end">Đăng câu trả lời</button>
@@ -505,7 +551,7 @@
             {{#unless isSeller}}
             <hr class="mb-3">
             <div class="card-body p-4 mb-3">
-                <form id="formQuestion" action="/product/question" method="post">
+                <form id="formQuestion" action="/product/question" method="post" novalidate>
                     <label for="question" class="form-label fw-semibold">Đặt câu hỏi</label>
                     <textarea class="form-control mb-3" id="question" rows="3" name="question_text"></textarea>
                     <input type="hidden" name="product_id" value="{{product.product_id}}">

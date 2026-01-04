@@ -88,14 +88,23 @@
                         icon.classList.remove('bi-heart-fill');
                         icon.classList.add('bi-heart');
                     }
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'success', 
+                        text: data.message
+                    });
                 } else {
-                    alert(data.message);
+                    await Swal.fire({ 
+                        icon: 'error', 
+                        text: data.message 
+                    });
                 }
 
             } catch (err) {
                 console.error(err);
-                alert("Có lỗi xảy ra");
+                await Swal.fire({ 
+                    icon: 'error', 
+                    text: 'Có lỗi xảy ra' 
+                });
             }
         }
     });

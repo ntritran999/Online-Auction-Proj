@@ -5,7 +5,6 @@
 {{#section 'script'}}
 <script src="https://releases.transloadit.com/uppy/v3.17.0/uppy.min.js"></script>
 <script src="https://releases.transloadit.com/uppy/locales/v3.3.1/vi_VN.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.19/dayjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.19/plugin/customParseFormat.js"></script>
 <script>
@@ -97,7 +96,7 @@
         if (!content) {
             Swal.fire({
                 icon: "info",
-                text: "Vui lòng nhập tin nhắn trước khi gửi.",
+                text: "Vui lòng nhập tin nhắn trước khi gửi",
             });
             return;
         }
@@ -111,13 +110,61 @@
         if (uploaded_invoice.length === 0) {
             Swal.fire({
                 icon: "error",
-                text: "Vui lòng tải lên hoá đơn thanh toán.",
+                text: "Vui lòng tải lên hoá đơn thanh toán",
+            });
+            return;
+        }
+
+        const address = document.querySelector('#address').value.trim();
+        if (!address) {
+            Swal.fire({
+                icon: "error",
+                text: "Vui lòng nhập địa chỉ giao hàng",
             });
             return;
         }
 
         e.target.submit();
     })
+
+    document.querySelector('#shipForm').addEventListener('submit', e => {
+        e.preventDefault();
+
+        if (uploaded_invoice.length === 0) {
+            Swal.fire({
+                icon: "error",
+                text: "Vui lòng tải lên hoá đơn giao hàng"
+            });
+            return;
+        }
+
+        e.target.submit();
+    });
+
+    document.querySelector('#reviewForm').addEventListener('submit', e => {
+        e.preventDefault();
+
+        const ratingSelected = document.querySelector('input[name="rating"]:checked');
+        const comment = document.querySelector("#comment").value.trim();
+
+        if (!ratingSelected) {
+            Swal.fire({
+                icon: "warning",
+                text: "Vui lòng chọn đánh giá"
+            });
+            return;
+        }
+
+        if (!comment) {
+            Swal.fire({
+                icon: "warning",
+                text: "Vui lòng nhập nhận xét"
+            });
+            return;
+        }
+
+        e.target.submit();
+    });
 
 </script>
 {{/section}}
@@ -276,22 +323,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="reviewForm" action="/transaction/{{transaction.product_id}}/rating" method="post">
+                <form id="reviewForm" action="/transaction/{{transaction.product_id}}/rating" method="post" novalidate>
                     <fieldset class="row mb-3">
                         <legend class="col-form-label fw-semibold col-sm-3 pt-0">Đánh giá:</legend>
                         <div class="col-sm-9">
                             <div class="form-check">
                                 <label class="form-check-label" for="plus">(+1)</label>
-                                <input class="form-check-input" type="radio" name="rating" value="1" id="plus" checked required>
+                                <input class="form-check-input" type="radio" name="rating" value="1" id="plus" checked>
                             </div>
                             <div class="form-check">
                                 <label class="form-check-label" for="minus">(-1)</label>
-                                <input class="form-check-input" type="radio" name="rating" value="-1" id="minus" required>
+                                <input class="form-check-input" type="radio" name="rating" value="-1" id="minus">
                             </div>
                         </div>
                     </fieldset>
                     <label for="comment" class="form-label fw-semibold">Nhận xét:</label>
-                    <textarea class="form-control mb-3" id="comment" rows="3" name="comment" required></textarea>
+                    <textarea class="form-control mb-3" id="comment" rows="3" name="comment"></textarea>
                     <input type="hidden" name="sender" value="{{currentUser.user_id}}">
                     {{#if is_seller}}
                     <input type="hidden" name="receiver" value="{{transaction.buyer_id}}">
@@ -316,7 +363,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="paymentForm" action="/transaction/{{transaction.product_id}}/pay" method="post">
+                <form id="paymentForm" action="/transaction/{{transaction.product_id}}/pay" method="post" novalidate>
                     <h5 class="fw-semibold mb-3">Chi tiết thanh toán:</h5>
                     <div class="mb-3">
                         <label for="invoiceFile" class="form-label">Hoá đơn chuyển tiền <span class="text-danger">*</span></label>
@@ -326,7 +373,7 @@
                         
                     </div>
                     <label for="address" class="form-label fw-semibold h5">Địa chỉ giao hàng:</label>
-                    <textarea class="form-control mb-3" id="address" rows="3" name="address" required></textarea>
+                    <textarea class="form-control mb-3" id="address" rows="3" name="address"></textarea>
                     <input type="hidden" name="txnId" value="{{transaction.transaction_id}}">
                 </form>
             </div>
@@ -345,7 +392,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="shipForm" action="/transaction/{{transaction.product_id}}/ship" method="post">
+                <form id="shipForm" action="/transaction/{{transaction.product_id}}/ship" method="post" novalidate>
                     <div class="mb-3">
                         <label for="invoiceFile" class="form-label">Tải hoá đơn <span class="text-danger">*</span></label>
                         <input type="hidden" id="invoice-shipping" name="invoice">

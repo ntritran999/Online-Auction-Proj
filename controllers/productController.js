@@ -93,8 +93,7 @@ const getProDetails = async (req, res) => {
 
     const pro_details = {
         'product' : product,
-        'main_image': product.image_list[0],
-        'slides': getImageSlides(product.image_list.slice(1)),
+        'slides': getImageSlides(product.image_list),
         'seller' : seller,
         'top_bidder' : top_bidder,
         'related': list,

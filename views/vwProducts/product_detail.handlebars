@@ -265,8 +265,23 @@
 <div class="container-md my-5">
     <div class="row">
         <div class="col-md-7 mb-3 m-md-0">
-            <div class="bg-body-secondary rounded mb-3" style="height: 500px;">
-                <img src="{{main_image.image_url}}" alt="" class="object-fit-contain h-100 w-100 p-5">
+            <div id="mainCarousel" class="carousel carousel-dark slide bg-body-secondary rounded mb-3" data-bs-ride="carousel">
+                <div class="carousel-inner" style="height: 500px;">
+                    {{#each product.image_list}}
+                    <div class="carousel-item h-100 {{#if (eq @index 0)}}active{{/if}}">
+                        <img src="{{image_url}}" alt="product image" class="object-fit-contain h-100 w-100 p-5"
+                            data-bs-toggle="modal" data-bs-target="#img{{@index}}">
+                    </div>
+                    {{/each}}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
             </div>
 
             <div id="carouselId" class="carousel carousel-dark slide">
@@ -309,6 +324,9 @@
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <h5 class="fw-bold">{{product.product_name}}</h5>
                 {{#if isAuthenticated}}
+                {{#if (eq product.highest_bidder currentUser.user_id)}}
+                <span class="badge text-bg-success me-3 mb-3">Bạn đang giữ giá</span>
+                {{/if}}
                 <button class="btn btn-outline-danger btn-sm" id="watchlistBtn" data-product-id="{{product.product_id}}">
                     <i class="bi bi-heart" id="watchlistIcon"></i>
                 </button>

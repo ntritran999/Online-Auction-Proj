@@ -66,7 +66,10 @@ const uploadProduct = async (req, res) => {
 };
 
 const updateDescription = async (req, res) => {
-    await proModel.updateProDescription(req.params.id, req.body.description);
+    const productId = req.params.id;
+    await proModel.updateProDescription(productId, req.body.description);
+    emailService.sendDescriptionChangedEmail(productId)
+        .catch(err => console.error('Lỗi gửi email cập nhật mô tả:', err));
     res.render('vwSeller/update_description');
 };
 

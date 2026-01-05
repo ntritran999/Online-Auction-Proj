@@ -30,4 +30,5 @@ router.post('/upgrade-requests/:id/reject', adminController.rejectUpgrade);
 router.get('/others', adminController.renderAdminConfig);
 router.post('/others', adminController.updateAdminConfig);
 
+router.post('/users/:id/reset-password', adminController.resetUserPassword);
 export default router;

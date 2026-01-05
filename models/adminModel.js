@@ -255,3 +255,13 @@ export async function updateSystemConfig(key, value) {
         .single();
     return { data, error };
 }
+
+export async function updateUserPassword(user_id, password_hash) {
+    const { data, error } = await supabase
+        .from('users')
+        .update({ password_hash })
+        .eq('user_id', user_id)
+        .select()
+        .single();
+    return { data, error };
+}

@@ -1,5 +1,7 @@
 import bcrypt from 'bcrypt';
 import * as adminModel from '../models/adminModel.js';
+import { findUserById } from '../models/userModel.js';
+import { generateRandomPassword, sendNewPasswordEmail } from './otp.js';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -329,5 +331,39 @@ export async function updateAdminConfig(req, res) {
         res.redirect('/admin/others?success=Updated successfully');
     } catch (error) {
         res.redirect('/admin/others?error=' + encodeURIComponent(error.message));
+    }
+}
+
+
+export async function resetUserPassword(req, res) {
+    const userId = req.params.id;
+
+    try {
+        const user = await findUserById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+        }
+
+        const newRawPassword = generateRandomPassword();
+        const hashedPassword = await bcrypt.hash(newRawPassword, 10);
+
+        const { error: updateError } = await adminModel.updateUserPassword(userId, hashedPassword);
+        if (updateError) {
+            return res.status(500).json({ success: false, message: 'Không thể cập nhật DB' });
+        }
+
+        await sendNewPasswordEmail(user.email, newRawPassword);
+
+        return res.json({ 
+            success: true, 
+            message: 'Mật khẩu đã được reset và gửi tới email người dùng.' 
+        });
+
+    } catch (err) {
+        console.error('Reset Password Error:', err);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Có lỗi xảy ra trong quá trình reset mật khẩu.' 
+        });
     }
 }

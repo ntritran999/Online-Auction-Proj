@@ -278,3 +278,48 @@ export async function sendAnswerPostedEmails(productId, questionId) {
   }
 }
 
+export async function sendDescriptionChangedEmail(productId) {
+  try {
+    const product = await productModel.findProById(productId);
+    if (!product) return;
+
+    const productLink = `${BASE_URL}/product/details/${productId}`;
+    const bidHistory = await productModel.getBidHistory(productId);
+    
+    const recipients = new Set();
+    if (bidHistory?.data) {
+      for (const bid of bidHistory.data) {
+        const bidder = await userModel.findUserById(bid.bidder_id);
+        if (bidder?.email) recipients.add(bidder.email);
+      }
+    }
+
+    if (recipients.size === 0) return;
+
+    const emailList = Array.from(recipients);
+
+    const emailPromises = emailList.map(email => 
+      transporter.sendMail({
+        from: adminGmail,
+        to: email,
+        subject: `📝 Cập nhật mô tả: "${product.product_name}"`,
+        html: `
+          <p>Sản phẩm <b>${product.product_name}</b> vừa có thông tin bổ sung từ người bán.</p>
+          <a href="${productLink}">Nhấn vào đây để xem chi tiết</a>
+        `,
+      })
+    );
+
+    const results = await Promise.allSettled(emailPromises);
+    
+    const successfulEmails = emailList.filter((_, index) => results[index].status === 'fulfilled');
+
+    if (successfulEmails.length > 0) {
+      await emailLogModel.logEmail(productId, "description_changed", successfulEmails);
+    }
+    
+    console.log(`Đã gửi thông báo cập nhật mô tả cho ${recipients.size} bidders.`);
+  } catch (err) {
+    console.error("sendDescriptionChangedEmail error:", err);
+  }
+}

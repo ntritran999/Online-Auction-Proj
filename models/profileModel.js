@@ -20,12 +20,17 @@ export async function getUserById(userId) {
 // Cập nhật thông tin cá nhân (không password)
 export async function updateUserInfo(userId, { full_name, email, dob, address }) {
 
-    const { data, error } = await supabase
-        .from('users')
-        .update({ full_name, email, dob, address })
-        .eq('user_id', userId)
-        .select()
-        .single();
+    let query = supabase.from('users');
+    if (!dob) {
+        query = query.update({ full_name, email, address });
+    }
+    else {
+        query = query.update({ full_name, email, dob, address });
+    }
+    const { data, error } = await query
+                            .eq('user_id', userId)
+                            .select()
+                            .single();
     
     if (error) {
         console.log(error);

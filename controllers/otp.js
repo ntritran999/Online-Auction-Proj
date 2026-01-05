@@ -66,4 +66,24 @@ const cleanExpiredOTPs = async () => {
   
 };
 
-export {sendOTP, verifyOTP, cleanExpiredOTPs}
+const generateRandomPassword = () => {
+  return crypto.randomBytes(4).toString('hex');
+};
+
+
+const sendNewPasswordEmail = async (email, newPassword) => {
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: '[Admin] Đặt lại mật khẩu thành công',
+        html: `
+            <p>Chào bạn,</p>
+            <p>Quản trị viên đã đặt lại mật khẩu cho tài khoản của bạn.</p>
+            <p>Mật khẩu mới là: <strong>${newPassword}</strong></p>
+            <p>Vui lòng đăng nhập và đổi mật khẩu ngay để đảm bảo an toàn.</p>
+        `
+    };
+    return transporter.sendMail(mailOptions);
+};
+
+export {sendOTP, verifyOTP, cleanExpiredOTPs, generateRandomPassword, sendNewPasswordEmail}

@@ -335,6 +335,9 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" id="btnResetPassword" class="btn btn-danger d-none" onclick="handleResetPassword()">
+                    <i class="bi bi-key"></i> Reset Mật khẩu
+                </button>
                 <button type="submit" class="btn btn-primary">Lưu</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
             </div>
@@ -470,17 +473,20 @@
 
         const passwordGroup = document.getElementById('passwordGroup');
         const passwordInput = document.getElementById('userPassword');
+        const btnReset = document.getElementById('btnResetPassword');
         
         if (id) {
             form.action = `/admin/users/${id}?userPage=${userPage}`;
             document.getElementById('userFormMethod').value = 'PUT';
             passwordGroup.classList.add('d-none');
             passwordInput.removeAttribute('required');
+            btnReset.classList.remove('d-none');
         } else {
             form.action = `/admin/users?userPage=${userPage}`;
             document.getElementById('userFormMethod').value = 'POST';
             passwordGroup.classList.remove('d-none');
             passwordInput.setAttribute('required', '');
+            btnReset.classList.add('d-none');
         }
 
         new bootstrap.Modal(document.getElementById('modalUser')).show();
@@ -538,5 +544,38 @@
             bsAlert.close();
         });
     }, 5000);
+
+    function handleResetPassword() {
+        const userId = document.getElementById('userId').value;
+        const userEmail = document.getElementById('userEmail').value;
+
+        Swal.fire({
+            title: 'Xác nhận reset mật khẩu?',
+            text: `Hệ thống sẽ tạo mật khẩu ngẫu nhiên và gửi về email: ${userEmail}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xác nhận Reset',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/admin/users/${userId}/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Thành công!', 'Mật khẩu mới đã được gửi tới email người dùng.', 'success');
+                    } else {
+                        Swal.fire('Lỗi!', data.message || 'Không thể reset mật khẩu.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire('Lỗi!', 'Có lỗi xảy ra trong quá trình xử lý.', 'error');
+                });
+            }
+        });
+    }
 </script>
 {{/section}}
